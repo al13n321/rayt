@@ -7,27 +7,112 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8C76B7D1149B88220088672F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C76B7D0149B88220088672F /* main.cpp */; };
-		8C76B7D3149B88220088672F /* rayt.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8C76B7D2149B88220088672F /* rayt.1 */; };
+		8C76B7DB149B8B220088672F /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C76B7D9149B8B220088672F /* OpenCL.framework */; };
+		8C76B7DC149B8B220088672F /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C76B7DA149B8B220088672F /* OpenGL.framework */; };
+		8C76B7DE149B8B2A0088672F /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C76B7DD149B8B2A0088672F /* GLUT.framework */; };
+		8C76B820149BA67B0088672F /* pass.frag in Sources */ = {isa = PBXBuildFile; fileRef = 8C76B7FE149BA67B0088672F /* pass.frag */; };
+		8C76B821149BA67B0088672F /* pass.vert in Sources */ = {isa = PBXBuildFile; fileRef = 8C76B7FF149BA67B0088672F /* pass.vert */; };
+		8C76B82E149BB0620088672F /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C76B82D149BB0620088672F /* libGLEW.a */; };
+		8C9DB53214A3AFCB00BF3DBE /* mat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB52814A3AFCB00BF3DBE /* mat.cpp */; };
+		8C9DB53314A3AFCB00BF3DBE /* statistical-value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB52B14A3AFCB00BF3DBE /* statistical-value.cpp */; };
+		8C9DB53414A3AFCB00BF3DBE /* string-util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB52D14A3AFCB00BF3DBE /* string-util.cpp */; };
+		8C9DB53514A3AFCB00BF3DBE /* test-stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB52F14A3AFCB00BF3DBE /* test-stopwatch.cpp */; };
+		8C9DB54514A3B51600BF3DBE /* compact-octree-nodes-pool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB54014A3B51600BF3DBE /* compact-octree-nodes-pool.cpp */; };
+		8C9DB54614A3B51600BF3DBE /* compact-octree-statistics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB54214A3B51600BF3DBE /* compact-octree-statistics.cpp */; };
+		8C9DB54914A3B51F00BF3DBE /* compact-mesh-generation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB54714A3B51F00BF3DBE /* compact-mesh-generation.cpp */; };
+		8C9DB54D14A3B52600BF3DBE /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB54A14A3B52600BF3DBE /* main.cpp */; };
+		8C9DB54E14A3B52600BF3DBE /* test-application.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB54B14A3B52600BF3DBE /* test-application.cpp */; };
+		8C9DB55414A3B52D00BF3DBE /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB54F14A3B52D00BF3DBE /* camera.cpp */; };
+		8C9DB55514A3B52D00BF3DBE /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB55214A3B52D00BF3DBE /* scene.cpp */; };
+		8C9DB55C14A3B53400BF3DBE /* quad-renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB55614A3B53400BF3DBE /* quad-renderer.cpp */; };
+		8C9DB55D14A3B53400BF3DBE /* shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB55814A3B53400BF3DBE /* shader.cpp */; };
+		8C9DB55E14A3B53400BF3DBE /* texture2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB55A14A3B53400BF3DBE /* texture2d.cpp */; };
+		8C9DB56B14A3B53D00BF3DBE /* cpu-rendered-image-buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB55F14A3B53D00BF3DBE /* cpu-rendered-image-buffer.cpp */; };
+		8C9DB56C14A3B53D00BF3DBE /* cpu-rendered-image-drawer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB56114A3B53D00BF3DBE /* cpu-rendered-image-drawer.cpp */; };
+		8C9DB56D14A3B53D00BF3DBE /* cpu-rendering.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB56314A3B53D00BF3DBE /* cpu-rendering.cpp */; };
+		8C9DB56E14A3B53D00BF3DBE /* debug-ray-cast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB56514A3B53D00BF3DBE /* debug-ray-cast.cpp */; };
+		8C9DB56F14A3B53D00BF3DBE /* ray-cast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB56714A3B53D00BF3DBE /* ray-cast.cpp */; };
+		8C9DB57014A3B53D00BF3DBE /* render-statistics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB56914A3B53D00BF3DBE /* render-statistics.cpp */; };
+		8C9DB58214A3DAD000BF3DBE /* cl-buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB58014A3DAD000BF3DBE /* cl-buffer.cpp */; };
+		8C9DB58714A3DADB00BF3DBE /* gpu-octree-channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB58314A3DADB00BF3DBE /* gpu-octree-channel.cpp */; };
+		8C9DB58814A3DADB00BF3DBE /* gpu-octree-data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB58514A3DADB00BF3DBE /* gpu-octree-data.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		8C76B7CA149B88220088672F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
-				8C76B7D3149B88220088672F /* rayt.1 in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		8C76B7CC149B88220088672F /* rayt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rayt; sourceTree = BUILT_PRODUCTS_DIR; };
-		8C76B7D0149B88220088672F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		8C76B7D2149B88220088672F /* rayt.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = rayt.1; sourceTree = "<group>"; };
+		8C76B7D9149B8B220088672F /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
+		8C76B7DA149B8B220088672F /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		8C76B7DD149B8B2A0088672F /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		8C76B7FA149BA67B0088672F /* log.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = log.txt; sourceTree = "<group>"; };
+		8C76B7FE149BA67B0088672F /* pass.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = pass.frag; sourceTree = "<group>"; };
+		8C76B7FF149BA67B0088672F /* pass.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = pass.vert; sourceTree = "<group>"; };
+		8C76B82D149BB0620088672F /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = ../../../../../../../opt/local/lib/libGLEW.a; sourceTree = "<group>"; };
+		8C9DB52514A3AFCB00BF3DBE /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = util/array.h; sourceTree = "<group>"; };
+		8C9DB52614A3AFCB00BF3DBE /* color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = color.h; path = util/color.h; sourceTree = "<group>"; };
+		8C9DB52714A3AFCB00BF3DBE /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = util/common.h; sourceTree = "<group>"; };
+		8C9DB52814A3AFCB00BF3DBE /* mat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mat.cpp; path = util/mat.cpp; sourceTree = "<group>"; };
+		8C9DB52914A3AFCB00BF3DBE /* mat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mat.h; path = util/mat.h; sourceTree = "<group>"; };
+		8C9DB52A14A3AFCB00BF3DBE /* math-util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "math-util.h"; path = "util/math-util.h"; sourceTree = "<group>"; };
+		8C9DB52B14A3AFCB00BF3DBE /* statistical-value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "statistical-value.cpp"; path = "util/statistical-value.cpp"; sourceTree = "<group>"; };
+		8C9DB52C14A3AFCB00BF3DBE /* statistical-value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "statistical-value.h"; path = "util/statistical-value.h"; sourceTree = "<group>"; };
+		8C9DB52D14A3AFCB00BF3DBE /* string-util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "string-util.cpp"; path = "util/string-util.cpp"; sourceTree = "<group>"; };
+		8C9DB52E14A3AFCB00BF3DBE /* string-util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "string-util.h"; path = "util/string-util.h"; sourceTree = "<group>"; };
+		8C9DB52F14A3AFCB00BF3DBE /* test-stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "test-stopwatch.cpp"; path = "util/test-stopwatch.cpp"; sourceTree = "<group>"; };
+		8C9DB53014A3AFCB00BF3DBE /* test-stopwatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "test-stopwatch.h"; path = "util/test-stopwatch.h"; sourceTree = "<group>"; };
+		8C9DB53114A3AFCB00BF3DBE /* vec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vec.h; path = util/vec.h; sourceTree = "<group>"; };
+		8C9DB53F14A3B50B00BF3DBE /* intersections.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = intersections.h; path = util/intersections.h; sourceTree = "<group>"; };
+		8C9DB54014A3B51600BF3DBE /* compact-octree-nodes-pool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "compact-octree-nodes-pool.cpp"; path = "CPU data/compact-octree-nodes-pool.cpp"; sourceTree = "<group>"; };
+		8C9DB54114A3B51600BF3DBE /* compact-octree-nodes-pool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "compact-octree-nodes-pool.h"; path = "CPU data/compact-octree-nodes-pool.h"; sourceTree = "<group>"; };
+		8C9DB54214A3B51600BF3DBE /* compact-octree-statistics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "compact-octree-statistics.cpp"; path = "CPU data/compact-octree-statistics.cpp"; sourceTree = "<group>"; };
+		8C9DB54314A3B51600BF3DBE /* compact-octree-statistics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "compact-octree-statistics.h"; path = "CPU data/compact-octree-statistics.h"; sourceTree = "<group>"; };
+		8C9DB54414A3B51600BF3DBE /* compact-octree-structures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "compact-octree-structures.h"; path = "CPU data/compact-octree-structures.h"; sourceTree = "<group>"; };
+		8C9DB54714A3B51F00BF3DBE /* compact-mesh-generation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "compact-mesh-generation.cpp"; path = "scene sources/compact-mesh-generation.cpp"; sourceTree = "<group>"; };
+		8C9DB54814A3B51F00BF3DBE /* compact-mesh-generation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "compact-mesh-generation.h"; path = "scene sources/compact-mesh-generation.h"; sourceTree = "<group>"; };
+		8C9DB54A14A3B52600BF3DBE /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = application/main.cpp; sourceTree = "<group>"; };
+		8C9DB54B14A3B52600BF3DBE /* test-application.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "test-application.cpp"; path = "application/test-application.cpp"; sourceTree = "<group>"; };
+		8C9DB54C14A3B52600BF3DBE /* test-application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "test-application.h"; path = "application/test-application.h"; sourceTree = "<group>"; };
+		8C9DB54F14A3B52D00BF3DBE /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = camera.cpp; path = scene/camera.cpp; sourceTree = "<group>"; };
+		8C9DB55014A3B52D00BF3DBE /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = scene/camera.h; sourceTree = "<group>"; };
+		8C9DB55114A3B52D00BF3DBE /* light-source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "light-source.h"; path = "scene/light-source.h"; sourceTree = "<group>"; };
+		8C9DB55214A3B52D00BF3DBE /* scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scene.cpp; path = scene/scene.cpp; sourceTree = "<group>"; };
+		8C9DB55314A3B52D00BF3DBE /* scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scene.h; path = scene/scene.h; sourceTree = "<group>"; };
+		8C9DB55614A3B53400BF3DBE /* quad-renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "quad-renderer.cpp"; path = "GL util/quad-renderer.cpp"; sourceTree = "<group>"; };
+		8C9DB55714A3B53400BF3DBE /* quad-renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "quad-renderer.h"; path = "GL util/quad-renderer.h"; sourceTree = "<group>"; };
+		8C9DB55814A3B53400BF3DBE /* shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shader.cpp; path = "GL util/shader.cpp"; sourceTree = "<group>"; };
+		8C9DB55914A3B53400BF3DBE /* shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shader.h; path = "GL util/shader.h"; sourceTree = "<group>"; };
+		8C9DB55A14A3B53400BF3DBE /* texture2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = texture2d.cpp; path = "GL util/texture2d.cpp"; sourceTree = "<group>"; };
+		8C9DB55B14A3B53400BF3DBE /* texture2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = texture2d.h; path = "GL util/texture2d.h"; sourceTree = "<group>"; };
+		8C9DB55F14A3B53D00BF3DBE /* cpu-rendered-image-buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "cpu-rendered-image-buffer.cpp"; path = "CPU renderer/cpu-rendered-image-buffer.cpp"; sourceTree = "<group>"; };
+		8C9DB56014A3B53D00BF3DBE /* cpu-rendered-image-buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "cpu-rendered-image-buffer.h"; path = "CPU renderer/cpu-rendered-image-buffer.h"; sourceTree = "<group>"; };
+		8C9DB56114A3B53D00BF3DBE /* cpu-rendered-image-drawer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "cpu-rendered-image-drawer.cpp"; path = "CPU renderer/cpu-rendered-image-drawer.cpp"; sourceTree = "<group>"; };
+		8C9DB56214A3B53D00BF3DBE /* cpu-rendered-image-drawer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "cpu-rendered-image-drawer.h"; path = "CPU renderer/cpu-rendered-image-drawer.h"; sourceTree = "<group>"; };
+		8C9DB56314A3B53D00BF3DBE /* cpu-rendering.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "cpu-rendering.cpp"; path = "CPU renderer/cpu-rendering.cpp"; sourceTree = "<group>"; };
+		8C9DB56414A3B53D00BF3DBE /* cpu-rendering.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "cpu-rendering.h"; path = "CPU renderer/cpu-rendering.h"; sourceTree = "<group>"; };
+		8C9DB56514A3B53D00BF3DBE /* debug-ray-cast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "debug-ray-cast.cpp"; path = "CPU renderer/debug-ray-cast.cpp"; sourceTree = "<group>"; };
+		8C9DB56614A3B53D00BF3DBE /* debug-ray-cast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "debug-ray-cast.h"; path = "CPU renderer/debug-ray-cast.h"; sourceTree = "<group>"; };
+		8C9DB56714A3B53D00BF3DBE /* ray-cast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "ray-cast.cpp"; path = "CPU renderer/ray-cast.cpp"; sourceTree = "<group>"; };
+		8C9DB56814A3B53D00BF3DBE /* ray-cast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "ray-cast.h"; path = "CPU renderer/ray-cast.h"; sourceTree = "<group>"; };
+		8C9DB56914A3B53D00BF3DBE /* render-statistics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "render-statistics.cpp"; path = "CPU renderer/render-statistics.cpp"; sourceTree = "<group>"; };
+		8C9DB56A14A3B53D00BF3DBE /* render-statistics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "render-statistics.h"; path = "CPU renderer/render-statistics.h"; sourceTree = "<group>"; };
+		8C9DB57514A3BBA600BF3DBE /* gpu data format.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "gpu data format.txt"; path = "doc/gpu data format.txt"; sourceTree = "<group>"; };
+		8C9DB58014A3DAD000BF3DBE /* cl-buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "cl-buffer.cpp"; path = "CL util/cl-buffer.cpp"; sourceTree = "<group>"; };
+		8C9DB58114A3DAD000BF3DBE /* cl-buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "cl-buffer.h"; path = "CL util/cl-buffer.h"; sourceTree = "<group>"; };
+		8C9DB58314A3DADB00BF3DBE /* gpu-octree-channel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gpu-octree-channel.cpp"; path = "GPU data/gpu-octree-channel.cpp"; sourceTree = "<group>"; };
+		8C9DB58414A3DADB00BF3DBE /* gpu-octree-channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "gpu-octree-channel.h"; path = "GPU data/gpu-octree-channel.h"; sourceTree = "<group>"; };
+		8C9DB58514A3DADB00BF3DBE /* gpu-octree-data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gpu-octree-data.cpp"; path = "GPU data/gpu-octree-data.cpp"; sourceTree = "<group>"; };
+		8C9DB58614A3DADB00BF3DBE /* gpu-octree-data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "gpu-octree-data.h"; path = "GPU data/gpu-octree-data.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +120,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C76B82E149BB0620088672F /* libGLEW.a in Frameworks */,
+				8C76B7DE149B8B2A0088672F /* GLUT.framework in Frameworks */,
+				8C76B7DB149B8B220088672F /* OpenCL.framework in Frameworks */,
+				8C76B7DC149B8B220088672F /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -44,6 +133,8 @@
 		8C76B7C1149B88220088672F = {
 			isa = PBXGroup;
 			children = (
+				8C76B82D149BB0620088672F /* libGLEW.a */,
+				8C76B7DF149B8B310088672F /* Frameworks */,
 				8C76B7CF149B88220088672F /* rayt */,
 				8C76B7CD149B88220088672F /* Products */,
 			);
@@ -60,10 +151,155 @@
 		8C76B7CF149B88220088672F /* rayt */ = {
 			isa = PBXGroup;
 			children = (
-				8C76B7D0149B88220088672F /* main.cpp */,
-				8C76B7D2149B88220088672F /* rayt.1 */,
+				8C9DB57414A3BB6E00BF3DBE /* doc */,
+				8C9DB53A14A3B05900BF3DBE /* application */,
+				8C9DB53914A3B03000BF3DBE /* scene sources */,
+				8C9DB53B14A3B06E00BF3DBE /* scene */,
+				8C9DB53E14A3B0FE00BF3DBE /* CPU renderer */,
+				8C9DB53714A3B00800BF3DBE /* CPU data */,
+				8C9DB53614A3AFE600BF3DBE /* GPU data */,
+				8C9DB53D14A3B0AA00BF3DBE /* CL util */,
+				8C9DB53C14A3B0A100BF3DBE /* GL util */,
+				8C9DB52314A3AFAD00BF3DBE /* util */,
+				8C76B7FA149BA67B0088672F /* log.txt */,
+				8C76B7FE149BA67B0088672F /* pass.frag */,
+				8C76B7FF149BA67B0088672F /* pass.vert */,
 			);
 			path = rayt;
+			sourceTree = "<group>";
+		};
+		8C76B7DF149B8B310088672F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8C76B7DD149B8B2A0088672F /* GLUT.framework */,
+				8C76B7D9149B8B220088672F /* OpenCL.framework */,
+				8C76B7DA149B8B220088672F /* OpenGL.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8C9DB52314A3AFAD00BF3DBE /* util */ = {
+			isa = PBXGroup;
+			children = (
+				8C9DB53F14A3B50B00BF3DBE /* intersections.h */,
+				8C9DB52514A3AFCB00BF3DBE /* array.h */,
+				8C9DB52614A3AFCB00BF3DBE /* color.h */,
+				8C9DB52714A3AFCB00BF3DBE /* common.h */,
+				8C9DB52814A3AFCB00BF3DBE /* mat.cpp */,
+				8C9DB52914A3AFCB00BF3DBE /* mat.h */,
+				8C9DB52A14A3AFCB00BF3DBE /* math-util.h */,
+				8C9DB52B14A3AFCB00BF3DBE /* statistical-value.cpp */,
+				8C9DB52C14A3AFCB00BF3DBE /* statistical-value.h */,
+				8C9DB52D14A3AFCB00BF3DBE /* string-util.cpp */,
+				8C9DB52E14A3AFCB00BF3DBE /* string-util.h */,
+				8C9DB52F14A3AFCB00BF3DBE /* test-stopwatch.cpp */,
+				8C9DB53014A3AFCB00BF3DBE /* test-stopwatch.h */,
+				8C9DB53114A3AFCB00BF3DBE /* vec.h */,
+			);
+			name = util;
+			sourceTree = "<group>";
+		};
+		8C9DB53614A3AFE600BF3DBE /* GPU data */ = {
+			isa = PBXGroup;
+			children = (
+				8C9DB58314A3DADB00BF3DBE /* gpu-octree-channel.cpp */,
+				8C9DB58414A3DADB00BF3DBE /* gpu-octree-channel.h */,
+				8C9DB58514A3DADB00BF3DBE /* gpu-octree-data.cpp */,
+				8C9DB58614A3DADB00BF3DBE /* gpu-octree-data.h */,
+			);
+			name = "GPU data";
+			sourceTree = "<group>";
+		};
+		8C9DB53714A3B00800BF3DBE /* CPU data */ = {
+			isa = PBXGroup;
+			children = (
+				8C9DB54014A3B51600BF3DBE /* compact-octree-nodes-pool.cpp */,
+				8C9DB54114A3B51600BF3DBE /* compact-octree-nodes-pool.h */,
+				8C9DB54214A3B51600BF3DBE /* compact-octree-statistics.cpp */,
+				8C9DB54314A3B51600BF3DBE /* compact-octree-statistics.h */,
+				8C9DB54414A3B51600BF3DBE /* compact-octree-structures.h */,
+			);
+			name = "CPU data";
+			sourceTree = "<group>";
+		};
+		8C9DB53914A3B03000BF3DBE /* scene sources */ = {
+			isa = PBXGroup;
+			children = (
+				8C9DB54714A3B51F00BF3DBE /* compact-mesh-generation.cpp */,
+				8C9DB54814A3B51F00BF3DBE /* compact-mesh-generation.h */,
+			);
+			name = "scene sources";
+			sourceTree = "<group>";
+		};
+		8C9DB53A14A3B05900BF3DBE /* application */ = {
+			isa = PBXGroup;
+			children = (
+				8C9DB54A14A3B52600BF3DBE /* main.cpp */,
+				8C9DB54B14A3B52600BF3DBE /* test-application.cpp */,
+				8C9DB54C14A3B52600BF3DBE /* test-application.h */,
+			);
+			name = application;
+			sourceTree = "<group>";
+		};
+		8C9DB53B14A3B06E00BF3DBE /* scene */ = {
+			isa = PBXGroup;
+			children = (
+				8C9DB54F14A3B52D00BF3DBE /* camera.cpp */,
+				8C9DB55014A3B52D00BF3DBE /* camera.h */,
+				8C9DB55114A3B52D00BF3DBE /* light-source.h */,
+				8C9DB55214A3B52D00BF3DBE /* scene.cpp */,
+				8C9DB55314A3B52D00BF3DBE /* scene.h */,
+			);
+			name = scene;
+			sourceTree = "<group>";
+		};
+		8C9DB53C14A3B0A100BF3DBE /* GL util */ = {
+			isa = PBXGroup;
+			children = (
+				8C9DB55614A3B53400BF3DBE /* quad-renderer.cpp */,
+				8C9DB55714A3B53400BF3DBE /* quad-renderer.h */,
+				8C9DB55814A3B53400BF3DBE /* shader.cpp */,
+				8C9DB55914A3B53400BF3DBE /* shader.h */,
+				8C9DB55A14A3B53400BF3DBE /* texture2d.cpp */,
+				8C9DB55B14A3B53400BF3DBE /* texture2d.h */,
+			);
+			name = "GL util";
+			sourceTree = "<group>";
+		};
+		8C9DB53D14A3B0AA00BF3DBE /* CL util */ = {
+			isa = PBXGroup;
+			children = (
+				8C9DB58014A3DAD000BF3DBE /* cl-buffer.cpp */,
+				8C9DB58114A3DAD000BF3DBE /* cl-buffer.h */,
+			);
+			name = "CL util";
+			sourceTree = "<group>";
+		};
+		8C9DB53E14A3B0FE00BF3DBE /* CPU renderer */ = {
+			isa = PBXGroup;
+			children = (
+				8C9DB55F14A3B53D00BF3DBE /* cpu-rendered-image-buffer.cpp */,
+				8C9DB56014A3B53D00BF3DBE /* cpu-rendered-image-buffer.h */,
+				8C9DB56114A3B53D00BF3DBE /* cpu-rendered-image-drawer.cpp */,
+				8C9DB56214A3B53D00BF3DBE /* cpu-rendered-image-drawer.h */,
+				8C9DB56314A3B53D00BF3DBE /* cpu-rendering.cpp */,
+				8C9DB56414A3B53D00BF3DBE /* cpu-rendering.h */,
+				8C9DB56514A3B53D00BF3DBE /* debug-ray-cast.cpp */,
+				8C9DB56614A3B53D00BF3DBE /* debug-ray-cast.h */,
+				8C9DB56714A3B53D00BF3DBE /* ray-cast.cpp */,
+				8C9DB56814A3B53D00BF3DBE /* ray-cast.h */,
+				8C9DB56914A3B53D00BF3DBE /* render-statistics.cpp */,
+				8C9DB56A14A3B53D00BF3DBE /* render-statistics.h */,
+			);
+			name = "CPU renderer";
+			sourceTree = "<group>";
+		};
+		8C9DB57414A3BB6E00BF3DBE /* doc */ = {
+			isa = PBXGroup;
+			children = (
+				8C9DB57514A3BBA600BF3DBE /* gpu data format.txt */,
+			);
+			name = doc;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -91,6 +327,9 @@
 /* Begin PBXProject section */
 		8C76B7C3149B88220088672F /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
 			buildConfigurationList = 8C76B7C6149B88220088672F /* Build configuration list for PBXProject "rayt" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
@@ -113,7 +352,31 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8C76B7D1149B88220088672F /* main.cpp in Sources */,
+				8C76B820149BA67B0088672F /* pass.frag in Sources */,
+				8C76B821149BA67B0088672F /* pass.vert in Sources */,
+				8C9DB53214A3AFCB00BF3DBE /* mat.cpp in Sources */,
+				8C9DB53314A3AFCB00BF3DBE /* statistical-value.cpp in Sources */,
+				8C9DB53414A3AFCB00BF3DBE /* string-util.cpp in Sources */,
+				8C9DB53514A3AFCB00BF3DBE /* test-stopwatch.cpp in Sources */,
+				8C9DB54514A3B51600BF3DBE /* compact-octree-nodes-pool.cpp in Sources */,
+				8C9DB54614A3B51600BF3DBE /* compact-octree-statistics.cpp in Sources */,
+				8C9DB54914A3B51F00BF3DBE /* compact-mesh-generation.cpp in Sources */,
+				8C9DB54D14A3B52600BF3DBE /* main.cpp in Sources */,
+				8C9DB54E14A3B52600BF3DBE /* test-application.cpp in Sources */,
+				8C9DB55414A3B52D00BF3DBE /* camera.cpp in Sources */,
+				8C9DB55514A3B52D00BF3DBE /* scene.cpp in Sources */,
+				8C9DB55C14A3B53400BF3DBE /* quad-renderer.cpp in Sources */,
+				8C9DB55D14A3B53400BF3DBE /* shader.cpp in Sources */,
+				8C9DB55E14A3B53400BF3DBE /* texture2d.cpp in Sources */,
+				8C9DB56B14A3B53D00BF3DBE /* cpu-rendered-image-buffer.cpp in Sources */,
+				8C9DB56C14A3B53D00BF3DBE /* cpu-rendered-image-drawer.cpp in Sources */,
+				8C9DB56D14A3B53D00BF3DBE /* cpu-rendering.cpp in Sources */,
+				8C9DB56E14A3B53D00BF3DBE /* debug-ray-cast.cpp in Sources */,
+				8C9DB56F14A3B53D00BF3DBE /* ray-cast.cpp in Sources */,
+				8C9DB57014A3B53D00BF3DBE /* render-statistics.cpp in Sources */,
+				8C9DB58214A3DAD000BF3DBE /* cl-buffer.cpp in Sources */,
+				8C9DB58714A3DADB00BF3DBE /* gpu-octree-channel.cpp in Sources */,
+				8C9DB58814A3DADB00BF3DBE /* gpu-octree-data.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +403,7 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /opt/local/include/GL/;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -160,6 +424,7 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /opt/local/include/GL/;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = macosx;
 			};
@@ -168,6 +433,10 @@
 		8C76B7D7149B88220088672F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -175,6 +444,10 @@
 		8C76B7D8149B88220088672F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -198,6 +471,7 @@
 				8C76B7D8149B88220088672F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
