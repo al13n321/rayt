@@ -22,9 +22,11 @@ public:
 	void RenderOnCPU(CPURenderedImageBuffer *buffer, const Camera &camera, RenderStatistics *out_statistics);
 
 	friend void RunTestApplication(int, char**);
+
+    // TODO: move it back to private!
+    CompactOctreeNodesPool nodes_pool_;
 private:
 	float size_;
-	CompactOctreeNodesPool nodes_pool_;
 	Array<LightSource> lights_;
 
 	DISALLOW_COPY_AND_ASSIGN(Scene);

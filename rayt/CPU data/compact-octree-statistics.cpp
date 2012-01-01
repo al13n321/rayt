@@ -1,4 +1,6 @@
 #include "compact-octree-statistics.h"
+#include <iostream>
+using namespace std;
 
 namespace rayt {
 
@@ -25,6 +27,14 @@ CompactOctreeStatistics CalculateCompactOctreeStatistics(CompactOctreeNode *root
 	res.empty_leaves_count = res.filled_leaves_count = res.internal_nodes_count = 0;
 	CalculateRecursive(root, &res);
 	return res;
+}
+    
+void WriteCompactOctreeStatistics(CompactOctreeNode *root) {
+    CompactOctreeStatistics s = CalculateCompactOctreeStatistics(root);
+    cout << s.internal_nodes_count << " internal nodes." << endl;
+    cout << s.filled_leaves_count << " filled leaves." << endl;
+    cout << s.empty_leaves_count << " empty leaves." << endl;
+    cout << endl;
 }
 
 }

@@ -1,23 +1,31 @@
 #pragma once
 
-#include "common.h"
+#include <string>
+#include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 #include "cl-buffer.h"
+#include "cl-context.h"
 
 namespace rayt {
     
     // TODO: image channels
     class GPUOctreeChannel {
     public:
-        GPUOctreeChannel(cl_context context, int node_size, int max_nodes_count);
+        GPUOctreeChannel(int bytes_in_node, int max_nodes_count, std::string name, boost::shared_ptr<CLContext> context);
+        
+        const std::string& name() const;
         
         // in bytes
-        int node_size() const;
+        int bytes_in_node() const;
         
         // CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_WRITE_ONLY
+        // please don't modify its contents from outside
         CLBuffer* cl_buffer();
     private:
-        int node_size_;
-        CLBuffer cl_buffer_;
+        boost::shared_ptr<CLContext> context_;
+        std::string name_;
+        int bytes_in_node_;
+        boost::scoped_ptr<CLBuffer> cl_buffer_;
     };
     
 }

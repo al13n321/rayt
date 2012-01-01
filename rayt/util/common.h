@@ -1,13 +1,16 @@
 #pragma once
 
-#include <glew.h>
+#include <iostream>
+#include <string>
 
 #ifdef __WIN32__
+#include <glew.h>
 #include <wglew.h>
 #include <glut.h>
 #endif
 
 #ifdef __APPLE__
+#include <GL/glew.h>
 #include <OpenCL/OpenCL.h>
 #include <OpenGL/OpenGL.h>
 #include <GLUT/GLUT.h>
@@ -32,8 +35,23 @@ T abs(T a) {
 }
 #endif
 
+inline void crash(std::string message) {
+    std::cout << "critical error: " << message << std::endl;
+    // use a simple hash of message as program return code
+    int h = 0;
+    for (int i = 0; i < (int)message.length(); ++i)
+        h = h * 47 + message[i];
+    if (h == 0)
+        h = 1;
+    exit(h);
+}
+
 // A macro to disallow the copy constructor and operator= functions
 // This should be used in the private: declarations for a class
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&);               \
   void operator=(const TypeName&)
+
+// just hope it won't break any header included after this
+typedef unsigned int uint;
+typedef unsigned short ushort;

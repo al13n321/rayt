@@ -11,7 +11,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 }
 #else
 int main(int argc, char **argv) {
-    //freopen("log.txt","w", stdout);
+    freopen("log.txt","w", stdout);
 
     rayt::RunTestApplication(argc, argv);
 

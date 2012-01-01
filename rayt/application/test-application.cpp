@@ -3,6 +3,8 @@
 #include "test-stopwatch.h"
 #include "cpu-rendered-image-drawer.h"
 #include "debug-ray-cast.h"
+#include "blocking-experiment.h"
+#include "compact-octree-statistics.h"
 #include <cstdio>
 #include <iostream>
 using namespace rayt;
@@ -95,8 +97,86 @@ static void MouseMotionFunc(int x, int y) {
 	prev_mousex = x;
 	prev_mousey = y;
 }
+    
+static void WriteSomeOctreeStatistics() {
+    Scene *scene = new Scene(16);
+    
+    scene->AddSphere(fvec3(4, 4, -4), 3, Color(255, 0, 0), 8);
+    
+    WriteCompactOctreeStatistics(scene->nodes_pool_.root_node());
+    
+    delete scene;
+    
+    scene = new Scene(16);
+    
+    scene->AddSphere(fvec3(4, 4, -4), 3, Color(255, 0, 0), 10);
+    
+    WriteCompactOctreeStatistics(scene->nodes_pool_.root_node());
+    
+    delete scene;
+    
+    scene = new Scene(16);
+    
+    scene->AddSphere(fvec3(4, 4, -4), 3, Color(255, 0, 0), 6);
+    
+    WriteCompactOctreeStatistics(scene->nodes_pool_.root_node());
+    
+    delete scene;
+}
+    
+static void WriteSomeBlockingStatistics() {
+    Scene *scene = new Scene(16);
+    
+    scene->AddSphere(fvec3(4, 4, -4), 3, Color(255, 0, 0), 8);
+
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, true);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, true);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, true);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, true);
+    
+    delete scene;
+    
+    scene = new Scene(16);
+    
+    scene->AddSphere(fvec3(4, 4, -4), 3, Color(255, 0, 0), 10);
+    
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, true);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, true);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, true);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, true);
+    
+    delete scene;
+    
+    scene = new Scene(16);
+    
+    scene->AddSphere(fvec3(4, 4, -4), 3, Color(255, 0, 0), 6);
+    
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, true);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, true);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, true);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, false);
+    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, true);
+    
+    delete scene;
+    
+    return;
+}
 
 void RunTestApplication(int argc, char **argv) {
+    //WriteSomeOctreeStatistics(); return;
+    WriteSomeBlockingStatistics(); return;
+    
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 	glutInitWindowSize(winwid, winhei);
@@ -115,9 +195,7 @@ void RunTestApplication(int argc, char **argv) {
 	camera = new Camera();
 	scene = new Scene(16);
 
-	cout << "will make sphere" << endl;
 	scene->AddSphere(fvec3(4, 4, -4), 3, Color(255, 0, 0), 8);
-	cout << "sphere done" << endl;
 
 	/*fvec3 origin = fvec3(0.10797191, 0.26248005, -0.11126341);
 	fvec3 dir = fvec3(0.013718240, 0.88270319, -0.46973050);

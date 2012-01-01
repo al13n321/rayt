@@ -1,9 +1,7 @@
-GPU representation of octree consists of
-- Node link buffer ("nodes link octree channel").
-- Any number of node data buffers and images ("octree channels"), parallel to node buffer.
+GPU representation of octree consists of paraller buffers and textures called channels. One of the channels is node link buffer. Other channels are optional and not interpreted by streamer.
 
-Node buffer format.
+Node link buffer format.
 uint *nodes;
-nodes[i] == LEAF_NODE, if node i is a leaf.
-nodes[i] == FAULT_NODE, if all children of node i are cache faults (i.e. are not loaded in GPU memory yet), but i itself is not a cache fault.
-nodes[i] == p, if node i is internal node; in this case nodes[p+j] (0 <= j <= 7) are children of node i.
+Let nodes[i] & 255 = m, nodes[i] >> 8 = p.
+m is the mask of non-empty children.
+If m != 0, p is either FAULT_NODE or a pointer to the first non-empty child. Other non-empty children follow it consecutively.

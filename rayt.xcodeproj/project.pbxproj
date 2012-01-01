@@ -36,7 +36,24 @@
 		8C9DB58214A3DAD000BF3DBE /* cl-buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB58014A3DAD000BF3DBE /* cl-buffer.cpp */; };
 		8C9DB58714A3DADB00BF3DBE /* gpu-octree-channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB58314A3DADB00BF3DBE /* gpu-octree-channel.cpp */; };
 		8C9DB58814A3DADB00BF3DBE /* gpu-octree-data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB58514A3DADB00BF3DBE /* gpu-octree-data.cpp */; };
+		8CEF8AB714AF719C00A39A8B /* stored-octree-block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AB314AF719C00A39A8B /* stored-octree-block.cpp */; };
+		8CEF8AB814AF719C00A39A8B /* stored-octree-loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AB514AF719C00A39A8B /* stored-octree-loader.cpp */; };
+		8CEF8ABB14AF71AA00A39A8B /* gpu-octree-cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AB914AF71AA00A39A8B /* gpu-octree-cache.cpp */; };
+		8CEF8ABE14AF71B500A39A8B /* cl-context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8ABC14AF71B500A39A8B /* cl-context.cpp */; };
+		8CEF8AC114AF72AD00A39A8B /* blocking-experiment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8ABF14AF72AD00A39A8B /* blocking-experiment.cpp */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		8CEF8AAA14AF19D800A39A8B /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			fileType = sourcecode.glsl;
+			isEditable = 1;
+			outputFiles = (
+			);
+			script = "";
+		};
+/* End PBXBuildRule section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		8C76B7CA149B88220088672F /* CopyFiles */ = {
@@ -59,6 +76,7 @@
 		8C76B7FE149BA67B0088672F /* pass.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = pass.frag; sourceTree = "<group>"; };
 		8C76B7FF149BA67B0088672F /* pass.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = pass.vert; sourceTree = "<group>"; };
 		8C76B82D149BB0620088672F /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = ../../../../../../../opt/local/lib/libGLEW.a; sourceTree = "<group>"; };
+		8C833C9B14AEF7F000E1CD5D /* storage data format.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "storage data format.txt"; sourceTree = "<group>"; };
 		8C9DB52514A3AFCB00BF3DBE /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = util/array.h; sourceTree = "<group>"; };
 		8C9DB52614A3AFCB00BF3DBE /* color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = color.h; path = util/color.h; sourceTree = "<group>"; };
 		8C9DB52714A3AFCB00BF3DBE /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = util/common.h; sourceTree = "<group>"; };
@@ -113,6 +131,16 @@
 		8C9DB58414A3DADB00BF3DBE /* gpu-octree-channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "gpu-octree-channel.h"; path = "GPU data/gpu-octree-channel.h"; sourceTree = "<group>"; };
 		8C9DB58514A3DADB00BF3DBE /* gpu-octree-data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gpu-octree-data.cpp"; path = "GPU data/gpu-octree-data.cpp"; sourceTree = "<group>"; };
 		8C9DB58614A3DADB00BF3DBE /* gpu-octree-data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "gpu-octree-data.h"; path = "GPU data/gpu-octree-data.h"; sourceTree = "<group>"; };
+		8CEF8AB314AF719C00A39A8B /* stored-octree-block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "stored-octree-block.cpp"; path = "CPU data/stored-octree-block.cpp"; sourceTree = "<group>"; };
+		8CEF8AB414AF719C00A39A8B /* stored-octree-block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "stored-octree-block.h"; path = "CPU data/stored-octree-block.h"; sourceTree = "<group>"; };
+		8CEF8AB514AF719C00A39A8B /* stored-octree-loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "stored-octree-loader.cpp"; path = "CPU data/stored-octree-loader.cpp"; sourceTree = "<group>"; };
+		8CEF8AB614AF719C00A39A8B /* stored-octree-loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "stored-octree-loader.h"; path = "CPU data/stored-octree-loader.h"; sourceTree = "<group>"; };
+		8CEF8AB914AF71AA00A39A8B /* gpu-octree-cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gpu-octree-cache.cpp"; path = "GPU data/gpu-octree-cache.cpp"; sourceTree = "<group>"; };
+		8CEF8ABA14AF71AA00A39A8B /* gpu-octree-cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "gpu-octree-cache.h"; path = "GPU data/gpu-octree-cache.h"; sourceTree = "<group>"; };
+		8CEF8ABC14AF71B500A39A8B /* cl-context.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "cl-context.cpp"; path = "CL util/cl-context.cpp"; sourceTree = "<group>"; };
+		8CEF8ABD14AF71B500A39A8B /* cl-context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "cl-context.h"; path = "CL util/cl-context.h"; sourceTree = "<group>"; };
+		8CEF8ABF14AF72AD00A39A8B /* blocking-experiment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "blocking-experiment.cpp"; path = "experimental/blocking-experiment.cpp"; sourceTree = "<group>"; };
+		8CEF8AC014AF72AD00A39A8B /* blocking-experiment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "blocking-experiment.h"; path = "experimental/blocking-experiment.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +181,7 @@
 			children = (
 				8C9DB57414A3BB6E00BF3DBE /* doc */,
 				8C9DB53A14A3B05900BF3DBE /* application */,
+				8C9DB58D14A4612E00BF3DBE /* experimental */,
 				8C9DB53914A3B03000BF3DBE /* scene sources */,
 				8C9DB53B14A3B06E00BF3DBE /* scene */,
 				8C9DB53E14A3B0FE00BF3DBE /* CPU renderer */,
@@ -202,6 +231,8 @@
 		8C9DB53614A3AFE600BF3DBE /* GPU data */ = {
 			isa = PBXGroup;
 			children = (
+				8CEF8AB914AF71AA00A39A8B /* gpu-octree-cache.cpp */,
+				8CEF8ABA14AF71AA00A39A8B /* gpu-octree-cache.h */,
 				8C9DB58314A3DADB00BF3DBE /* gpu-octree-channel.cpp */,
 				8C9DB58414A3DADB00BF3DBE /* gpu-octree-channel.h */,
 				8C9DB58514A3DADB00BF3DBE /* gpu-octree-data.cpp */,
@@ -213,6 +244,10 @@
 		8C9DB53714A3B00800BF3DBE /* CPU data */ = {
 			isa = PBXGroup;
 			children = (
+				8CEF8AB314AF719C00A39A8B /* stored-octree-block.cpp */,
+				8CEF8AB414AF719C00A39A8B /* stored-octree-block.h */,
+				8CEF8AB514AF719C00A39A8B /* stored-octree-loader.cpp */,
+				8CEF8AB614AF719C00A39A8B /* stored-octree-loader.h */,
 				8C9DB54014A3B51600BF3DBE /* compact-octree-nodes-pool.cpp */,
 				8C9DB54114A3B51600BF3DBE /* compact-octree-nodes-pool.h */,
 				8C9DB54214A3B51600BF3DBE /* compact-octree-statistics.cpp */,
@@ -269,6 +304,8 @@
 		8C9DB53D14A3B0AA00BF3DBE /* CL util */ = {
 			isa = PBXGroup;
 			children = (
+				8CEF8ABC14AF71B500A39A8B /* cl-context.cpp */,
+				8CEF8ABD14AF71B500A39A8B /* cl-context.h */,
 				8C9DB58014A3DAD000BF3DBE /* cl-buffer.cpp */,
 				8C9DB58114A3DAD000BF3DBE /* cl-buffer.h */,
 			);
@@ -298,8 +335,18 @@
 			isa = PBXGroup;
 			children = (
 				8C9DB57514A3BBA600BF3DBE /* gpu data format.txt */,
+				8C833C9B14AEF7F000E1CD5D /* storage data format.txt */,
 			);
 			name = doc;
+			sourceTree = "<group>";
+		};
+		8C9DB58D14A4612E00BF3DBE /* experimental */ = {
+			isa = PBXGroup;
+			children = (
+				8CEF8ABF14AF72AD00A39A8B /* blocking-experiment.cpp */,
+				8CEF8AC014AF72AD00A39A8B /* blocking-experiment.h */,
+			);
+			name = experimental;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -314,6 +361,7 @@
 				8C76B7CA149B88220088672F /* CopyFiles */,
 			);
 			buildRules = (
+				8CEF8AAA14AF19D800A39A8B /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -377,6 +425,11 @@
 				8C9DB58214A3DAD000BF3DBE /* cl-buffer.cpp in Sources */,
 				8C9DB58714A3DADB00BF3DBE /* gpu-octree-channel.cpp in Sources */,
 				8C9DB58814A3DADB00BF3DBE /* gpu-octree-data.cpp in Sources */,
+				8CEF8AB714AF719C00A39A8B /* stored-octree-block.cpp in Sources */,
+				8CEF8AB814AF719C00A39A8B /* stored-octree-loader.cpp in Sources */,
+				8CEF8ABB14AF71AA00A39A8B /* gpu-octree-cache.cpp in Sources */,
+				8CEF8ABE14AF71B500A39A8B /* cl-context.cpp in Sources */,
+				8CEF8AC114AF72AD00A39A8B /* blocking-experiment.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -403,7 +456,7 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /opt/local/include/GL/;
+				HEADER_SEARCH_PATHS = /opt/local/include/;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -424,7 +477,7 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /opt/local/include/GL/;
+				HEADER_SEARCH_PATHS = /opt/local/include/;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = macosx;
 			};

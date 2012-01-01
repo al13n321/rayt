@@ -1,0 +1,471 @@
+Block size: 54, multiroot disabled.
+Tree with raw size 128106, 7073 blocks.
+Overhead: 198.145%.
+Blocks count by size:
+9: 4472
+18: 1041
+27: 360
+36: 208
+45: 184
+54: 808
+Blocks count by number of roots:
+0: 0
+1: 7073
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 54, multiroot enabled.
+Tree with raw size 128106, 2544 blocks.
+Overhead: 7.2362%.
+Blocks count by size:
+18: 80
+27: 72
+36: 143
+45: 208
+54: 2041
+Blocks count by number of roots:
+0: 0
+1: 1096
+2: 600
+3: 32
+4: 0
+5: 0
+6: 816
+7: 0
+8: 0
+
+Block size: 90, multiroot disabled.
+Tree with raw size 128106, 2552 blocks.
+Overhead: 79.289%.
+Blocks count by size:
+9: 24
+18: 248
+27: 360
+36: 160
+45: 576
+54: 247
+63: 384
+72: 209
+81: 168
+90: 176
+Blocks count by number of roots:
+0: 0
+1: 2552
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 90, multiroot enabled.
+Tree with raw size 128106, 1761 blocks.
+Overhead: 23.7179%.
+Blocks count by size:
+18: 25
+36: 104
+45: 248
+54: 144
+63: 144
+72: 80
+81: 144
+90: 872
+Blocks count by number of roots:
+0: 0
+1: 1073
+2: 664
+3: 24
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 36, multiroot disabled.
+Tree with raw size 128106, 9976 blocks.
+Overhead: 180.343%.
+Blocks count by size:
+9: 7344
+18: 1687
+27: 264
+36: 681
+Blocks count by number of roots:
+0: 0
+1: 9976
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 36, multiroot enabled.
+Tree with raw size 128106, 3667 blocks.
+Overhead: 3.04904%.
+Blocks count by size:
+18: 121
+27: 192
+36: 3354
+Blocks count by number of roots:
+0: 0
+1: 1321
+2: 632
+3: 8
+4: 1706
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 18, multiroot disabled.
+Tree with raw size 128106, 11449 blocks.
+Overhead: 60.8683%.
+Blocks count by size:
+9: 8664
+18: 2785
+Blocks count by number of roots:
+0: 0
+1: 11449
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 18, multiroot enabled.
+Tree with raw size 128106, 7117 blocks.
+Overhead: 0%.
+Blocks count by size:
+18: 7117
+Blocks count by number of roots:
+0: 0
+1: 1657
+2: 5460
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 54, multiroot disabled.
+Tree with raw size 2078730, 115824 blocks.
+Overhead: 200.881%.
+Blocks count by size:
+9: 72928
+18: 17808
+27: 5584
+36: 3527
+45: 4296
+54: 11681
+Blocks count by number of roots:
+0: 0
+1: 115824
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 54, multiroot enabled.
+Tree with raw size 2078730, 40997 blocks.
+Overhead: 6.49955%.
+Blocks count by size:
+18: 1153
+27: 1320
+36: 1528
+45: 3384
+54: 33612
+Blocks count by number of roots:
+0: 0
+1: 16089
+2: 9852
+3: 1688
+4: 72
+5: 0
+6: 13296
+7: 0
+8: 0
+
+Block size: 90, multiroot disabled.
+Tree with raw size 2078730, 41912 blocks.
+Overhead: 81.4608%.
+Blocks count by size:
+9: 144
+18: 4680
+27: 6112
+36: 3703
+45: 7632
+54: 4753
+63: 5880
+72: 3264
+81: 3072
+90: 2672
+Blocks count by number of roots:
+0: 0
+1: 41912
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 90, multiroot enabled.
+Tree with raw size 2078730, 26801 blocks.
+Overhead: 16.0367%.
+Blocks count by size:
+18: 49
+27: 360
+36: 792
+45: 2448
+54: 1360
+63: 1920
+72: 2208
+81: 1520
+90: 16144
+Blocks count by number of roots:
+0: 0
+1: 12817
+2: 13656
+3: 328
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 36, multiroot disabled.
+Tree with raw size 2078730, 159552 blocks.
+Overhead: 176.316%.
+Blocks count by size:
+9: 115839
+18: 27664
+27: 4393
+36: 11656
+Blocks count by number of roots:
+0: 0
+1: 159552
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 36, multiroot enabled.
+Tree with raw size 2078730, 60339 blocks.
+Overhead: 4.49669%.
+Blocks count by size:
+18: 2433
+27: 5520
+36: 52386
+Blocks count by number of roots:
+0: 0
+1: 24905
+2: 8400
+3: 648
+4: 26386
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 18, multiroot disabled.
+Tree with raw size 2078730, 184929 blocks.
+Overhead: 60.1325%.
+Blocks count by size:
+9: 138888
+18: 46041
+Blocks count by number of roots:
+0: 0
+1: 184929
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 18, multiroot enabled.
+Tree with raw size 2078730, 115485 blocks.
+Overhead: 0%.
+Blocks count by size:
+18: 115485
+Blocks count by number of roots:
+0: 0
+1: 26449
+2: 89036
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 54, multiroot disabled.
+Tree with raw size 7866, 441 blocks.
+Overhead: 202.746%.
+Blocks count by size:
+9: 289
+18: 72
+36: 16
+45: 7
+54: 57
+Blocks count by number of roots:
+0: 0
+1: 441
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 54, multiroot enabled.
+Tree with raw size 7866, 161 blocks.
+Overhead: 10.5263%.
+Blocks count by size:
+9: 1
+36: 40
+45: 7
+54: 113
+Blocks count by number of roots:
+0: 0
+1: 81
+2: 24
+3: 8
+4: 0
+5: 0
+6: 48
+7: 0
+8: 0
+
+Block size: 90, multiroot disabled.
+Tree with raw size 7866, 153 blocks.
+Overhead: 75.0572%.
+Blocks count by size:
+18: 25
+36: 24
+45: 24
+54: 32
+72: 24
+81: 16
+90: 8
+Blocks count by number of roots:
+0: 0
+1: 153
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 90, multiroot enabled.
+Tree with raw size 7866, 129 blocks.
+Overhead: 47.5973%.
+Blocks count by size:
+18: 9
+36: 8
+45: 24
+54: 24
+72: 32
+81: 16
+90: 16
+Blocks count by number of roots:
+0: 0
+1: 121
+2: 8
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 36, multiroot disabled.
+Tree with raw size 7866, 633 blocks.
+Overhead: 189.703%.
+Blocks count by size:
+9: 480
+18: 97
+27: 24
+36: 32
+Blocks count by number of roots:
+0: 0
+1: 633
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 36, multiroot enabled.
+Tree with raw size 7866, 219 blocks.
+Overhead: 0.228833%.
+Blocks count by size:
+18: 1
+36: 218
+Blocks count by number of roots:
+0: 0
+1: 105
+2: 8
+3: 0
+4: 106
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 18, multiroot disabled.
+Tree with raw size 7866, 713 blocks.
+Overhead: 63.1579%.
+Blocks count by size:
+9: 552
+18: 161
+Blocks count by number of roots:
+0: 0
+1: 713
+2: 0
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+
+Block size: 18, multiroot enabled.
+Tree with raw size 7866, 437 blocks.
+Overhead: 0%.
+Blocks count by size:
+18: 437
+Blocks count by number of roots:
+0: 0
+1: 153
+2: 284
+3: 0
+4: 0
+5: 0
+6: 0
+7: 0
+8: 0
+

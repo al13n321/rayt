@@ -11,5 +11,6 @@ struct CompactOctreeStatistics {
 };
 
 CompactOctreeStatistics CalculateCompactOctreeStatistics(CompactOctreeNode *root);
-
+void WriteCompactOctreeStatistics(CompactOctreeNode *root);
+    
 }
