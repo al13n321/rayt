@@ -2,29 +2,34 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
+#include <boost/scoped_ptr.hpp>
 #include "stored-octree-block.h"
+#include "stored-octree-header.h"
+#include "stored-octree-channel-set.h"
 
 namespace rayt {
     
-    struct StoredOctreeChannel {
-        int bytes_in_node;
-        std::string name;
-    };
-
+    // assumes that file doesn't change during lifetime; undefined behavior if it does
     class StoredOctreeLoader {
     public:
         StoredOctreeLoader(std::string file_name);
         ~StoredOctreeLoader();
         
-        int nodes_in_block() const;
-        int blocks_count() const;
-        int channels_count() const;
-        const std::vector<StoredOctreeChannel>& channels() const;
+        const StoredOctreeHeader& header() const;
         
         // if out_block has wrong size, it will be resized; typically, you can use the same block for all calls, so that it gets resized only in the first call, avoiding unneeded memory allocations;
         // returns true in case of success
-        bool LoadBlock(int index, StoredOctreeBlock &out_block);
+        bool LoadBlock(int index, StoredOctreeBlock *out_block);
     private:
+        StoredOctreeHeader header_;
+        boost::scoped_ptr<std::ifstream> in_file_;
+        int block_content_size_;
+        int header_size_;
+        int block_stride_size_;
+        Buffer block_header_buf_;
+        
+        void ReadHeader();
         
         DISALLOW_COPY_AND_ASSIGN(StoredOctreeLoader);
     };

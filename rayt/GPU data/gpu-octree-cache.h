@@ -5,10 +5,10 @@
 
 namespace rayt {
 
-    class GpuOctreeCache {
+    class GPUOctreeCache {
     public:
-        GpuOctreeCache(int nodes_in_block, int max_blocks_count, boost::shared_ptr<CLContext> context);
-        ~GpuOctreeCache();
+        GPUOctreeCache(int nodes_in_block, int max_blocks_count, boost::shared_ptr<CLContext> context);
+        ~GPUOctreeCache();
         
         GPUOctreeChannel* AddChannel(int bytes_in_node, std::string name);
         GPUOctreeChannel* ChannelByName(std::string name);
@@ -22,7 +22,7 @@ namespace rayt {
     private:
         boost::shared_ptr<CLContext> context_;
         
-        DISALLOW_COPY_AND_ASSIGN(GpuOctreeCache);
+        DISALLOW_COPY_AND_ASSIGN(GPUOctreeCache);
     };
     
 }

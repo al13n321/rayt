@@ -36,11 +36,18 @@
 		8C9DB58214A3DAD000BF3DBE /* cl-buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB58014A3DAD000BF3DBE /* cl-buffer.cpp */; };
 		8C9DB58714A3DADB00BF3DBE /* gpu-octree-channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB58314A3DADB00BF3DBE /* gpu-octree-channel.cpp */; };
 		8C9DB58814A3DADB00BF3DBE /* gpu-octree-data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DB58514A3DADB00BF3DBE /* gpu-octree-data.cpp */; };
-		8CEF8AB714AF719C00A39A8B /* stored-octree-block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AB314AF719C00A39A8B /* stored-octree-block.cpp */; };
 		8CEF8AB814AF719C00A39A8B /* stored-octree-loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AB514AF719C00A39A8B /* stored-octree-loader.cpp */; };
 		8CEF8ABB14AF71AA00A39A8B /* gpu-octree-cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AB914AF71AA00A39A8B /* gpu-octree-cache.cpp */; };
 		8CEF8ABE14AF71B500A39A8B /* cl-context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8ABC14AF71B500A39A8B /* cl-context.cpp */; };
 		8CEF8AC114AF72AD00A39A8B /* blocking-experiment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8ABF14AF72AD00A39A8B /* blocking-experiment.cpp */; };
+		8CEF8ADE14B204F900A39A8B /* stored-octree-test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8ADC14B204F900A39A8B /* stored-octree-test.cpp */; };
+		8CEF8AE914B2050E00A39A8B /* octree-constants.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8ADF14B2050900A39A8B /* octree-constants.cpp */; };
+		8CEF8AEA14B2050E00A39A8B /* stored-octree-channel-set.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AE114B2050A00A39A8B /* stored-octree-channel-set.cpp */; };
+		8CEF8AEB14B2050E00A39A8B /* stored-octree-channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AE314B2050B00A39A8B /* stored-octree-channel.cpp */; };
+		8CEF8AEC14B2050E00A39A8B /* stored-octree-header.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AE514B2050D00A39A8B /* stored-octree-header.cpp */; };
+		8CEF8AED14B2050E00A39A8B /* stored-octree-writer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AE714B2050E00A39A8B /* stored-octree-writer.cpp */; };
+		8CEF8AF214B2053400A39A8B /* binary-util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AEE14B2053400A39A8B /* binary-util.cpp */; };
+		8CEF8AF314B2053400A39A8B /* buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AF014B2053400A39A8B /* buffer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -76,7 +83,6 @@
 		8C76B7FE149BA67B0088672F /* pass.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = pass.frag; sourceTree = "<group>"; };
 		8C76B7FF149BA67B0088672F /* pass.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = pass.vert; sourceTree = "<group>"; };
 		8C76B82D149BB0620088672F /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = ../../../../../../../opt/local/lib/libGLEW.a; sourceTree = "<group>"; };
-		8C833C9B14AEF7F000E1CD5D /* storage data format.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "storage data format.txt"; sourceTree = "<group>"; };
 		8C9DB52514A3AFCB00BF3DBE /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = util/array.h; sourceTree = "<group>"; };
 		8C9DB52614A3AFCB00BF3DBE /* color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = color.h; path = util/color.h; sourceTree = "<group>"; };
 		8C9DB52714A3AFCB00BF3DBE /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = util/common.h; sourceTree = "<group>"; };
@@ -131,7 +137,6 @@
 		8C9DB58414A3DADB00BF3DBE /* gpu-octree-channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "gpu-octree-channel.h"; path = "GPU data/gpu-octree-channel.h"; sourceTree = "<group>"; };
 		8C9DB58514A3DADB00BF3DBE /* gpu-octree-data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gpu-octree-data.cpp"; path = "GPU data/gpu-octree-data.cpp"; sourceTree = "<group>"; };
 		8C9DB58614A3DADB00BF3DBE /* gpu-octree-data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "gpu-octree-data.h"; path = "GPU data/gpu-octree-data.h"; sourceTree = "<group>"; };
-		8CEF8AB314AF719C00A39A8B /* stored-octree-block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "stored-octree-block.cpp"; path = "CPU data/stored-octree-block.cpp"; sourceTree = "<group>"; };
 		8CEF8AB414AF719C00A39A8B /* stored-octree-block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "stored-octree-block.h"; path = "CPU data/stored-octree-block.h"; sourceTree = "<group>"; };
 		8CEF8AB514AF719C00A39A8B /* stored-octree-loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "stored-octree-loader.cpp"; path = "CPU data/stored-octree-loader.cpp"; sourceTree = "<group>"; };
 		8CEF8AB614AF719C00A39A8B /* stored-octree-loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "stored-octree-loader.h"; path = "CPU data/stored-octree-loader.h"; sourceTree = "<group>"; };
@@ -141,6 +146,23 @@
 		8CEF8ABD14AF71B500A39A8B /* cl-context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "cl-context.h"; path = "CL util/cl-context.h"; sourceTree = "<group>"; };
 		8CEF8ABF14AF72AD00A39A8B /* blocking-experiment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "blocking-experiment.cpp"; path = "experimental/blocking-experiment.cpp"; sourceTree = "<group>"; };
 		8CEF8AC014AF72AD00A39A8B /* blocking-experiment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "blocking-experiment.h"; path = "experimental/blocking-experiment.h"; sourceTree = "<group>"; };
+		8CEF8ADB14B204DD00A39A8B /* storage data format.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "storage data format.txt"; path = "doc/storage data format.txt"; sourceTree = "<group>"; };
+		8CEF8ADC14B204F900A39A8B /* stored-octree-test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "stored-octree-test.cpp"; path = "scene sources/stored-octree-test.cpp"; sourceTree = "<group>"; };
+		8CEF8ADD14B204F900A39A8B /* stored-octree-test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "stored-octree-test.h"; path = "scene sources/stored-octree-test.h"; sourceTree = "<group>"; };
+		8CEF8ADF14B2050900A39A8B /* octree-constants.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "octree-constants.cpp"; path = "CPU data/octree-constants.cpp"; sourceTree = "<group>"; };
+		8CEF8AE014B2050A00A39A8B /* octree-constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "octree-constants.h"; path = "CPU data/octree-constants.h"; sourceTree = "<group>"; };
+		8CEF8AE114B2050A00A39A8B /* stored-octree-channel-set.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "stored-octree-channel-set.cpp"; path = "CPU data/stored-octree-channel-set.cpp"; sourceTree = "<group>"; };
+		8CEF8AE214B2050B00A39A8B /* stored-octree-channel-set.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "stored-octree-channel-set.h"; path = "CPU data/stored-octree-channel-set.h"; sourceTree = "<group>"; };
+		8CEF8AE314B2050B00A39A8B /* stored-octree-channel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "stored-octree-channel.cpp"; path = "CPU data/stored-octree-channel.cpp"; sourceTree = "<group>"; };
+		8CEF8AE414B2050C00A39A8B /* stored-octree-channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "stored-octree-channel.h"; path = "CPU data/stored-octree-channel.h"; sourceTree = "<group>"; };
+		8CEF8AE514B2050D00A39A8B /* stored-octree-header.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "stored-octree-header.cpp"; path = "CPU data/stored-octree-header.cpp"; sourceTree = "<group>"; };
+		8CEF8AE614B2050D00A39A8B /* stored-octree-header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "stored-octree-header.h"; path = "CPU data/stored-octree-header.h"; sourceTree = "<group>"; };
+		8CEF8AE714B2050E00A39A8B /* stored-octree-writer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "stored-octree-writer.cpp"; path = "CPU data/stored-octree-writer.cpp"; sourceTree = "<group>"; };
+		8CEF8AE814B2050E00A39A8B /* stored-octree-writer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "stored-octree-writer.h"; path = "CPU data/stored-octree-writer.h"; sourceTree = "<group>"; };
+		8CEF8AEE14B2053400A39A8B /* binary-util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "binary-util.cpp"; path = "util/binary-util.cpp"; sourceTree = "<group>"; };
+		8CEF8AEF14B2053400A39A8B /* binary-util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "binary-util.h"; path = "util/binary-util.h"; sourceTree = "<group>"; };
+		8CEF8AF014B2053400A39A8B /* buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = buffer.cpp; path = util/buffer.cpp; sourceTree = "<group>"; };
+		8CEF8AF114B2053400A39A8B /* buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = buffer.h; path = util/buffer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -210,6 +232,10 @@
 		8C9DB52314A3AFAD00BF3DBE /* util */ = {
 			isa = PBXGroup;
 			children = (
+				8CEF8AEE14B2053400A39A8B /* binary-util.cpp */,
+				8CEF8AEF14B2053400A39A8B /* binary-util.h */,
+				8CEF8AF014B2053400A39A8B /* buffer.cpp */,
+				8CEF8AF114B2053400A39A8B /* buffer.h */,
 				8C9DB53F14A3B50B00BF3DBE /* intersections.h */,
 				8C9DB52514A3AFCB00BF3DBE /* array.h */,
 				8C9DB52614A3AFCB00BF3DBE /* color.h */,
@@ -244,15 +270,20 @@
 		8C9DB53714A3B00800BF3DBE /* CPU data */ = {
 			isa = PBXGroup;
 			children = (
-				8CEF8AB314AF719C00A39A8B /* stored-octree-block.cpp */,
+				8CEF8AC614B0B26700A39A8B /* old */,
+				8CEF8ADF14B2050900A39A8B /* octree-constants.cpp */,
+				8CEF8AE014B2050A00A39A8B /* octree-constants.h */,
+				8CEF8AE114B2050A00A39A8B /* stored-octree-channel-set.cpp */,
+				8CEF8AE214B2050B00A39A8B /* stored-octree-channel-set.h */,
+				8CEF8AE314B2050B00A39A8B /* stored-octree-channel.cpp */,
+				8CEF8AE414B2050C00A39A8B /* stored-octree-channel.h */,
+				8CEF8AE514B2050D00A39A8B /* stored-octree-header.cpp */,
+				8CEF8AE614B2050D00A39A8B /* stored-octree-header.h */,
+				8CEF8AE714B2050E00A39A8B /* stored-octree-writer.cpp */,
+				8CEF8AE814B2050E00A39A8B /* stored-octree-writer.h */,
 				8CEF8AB414AF719C00A39A8B /* stored-octree-block.h */,
 				8CEF8AB514AF719C00A39A8B /* stored-octree-loader.cpp */,
 				8CEF8AB614AF719C00A39A8B /* stored-octree-loader.h */,
-				8C9DB54014A3B51600BF3DBE /* compact-octree-nodes-pool.cpp */,
-				8C9DB54114A3B51600BF3DBE /* compact-octree-nodes-pool.h */,
-				8C9DB54214A3B51600BF3DBE /* compact-octree-statistics.cpp */,
-				8C9DB54314A3B51600BF3DBE /* compact-octree-statistics.h */,
-				8C9DB54414A3B51600BF3DBE /* compact-octree-structures.h */,
 			);
 			name = "CPU data";
 			sourceTree = "<group>";
@@ -260,6 +291,8 @@
 		8C9DB53914A3B03000BF3DBE /* scene sources */ = {
 			isa = PBXGroup;
 			children = (
+				8CEF8ADC14B204F900A39A8B /* stored-octree-test.cpp */,
+				8CEF8ADD14B204F900A39A8B /* stored-octree-test.h */,
 				8C9DB54714A3B51F00BF3DBE /* compact-mesh-generation.cpp */,
 				8C9DB54814A3B51F00BF3DBE /* compact-mesh-generation.h */,
 			);
@@ -334,8 +367,8 @@
 		8C9DB57414A3BB6E00BF3DBE /* doc */ = {
 			isa = PBXGroup;
 			children = (
+				8CEF8ADB14B204DD00A39A8B /* storage data format.txt */,
 				8C9DB57514A3BBA600BF3DBE /* gpu data format.txt */,
-				8C833C9B14AEF7F000E1CD5D /* storage data format.txt */,
 			);
 			name = doc;
 			sourceTree = "<group>";
@@ -347,6 +380,18 @@
 				8CEF8AC014AF72AD00A39A8B /* blocking-experiment.h */,
 			);
 			name = experimental;
+			sourceTree = "<group>";
+		};
+		8CEF8AC614B0B26700A39A8B /* old */ = {
+			isa = PBXGroup;
+			children = (
+				8C9DB54014A3B51600BF3DBE /* compact-octree-nodes-pool.cpp */,
+				8C9DB54114A3B51600BF3DBE /* compact-octree-nodes-pool.h */,
+				8C9DB54214A3B51600BF3DBE /* compact-octree-statistics.cpp */,
+				8C9DB54314A3B51600BF3DBE /* compact-octree-statistics.h */,
+				8C9DB54414A3B51600BF3DBE /* compact-octree-structures.h */,
+			);
+			name = old;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -425,11 +470,18 @@
 				8C9DB58214A3DAD000BF3DBE /* cl-buffer.cpp in Sources */,
 				8C9DB58714A3DADB00BF3DBE /* gpu-octree-channel.cpp in Sources */,
 				8C9DB58814A3DADB00BF3DBE /* gpu-octree-data.cpp in Sources */,
-				8CEF8AB714AF719C00A39A8B /* stored-octree-block.cpp in Sources */,
 				8CEF8AB814AF719C00A39A8B /* stored-octree-loader.cpp in Sources */,
 				8CEF8ABB14AF71AA00A39A8B /* gpu-octree-cache.cpp in Sources */,
 				8CEF8ABE14AF71B500A39A8B /* cl-context.cpp in Sources */,
 				8CEF8AC114AF72AD00A39A8B /* blocking-experiment.cpp in Sources */,
+				8CEF8ADE14B204F900A39A8B /* stored-octree-test.cpp in Sources */,
+				8CEF8AE914B2050E00A39A8B /* octree-constants.cpp in Sources */,
+				8CEF8AEA14B2050E00A39A8B /* stored-octree-channel-set.cpp in Sources */,
+				8CEF8AEB14B2050E00A39A8B /* stored-octree-channel.cpp in Sources */,
+				8CEF8AEC14B2050E00A39A8B /* stored-octree-header.cpp in Sources */,
+				8CEF8AED14B2050E00A39A8B /* stored-octree-writer.cpp in Sources */,
+				8CEF8AF214B2053400A39A8B /* binary-util.cpp in Sources */,
+				8CEF8AF314B2053400A39A8B /* buffer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

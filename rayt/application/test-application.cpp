@@ -129,13 +129,13 @@ static void WriteSomeBlockingStatistics() {
     
     scene->AddSphere(fvec3(4, 4, -4), 3, Color(255, 0, 0), 8);
 
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, true);
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, true);
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, true);
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, true);
     
     delete scene;
@@ -144,13 +144,13 @@ static void WriteSomeBlockingStatistics() {
     
     scene->AddSphere(fvec3(4, 4, -4), 3, Color(255, 0, 0), 10);
     
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, true);
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, true);
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, true);
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, true);
     
     delete scene;
@@ -159,13 +159,13 @@ static void WriteSomeBlockingStatistics() {
     
     scene->AddSphere(fvec3(4, 4, -4), 3, Color(255, 0, 0), 6);
     
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 54, true);
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 90, true);
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 36, true);
-    WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, false);
+    //WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, false);
     WriteBlockingStatistics(scene->nodes_pool_.root_node(), 18, true);
     
     delete scene;

@@ -55,3 +55,4 @@ inline void crash(std::string message) {
 // just hope it won't break any header included after this
 typedef unsigned int uint;
 typedef unsigned short ushort;
+typedef unsigned char uchar;

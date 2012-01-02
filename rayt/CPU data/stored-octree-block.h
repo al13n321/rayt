@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "buffer.h"
 
 namespace rayt {
 
@@ -10,27 +10,15 @@ namespace rayt {
     };
     
     struct StoredOctreeBlockHeader {
-        uint BlockIndex;
-        uint ParentBlockIndex;
-        uint RootsCount;
+        uint block_index;
+        uint parent_block_index;
+        uint roots_count;
         StoredOctreeBlockRoot roots[8];
     };
     
-    class StoredOctreeBlock {
-    public:
-        StoredOctreeBlock();
-        ~StoredOctreeBlock();
-        
-        void resize(int new_bytes_count);
-        
-        StoredOctreeBlockHeader& header();
-        void* data();
-        
-        const StoredOctreeBlockHeader& header() const;
-        const void* data() const;
-    private:
-        
-        DISALLOW_COPY_AND_ASSIGN(StoredOctreeBlock);
+    struct StoredOctreeBlock {
+        Buffer data;
+        StoredOctreeBlockHeader header;
     };
     
 }

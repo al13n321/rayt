@@ -4,4 +4,4 @@ Node link buffer format.
 uint *nodes;
 Let nodes[i] & 255 = m, nodes[i] >> 8 = p.
 m is the mask of non-empty children.
-If m != 0, p is either FAULT_NODE or a pointer to the first non-empty child. Other non-empty children follow it consecutively.
+If m != 0, p is either kFaultNode or a pointer to the first non-empty child. Other non-empty children follow it consecutively.
