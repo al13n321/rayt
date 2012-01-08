@@ -20,7 +20,9 @@ namespace rayt {
         const void* data() const;
         
         // loses all data
-        void resize(int new_size);
+        void Resize(int new_size);
+        
+        void Zero();
     private:
         int size_;
         char *data_;

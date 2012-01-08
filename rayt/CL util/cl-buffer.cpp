@@ -24,15 +24,26 @@ namespace rayt {
         clReleaseMemObject(buffer_);
     }
     
-    cl_mem CLBuffer::buffer() {
+    cl_mem CLBuffer::buffer() const {
         return buffer_;
     }
     
-    void CLBuffer::Write(int start, int length, const void *data) {
+    int CLBuffer::size() const {
+        return size_;
+    }
+    
+    void CLBuffer::Write(int start, int length, const void *data, bool blocking) {
         assert(start >= 0 && start < size_);
         assert(length > 0 && start + length <= size_);
         assert(data);
-        clEnqueueWriteBuffer(context_->queue(), buffer_, true, 0, length, data, 0, NULL, NULL);
+        clEnqueueWriteBuffer(context_->queue(), buffer_, blocking, start, length, data, 0, NULL, NULL);
+    }
+    
+    void CLBuffer::Read(int start, int length, void *data, bool blocking) const {
+        assert(start >= 0);
+        assert(length > 0);
+        assert(data);
+        clEnqueueReadBuffer(context_->queue(), buffer_, blocking, start, length, data, 0, NULL, NULL);
     }
     
 }

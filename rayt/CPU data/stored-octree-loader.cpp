@@ -6,8 +6,6 @@ using namespace boost;
 
 namespace rayt {
     
-    static const int kBlockHeaderSize = 44;
-
     StoredOctreeLoader::StoredOctreeLoader(string file_name) {
         in_file_.reset(new ifstream(file_name.c_str(), ios_base::binary));
         assert(!in_file_->fail());
@@ -17,7 +15,7 @@ namespace rayt {
         block_content_size_ = header_.channels.SumBytesInNode() * header_.nodes_in_block;
         assert(block_content_size_ > 0);
         
-        block_header_buf_.resize(kBlockHeaderSize);
+        block_header_buf_.Resize(kBlockHeaderSize);
     }
     
     StoredOctreeLoader::~StoredOctreeLoader() {}
@@ -43,12 +41,13 @@ namespace rayt {
         out_block->header.roots_count = BinaryUtil::ReadUint(header_data + 2 * 4);
         
         for (int i = 0; i < 8; ++i) {
-            out_block->header.roots[i].parent_pointer_index = BinaryUtil::ReadUshort(header_data + 3 * 4 + i * 4 + 0);
-            out_block->header.roots[i].pointed_child_index  = BinaryUtil::ReadUshort(header_data + 3 * 4 + i * 4 + 2);
+            out_block->header.roots[i].parent_pointer_index = BinaryUtil::ReadUshort(header_data + 3 * 4 + i * 5 + 0);
+            out_block->header.roots[i].pointed_child_index  = BinaryUtil::ReadUshort(header_data + 3 * 4 + i * 5 + 2);
+            out_block->header.roots[i].parent_pointer_children_mask = header_data[3 * 4 + i * 5 + 4]; // is cast from char to unsigned char deterministic or UB? who cares
         }
         
         if (out_block->data.size() != block_content_size_)
-            out_block->data.resize(block_content_size_);
+            out_block->data.Resize(block_content_size_);
         
         if (!in_file_->read(reinterpret_cast<char*>(out_block->data.data()), block_content_size_))
             return false;
@@ -83,7 +82,7 @@ namespace rayt {
             uint l = BinaryUtil::ReadUint(data + 4);
             
             if (l > buf.size()) {
-                buf.resize(l);
+                buf.Resize(l);
                 data = reinterpret_cast<char*>(buf.data());
             }
             

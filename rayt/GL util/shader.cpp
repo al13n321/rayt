@@ -7,21 +7,6 @@ using namespace std;
 
 namespace rayt {
 
-static bool readfile(const wchar_t *file, std::string &res) {
-	const int bufsize = 4096;
-	char buf[bufsize];
-	ifstream in(WstringToString(file).c_str());
-    if(in.fail())
-        return false;
-	int c;
-	do {
-		in.read(buf, bufsize);
-		c = (int) in.gcount();
-		res.append(buf, c);
-	} while (c == bufsize);
-    return true;
-}
-
 Shader::Shader(const wchar_t *vert, const wchar_t *frag, int attribcnt, const char * const * attribnames) {
 	string str;
 	const char *strs[1];
@@ -29,7 +14,7 @@ Shader::Shader(const wchar_t *vert, const wchar_t *frag, int attribcnt, const ch
 	GLint ret;
 	bool log;
 	vs_ = glCreateShader(GL_VERTEX_SHADER);
-	if(!readfile(vert, str)) {
+	if(!ReadFile(vert, str)) {
         cout << "failed to open " << WstringToString(vert) << endl;
         exit(4233);
     }
@@ -51,7 +36,7 @@ Shader::Shader(const wchar_t *vert, const wchar_t *frag, int attribcnt, const ch
 
 	ps_ = glCreateShader(GL_FRAGMENT_SHADER);
 	str.clear();
-	if(!readfile(frag, str)) {
+	if(!ReadFile(frag, str)) {
         cout << "failed to open " << WstringToString(frag) << endl;
         exit(4234);
     }

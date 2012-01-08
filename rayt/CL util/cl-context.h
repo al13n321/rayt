@@ -13,6 +13,8 @@ namespace rayt {
         CGLShareGroupObj share_group();
         cl_device_id device_id();
         cl_command_queue queue();
+        
+        void WaitForAll(); // it's clFinish actually
     private:
         cl_context context_;
         cl_command_queue queue_;

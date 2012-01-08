@@ -50,6 +50,12 @@ namespace rayt {
             crash("failed to create command queue");
     }
     
+    CLContext::~CLContext() {
+        clFinish(queue_);
+        clReleaseCommandQueue(queue_);
+        clReleaseContext(context_);
+    }
+    
     cl_context CLContext::context() {
         return context_;
     }
@@ -64,6 +70,12 @@ namespace rayt {
     
     cl_command_queue CLContext::queue() {
         return queue_;
+    }
+    
+    void CLContext::WaitForAll() {
+        int err = clFinish(queue_);
+        if (err != CL_SUCCESS)
+            crash("failed to clFinish");
     }
     
 }

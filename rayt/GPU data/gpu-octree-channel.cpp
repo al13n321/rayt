@@ -25,4 +25,8 @@ namespace rayt {
         return cl_buffer_.get();
     }
     
+    const CLBuffer* GPUOctreeChannel::cl_buffer() const {
+        return cl_buffer_.get();
+    }
+    
 }

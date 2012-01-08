@@ -10,9 +10,13 @@ namespace rayt {
         CLBuffer(cl_mem_flags flags, int size, boost::shared_ptr<CLContext> context);
         ~CLBuffer();
         
-        cl_mem buffer(); // can be null
+        // NULL if failed to create buffer
+        // please don't modify contents of buffer in const CLBuffer
+        cl_mem buffer() const;
+        int size() const;
         
-        void Write(int start, int length, const void *data);
+        void Write(int start, int length, const void *data, bool blocking);
+        void Read(int start, int length, void *data, bool blocking) const;
     private:
         int size_;
         boost::shared_ptr<CLContext> context_;

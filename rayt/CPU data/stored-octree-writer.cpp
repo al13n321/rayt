@@ -43,9 +43,11 @@ namespace rayt {
             }
         }
         
-        bytes_in_block_ = 44 + nodes_in_block_ * (node_data_size_ + kNodeLinkSize); // 44 is block header size
+        bytes_in_block_ = kBlockHeaderSize + nodes_in_block_ * (node_data_size_ + kNodeLinkSize);
         
         assert(bytes_in_block_ > 0); // catch some overflows
+        
+        nodes_count_ = 0;
     }
     
     StoredOctreeWriter::~StoredOctreeWriter() {}
@@ -57,6 +59,8 @@ namespace rayt {
     // TODO: currently it all looks very like O(block_size) time, which can surely be improved to amortized O(1) time
     // TODO: also it would be nice to refactor it all to be more clear
     StoredOctreeWriterNodePtr StoredOctreeWriter::CreateNode(StoredOctreeWriterNodePtr* children0, const void *node_data0) {
+        ++nodes_count_;
+        
         StoredOctreeWriterNode **children = reinterpret_cast<StoredOctreeWriterNode**>(children0); // hope it will work on any needed platform
         
         StoredOctreeWriterNode *node = new StoredOctreeWriterNode();
@@ -87,21 +91,23 @@ namespace rayt {
         
         // add subtrees roots to the beginning of unfinished block
         node->root_children_pointer = 0;
+        node->nodes.resize(children_count);
         for (int i = 0; i < children_count; ++i) {
             StoredOctreeWriterNodeData n;
             n.children_mask = subtrees[i].second->root_children_mask;
             n.channels_data = subtrees[i].second->root_channels_data;
             // other fields of n will be filled later
-            node->nodes.push_back(n);
+            node->nodes[subtrees[i].first.second] = n;
         }
         
         // greedy children grouping; TODO: try backtracking
         while (subtree_size + children_count > nodes_in_block_) { // group children in blocks while more than a block remains
             int sz = 0; // size of extracted block
             vector<pair<int, void*> > group; // <child index (among non-NULL children), StoredOctreeWriterNode>
-            for (uint i = 0; i < subtrees.size(); ++i) { // greedily group subtrees in a block
+            for (int i = 0; i < static_cast<int>(subtrees.size()); ++i) { // greedily group subtrees in a block
                 if (sz + subtrees[i].first.first <= nodes_in_block_) {
                     sz += subtrees[i].first.first;
+                    subtree_size -= subtrees[i].first.first;
                     group.push_back(make_pair(subtrees[i].first.second, subtrees[i].second));
                     subtrees.erase(subtrees.begin() + i);
                     --i;
@@ -117,14 +123,15 @@ namespace rayt {
             int child_index = subtrees[i].first.second;
             StoredOctreeWriterNode *n = subtrees[i].second;
             node->nodes[child_index].children_in_same_block = true;
-            node->nodes[child_index].children.node_index_offset = n->root_children_pointer + static_cast<int>(n->nodes.size());
+            node->nodes[child_index].children.node_index_offset = n->root_children_pointer + static_cast<int>(node->nodes.size()) - child_index;
             node->nodes.insert(node->nodes.end(), n->nodes.begin(), n->nodes.end());
         }
         
         // free children memory
-        for (int i = 0; i < 8; ++i)
+        for (int i = 0; i < 8; ++i) {
             if(children[i] != NULL)
                 delete children[i];
+        }
         
         return node;
     }
@@ -132,7 +139,8 @@ namespace rayt {
     void StoredOctreeWriter::CommitBlock(vector<pair<int, void *> > group, void *parent_children0) {
         vector<StoredOctreeWriterNodeData> &parent_children = *reinterpret_cast<vector<StoredOctreeWriterNodeData>*>(parent_children0);
         shared_ptr<StoredOctreeBlock> block = shared_ptr<StoredOctreeBlock>(new StoredOctreeBlock());
-        block->data.resize(nodes_in_block_ * (node_data_size_ + kNodeLinkSize));
+        block->data.Resize(nodes_in_block_ * (node_data_size_ + kNodeLinkSize));
+        block->data.Zero();
         block->header.block_index = blocks_count_++;
         block->header.roots_count = static_cast<int>(group.size());
         
@@ -164,6 +172,7 @@ namespace rayt {
                     
                     // link one of his roots to this node
                     b->header.roots[d.children.root_index].parent_pointer_index = node_index + k;
+                    b->header.roots[d.children.root_index].parent_pointer_children_mask = d.children_mask;
                 }
                 p = (p << 8) | d.children_mask;
                 BinaryUtil::WriteUint(p, data + kNodeLinkSize * (node_index + k));
@@ -181,11 +190,12 @@ namespace rayt {
                 int s = channels_[c].bytes_in_node;
                 for (uint k = 0; k < node->nodes.size(); ++k) {
                     memcpy(data + channel_data_pos + s * (node_index + k), node->nodes[k].channels_data[c].data(), s);
-                    channel_data_pos += s * nodes_in_block_;
                 }
+                channel_data_pos += s * nodes_in_block_;
             }
         
             // fill parent pointers
+            parent_children[group[i].first].children_in_same_block = false;
             parent_children[group[i].first].children_block_index = block->header.block_index;
             parent_children[group[i].first].children.root_index = i;
             
@@ -201,6 +211,7 @@ namespace rayt {
         StoredOctreeWriterNodePtr super_root_children[8] = { root, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
         Buffer super_root_channels_data(node_data_size_); // filled with undefined data deliberately
         StoredOctreeWriterNodePtr super_root0 = CreateNode(super_root_children, super_root_channels_data.data());
+        --nodes_count_; // don't count this fictive node
         StoredOctreeWriterNode *super_root = reinterpret_cast<StoredOctreeWriterNode*>(super_root0);
         vector<StoredOctreeWriterNodeData> root_pointer(1);
         vector<pair<int, void*> > groups;
@@ -218,7 +229,7 @@ namespace rayt {
         StoredOctreeHeader header;
         header.blocks_count = blocks_count_;
         header.nodes_in_block = nodes_in_block_;
-        header.root_block_index = root_pointer[0].children.root_index;
+        header.root_block_index = root_pointer[0].children_block_index;
         
         StoredOctreeChannel link_channel;
         link_channel.bytes_in_node = kNodeLinkSize;
@@ -242,8 +253,9 @@ namespace rayt {
         BinaryUtil::WriteUint(block.header.parent_block_index, data + pos); pos +=4;
         BinaryUtil::WriteUint(block.header.roots_count, data + pos); pos +=4;
         for (int i = 0; i < 8; ++i) {
-            BinaryUtil::WriteUshort(block.header.roots[i].parent_pointer_index, data + pos); pos +=2;
-            BinaryUtil::WriteUshort(block.header.roots[i].pointed_child_index, data + pos); pos +=2;
+            BinaryUtil::WriteUshort(block.header.roots[i].parent_pointer_index, data + pos); pos += 2;
+            BinaryUtil::WriteUshort(block.header.roots[i].pointed_child_index, data + pos); pos += 2;
+            data[pos] = block.header.roots[i].parent_pointer_children_mask; pos += 1;
         }
         memcpy(data + pos, block.data.data(), block.data.size());
         
@@ -280,6 +292,15 @@ namespace rayt {
         
         out_file_->seekp(0);
         out_file_->write(data, header_size_);
+    }
+    
+    void StoredOctreeWriter::PrintReport() {
+        cout << "Nodes in block: " << nodes_in_block_ << endl;
+        cout << "Bytes in block: " << bytes_in_block_ - kBlockHeaderSize << " data + " << kBlockHeaderSize << " header = " << bytes_in_block_ << endl;
+        cout << "Nodes: " << nodes_count_ << endl;
+        cout << "Blocks: " << blocks_count_ << endl;
+        cout << "Total bytes: " << header_size_ << " header + " << bytes_in_block_ << " * " << blocks_count_ << " blocks = " << header_size_ + static_cast<long long>(bytes_in_block_) * blocks_count_ << endl;
+        cout << "Blocking overhead (without headers): " << (((static_cast<double>(bytes_in_block_ - kBlockHeaderSize) * blocks_count_) / (static_cast<double>(node_data_size_ + 4) * nodes_count_)) - 1) * 100 << "%" << endl;
     }
     
 }

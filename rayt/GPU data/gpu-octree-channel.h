@@ -15,12 +15,11 @@ namespace rayt {
         
         const std::string& name() const;
         
-        // in bytes
         int bytes_in_node() const;
         
         // CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_WRITE_ONLY
-        // please don't modify its contents from outside
         CLBuffer* cl_buffer();
+        const CLBuffer* cl_buffer() const;
     private:
         boost::shared_ptr<CLContext> context_;
         std::string name_;

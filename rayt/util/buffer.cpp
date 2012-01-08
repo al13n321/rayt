@@ -74,7 +74,7 @@ namespace rayt {
         return data_;
     }
     
-    void Buffer::resize(int new_size) {
+    void Buffer::Resize(int new_size) {
         assert(new_size >= 0);
         if (new_size == size_)
             return;
@@ -87,6 +87,10 @@ namespace rayt {
             data_ = new char[size_];
             assert(data_);
         }
+    }
+    
+    void Buffer::Zero() {
+        memset(data_, 0, size_);
     }
     
 }

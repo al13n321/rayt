@@ -29,7 +29,11 @@ namespace rayt {
         
         // must be called exactly once
         void FinishAndWrite(StoredOctreeWriterNodePtr root);
+        
+        // writes some statistics to stdout
+        void PrintReport();
     private:
+        long long nodes_count_;
         int blocks_count_;
         StoredOctreeChannelSet channels_; // without node link channel
         int nodes_in_block_;

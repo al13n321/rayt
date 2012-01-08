@@ -19,5 +19,6 @@ Stored octree block contains the following:
     d) 8 root records. Only first n records are valid.
         - 2 bytes - index of pointer in parent block. Ignored if this block is root.
         - 2 bytes - index of pointed node in this block.
-2) Concatenated data for all channels. Child pointers are stored in the following way. Let c be some 24-bit child pointer, t = c&1, p = c>>1. If t == 0, p is the child index within this block. If t == 1, p is the index of the block containing children; the index of child within this block can be found in that block header.
+        - 1 byte - children mask of pointer in parent block (it's redundant but handy).
+2) Concatenated data for all channels. Child pointers are stored in the following way. Let c be some 24-bit child pointer, t = c&1, p = c>>1. If t == 0, p is the child index within this block. If t == 1, p is the index of the block containing children; the index of child within this block can be found in that block header. Data for non-existing nodes (nodes that have no incoming links) is filled with zeroes.
 3) 0 or more bytes of padding, so that the record size is equal to q.

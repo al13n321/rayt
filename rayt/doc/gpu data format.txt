@@ -2,6 +2,8 @@ GPU representation of octree consists of paraller buffers and textures called ch
 
 Node link buffer format.
 uint *nodes;
-Let nodes[i] & 255 = m, nodes[i] >> 8 = p.
+Let nodes[i] & 255 = m, (nodes[i] >> 8) & 1 = t, nodes[i] >> 9 = p.
 m is the mask of non-empty children.
-If m != 0, p is either kFaultNode or a pointer to the first non-empty child. Other non-empty children follow it consecutively.
+If m == 0, f and p are undefined. Otherwise
+    if t == 0, p is index in cache of the first non-empty child,
+    if t == 1, p is the index of block in which children are located.
