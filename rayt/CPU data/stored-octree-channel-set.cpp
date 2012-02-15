@@ -13,7 +13,7 @@ namespace rayt {
     }
     
     bool StoredOctreeChannelSet::Contains(string name) const {
-        return channel_by_name_.count(name);
+        return channel_by_name_.count(name) > 0;
     }
     
     const StoredOctreeChannel& StoredOctreeChannelSet::operator[](int index) const {

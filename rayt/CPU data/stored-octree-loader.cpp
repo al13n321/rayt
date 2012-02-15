@@ -81,7 +81,7 @@ namespace rayt {
             channel.bytes_in_node = BinaryUtil::ReadUint(data);
             uint l = BinaryUtil::ReadUint(data + 4);
             
-            if (l > buf.size()) {
+            if (l > static_cast<uint>(buf.size())) {
                 buf.Resize(l);
                 data = reinterpret_cast<char*>(buf.data());
             }

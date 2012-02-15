@@ -5,10 +5,11 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
-#ifdef __WIN32__
+#ifdef WIN32
 #include <glew.h>
 #include <wglew.h>
 #include <glut.h>
+#include <CL/opencl.h>
 #endif
 
 #ifdef __APPLE__

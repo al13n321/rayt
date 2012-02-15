@@ -10,7 +10,6 @@ namespace rayt {
         ~CLContext();
         
         cl_context context();
-        CGLShareGroupObj share_group();
         cl_device_id device_id();
         cl_command_queue queue();
         
@@ -18,7 +17,6 @@ namespace rayt {
     private:
         cl_context context_;
         cl_command_queue queue_;
-        CGLShareGroupObj share_group_;
         cl_device_id device_id_;
         
         DISALLOW_COPY_AND_ASSIGN(CLContext);

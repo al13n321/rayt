@@ -14,17 +14,19 @@ namespace rayt {
         
         const GPUOctreeData* data() const;
         const bool full() const;
+        const int loaded_blocks_count() const;
+        const int max_blocks_count() const;
         
-        bool BlockInCache(int block_index) const;
+        bool IsBlockInCache(int block_index) const;
         
         // returns -1 if block is not in cache
         int BlockIndexInCache(int block_index) const;
         
         void MarkBlockAsUsed(int block_index_in_cache);
         
-        // modifies block contents!
+        // modifies block contents and header!
         // if blocking is false, block should be valid until next clFinish or similar call
-        // parent must be loaded
+        // parent block must be in cache
         void UploadBlock(StoredOctreeBlock &block, bool blocking);
     private:
         struct CachedBlockRoot {

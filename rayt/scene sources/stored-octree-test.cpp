@@ -91,14 +91,14 @@ namespace rayt {
                 uint link = BinaryUtil::ReadUint(data + index_in_block * 4);
                 lchildren_mask = link & 255;
                 link >>= 8;
-                bool far = !!(link & 1);
+                bool is_far = !!(link & 1);
                 link >>= 1;
-                if (far) {
+                if (is_far) {
                     nblock = shared_ptr<StoredOctreeBlock>(new StoredOctreeBlock());
                     if (!s->loader->LoadBlock(link, nblock.get()))
                         crash("failed to load block");
                     bool found = false;
-                    for (int i = 0; i < nblock->header.roots_count; ++i) { // find needed root in new block
+                    for (uint i = 0; i < nblock->header.roots_count; ++i) { // find needed root in new block
                         StoredOctreeBlockRoot &r = nblock->header.roots[i];
                         if (r.parent_pointer_index == index_in_block) {
                             if (found)

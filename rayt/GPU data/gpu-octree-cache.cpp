@@ -33,7 +33,15 @@ namespace rayt {
         return first_free_index_ == max_blocks_count_;
     }
     
-    bool GPUOctreeCache::BlockInCache(int block_index) const {
+    const int GPUOctreeCache::loaded_blocks_count() const {
+        return first_free_index_;
+    }
+    
+    const int GPUOctreeCache::max_blocks_count() const {
+        return max_blocks_count_;
+    }
+    
+    bool GPUOctreeCache::IsBlockInCache(int block_index) const {
         return block_to_cache_index_.count(block_index) > 0;
     }
     
@@ -52,14 +60,20 @@ namespace rayt {
         }
     }
     
+	// FIXME: might work incorrectly if !blocking (enqueues overlapping buffer writes)
     void GPUOctreeCache::UploadBlock(StoredOctreeBlock &block, bool blocking) {
         assert(!block_to_cache_index_.count(block.header.block_index));
         
         int index;
-        if (first_free_index_ == max_blocks_count_)
+		if (first_free_index_ == max_blocks_count_) {
+			if (block.header.parent_block_index != kRootBlockParent) {
+				assert(block_to_cache_index_.count(block.header.parent_block_index));
+				MarkBlockAsUsed(block_to_cache_index_[block.header.parent_block_index]); // prevent unloading parent
+			}
             index = UnloadLRUBlock(blocking);
-        else
+		} else {
             index = first_free_index_++;
+		}
         
         // make pointers absolute
         char *data = reinterpret_cast<char*>(block.data.data());
@@ -68,9 +82,9 @@ namespace rayt {
             uchar children_mask = link & 255;
             if (children_mask) {
                 link >>= 8;
-                bool far = !!(link & 1);
+                bool is_far = !!(link & 1);
                 link >>= 1;
-                if (!far) {
+                if (!is_far) {
                     link += index * nodes_in_block_; // convert index from block-relative to cache-relative
                     link = (link << 9) + (0 << 8) + children_mask;
                     BinaryUtil::WriteUint(link, data);
@@ -94,13 +108,20 @@ namespace rayt {
             
             // update pointers in parent block and fill parents in cache structure
             // TODO: upload consecutive updated pointers with one call
-            for (int i = 0; i < block.header.roots_count; ++i) {
+            for (uint i = 0; i < block.header.roots_count; ++i) {
                 StoredOctreeBlockRoot &r = block.header.roots[i];
-                uint new_value = ((index * nodes_in_block_ + r.pointed_child_index) << 9) | r.parent_pointer_children_mask;
-                data_->UploadBlockPart(0, parent_index, r.parent_pointer_index * kNodeLinkSize, kNodeLinkSize, &new_value, blocking);
                 
                 info.roots[i].pointer_index_in_parent = r.parent_pointer_index;
                 info.roots[i].parent_children_mask = r.parent_pointer_children_mask;
+
+                uint new_value = ((index * nodes_in_block_ + r.pointed_child_index) << 9) | r.parent_pointer_children_mask;
+				int offset = r.parent_pointer_index * kNodeLinkSize;
+				
+				assert(sizeof(StoredOctreeBlockRoot) >= sizeof(uint));
+				void *new_value_data = &r; // store it in block header (this pointer should be valid until next clFinish if blocking is false)
+				BinaryUtil::WriteUint(new_value, new_value_data);
+                
+				data_->UploadBlockPart(0, parent_index, offset, kNodeLinkSize, new_value_data, blocking);
             }
         } else {
             info.parent_block_index = kRootBlockParent;

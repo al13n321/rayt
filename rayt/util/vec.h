@@ -5,44 +5,52 @@
 
 namespace rayt {
 
-// 3-dimensional vector with float components
-struct fvec3 {
-	float x, y, z;
+template<typename ftype>
+struct tvec3 {
+	ftype x, y, z;
 
-	inline fvec3() {}
-	inline fvec3(float x, float y, float z) : x(x), y(y), z(z) {}
+	inline tvec3() {}
+	inline tvec3(ftype x, ftype y, ftype z) : x(x), y(y), z(z) {}
 
-	inline fvec3 operator - () const { return fvec3(-x, -y, -z); }
+	template<typename T>
+	inline tvec3<ftype>(const tvec3<T> &v) : x(v.x), y(v.y), z(v.z) {}
 
-	inline fvec3 operator + (const fvec3 &v) const { return fvec3(x + v.x, y + v.y, z + v.z); }
-	inline fvec3 operator - (const fvec3 &v) const { return fvec3(x - v.x, y - v.y, z - v.z); }
-	inline fvec3 operator * (float d) const { return fvec3(x * d, y * d, z * d); }
-	inline fvec3 operator * (const fvec3 &v) const { return fvec3(x * v.x, y * v.y, z * v.z); }
-	inline fvec3 operator / (float d) const { d = 1.0f / d; return fvec3(x * d, y * d, z * d); }
+	inline tvec3<ftype> operator - () const { return tvec3<ftype>(-x, -y, -z); }
 
-	inline fvec3& operator += (const fvec3 &v) { x += v.x; y += v.y; z += v.z; return *this; }
-	inline fvec3& operator -= (const fvec3 &v) { x -= v.x; y -= v.y; z -= v.z; return *this; }
-	inline fvec3& operator *= (float d) { x *= d; y *= d; z *= d; return *this; }
-	inline fvec3& operator *= (const fvec3 &v) { x *= v.x; y *= v.y; z *= v.z; return *this; }
-	inline fvec3& operator /= (float d) { d = 1.0f / d; x *= d; y *= d; z *= d; return *this; }
+	inline tvec3<ftype> operator + (const tvec3<ftype> &v) const { return tvec3<ftype>(x + v.x, y + v.y, z + v.z); }
+	inline tvec3<ftype> operator - (const tvec3<ftype> &v) const { return tvec3<ftype>(x - v.x, y - v.y, z - v.z); }
+	inline tvec3<ftype> operator * (ftype d) const { return tvec3(x * d, y * d, z * d); }
+	inline tvec3<ftype> operator * (const tvec3<ftype> &v) const { return tvec3<ftype>(x * v.x, y * v.y, z * v.z); }
+	inline tvec3<ftype> operator / (ftype d) const { d = 1.0f / d; return tvec3<ftype>(x * d, y * d, z * d); }
 
-	inline float Dot(const fvec3 &v) { return x*v.x + y*v.y + z*v.z; }
-	inline fvec3 Cross(const fvec3 &v) { return fvec3(y*v.z - z*v.y, z*v.z - x*v.z, x*v.y - y*v.x); }
+	inline tvec3<ftype>& operator += (const tvec3<ftype> &v) { x += v.x; y += v.y; z += v.z; return *this; }
+	inline tvec3<ftype>& operator -= (const tvec3<ftype> &v) { x -= v.x; y -= v.y; z -= v.z; return *this; }
+	inline tvec3<ftype>& operator *= (ftype d) { x *= d; y *= d; z *= d; return *this; }
+	inline tvec3<ftype>& operator *= (const tvec3<ftype> &v) { x *= v.x; y *= v.y; z *= v.z; return *this; }
+	inline tvec3<ftype>& operator /= (ftype d) { d = 1.0f / d; x *= d; y *= d; z *= d; return *this; }
 
-	inline float LengthSquare() { return Dot(*this); }
-	inline float Length() { return sqrt(LengthSquare()); }
+	inline ftype Dot(const tvec3<ftype> &v) const { return x*v.x + y*v.y + z*v.z; }
+	inline tvec3<ftype> Cross(const tvec3<ftype> &v) const { return tvec3<ftype>(y*v.z - z*v.y, z*v.z - x*v.z, x*v.y - y*v.x); }
 
-	inline float DistanceSquare(const fvec3 &b) { return (b - *this).LengthSquare(); }
-	inline float Distance(const fvec3 &b) { return (b - *this).Length(); }
+	inline ftype LengthSquare() { return Dot(*this); }
+	inline ftype Length() { return sqrt(LengthSquare()); }
+
+	inline ftype DistanceSquare(const tvec3<ftype> &b) { return (b - *this).LengthSquare(); }
+	inline ftype Distance(const tvec3<ftype> &b) { return (b - *this).Length(); }
 
 	inline void NormalizeMe() { *this /= Length(); }
-	inline fvec3 Normalized() { return *this / Length(); }
+	inline tvec3<ftype> Normalized() { return *this / Length(); }
 
-	inline bool AllGreaterThan(const fvec3 &v) { return x > v.x && y > v.y && z > v.z; }
-	inline bool AllLessThan(const fvec3 &v) { return x < v.x && y < v.y && z < v.z; }
-	inline float MinComponent() const { return x < y ? x < z ? x : z : y < z ? y : z; }
-	inline float MaxComponent() const { return x > y ? x > z ? x : z : y > z ? y : z; }
-	inline fvec3 Abs() const { return fvec3(abs(x), abs(y), abs(z)); }
+	inline bool AllGreaterThan(const tvec3<ftype> &v) { return x > v.x && y > v.y && z > v.z; }
+	inline bool AllLessThan(const tvec3<ftype> &v) { return x < v.x && y < v.y && z < v.z; }
+	inline ftype MinComponent() const { return x < y ? x < z ? x : z : y < z ? y : z; }
+	inline ftype MaxComponent() const { return x > y ? x > z ? x : z : y > z ? y : z; }
+    inline tvec3<ftype> Min(const tvec3 &v) const { return tvec3(min(x, v.x), min(y, v.y), min(z, v.z)); }
+    inline tvec3<ftype> Max(const tvec3 &v) const { return tvec3(max(x, v.x), max(y, v.y), max(z, v.z)); }
+	inline tvec3<ftype> Abs() const { return tvec3(abs(x), abs(y), abs(z)); }
 };
+
+typedef tvec3<float> fvec3;
+typedef tvec3<double> dvec3;
 
 }

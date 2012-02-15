@@ -177,18 +177,18 @@ fmat4 fmat4::RotationMatrix(float yaw, float pitch, float roll) {
 	return RotationMatrixY(yaw) * RotationMatrixX(pitch) * RotationMatrixZ(roll);
 }
 
-fmat4 fmat4::PerspectiveProjectionMatrix(float fov, float aspect_ratio, float near, float far) {
+fmat4 fmat4::PerspectiveProjectionMatrix(float fov, float aspect_ratio, float near_dist, float far_dist) {
 	fmat4 r = ZeroMatrix();
 	float f = 1.0f / tan(fov * (kfDegToRad / 2));
 	r.m[0] = f;
 	r.m[5] = f * aspect_ratio;
 	r.m[14] = -1;
-	if (far == 0) {
+	if (far_dist == 0) {
 		r.m[10] = -1;
-		r.m[11] = -2 * near;
+		r.m[11] = -2 * near_dist;
 	} else {
-		r.m[10] = -(far + near) / (far - near);
-		r.m[11] = -2 * far * near/ (far - near);
+		r.m[10] = -(far_dist + near_dist) / (far_dist - near_dist);
+		r.m[11] = -2 * far_dist * near_dist/ (far_dist - near_dist);
 	}
 	return r;
 }

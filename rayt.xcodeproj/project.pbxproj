@@ -40,13 +40,14 @@
 		8CE9757614BA085B0037CBE7 /* debug-ray-cast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9757414BA085B0037CBE7 /* debug-ray-cast.cpp */; };
 		8CE9757914BA08680037CBE7 /* import-obj-scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9757714BA08680037CBE7 /* import-obj-scene.cpp */; };
 		8CE9757F14BA08840037CBE7 /* gpu-ray-tracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9757A14BA08840037CBE7 /* gpu-ray-tracer.cpp */; };
-		8CE9758014BA08840037CBE7 /* raytracer_nvidia_port.cl in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9757C14BA08840037CBE7 /* raytracer_nvidia_port.cl */; };
-		8CE9758114BA08840037CBE7 /* raytracer_old_cpu_port.cl in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9757D14BA08840037CBE7 /* raytracer_old_cpu_port.cl */; };
-		8CE9758214BA08840037CBE7 /* raytracer.cl in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9757E14BA08840037CBE7 /* raytracer.cl */; };
 		8CE9758514BA08900037CBE7 /* gpu-octree-cache-manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9758314BA08900037CBE7 /* gpu-octree-cache-manager.cpp */; };
 		8CE9758C14BA08A40037CBE7 /* cl-kernel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9758614BA08A40037CBE7 /* cl-kernel.cpp */; };
 		8CE9758D14BA08A40037CBE7 /* cl-texture-2d-reference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9758814BA08A40037CBE7 /* cl-texture-2d-reference.cpp */; };
 		8CE9758E14BA08A40037CBE7 /* rendered-image-drawer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9758A14BA08A40037CBE7 /* rendered-image-drawer.cpp */; };
+		8CE9759014BAC26E0037CBE7 /* intersections.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9758F14BAC26E0037CBE7 /* intersections.cpp */; };
+		8CE9759414BB4EA60037CBE7 /* raytracer_nvidia_port.cl in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9759114BB4EA60037CBE7 /* raytracer_nvidia_port.cl */; };
+		8CE9759514BB4EA60037CBE7 /* raytracer_old_cpu_port.cl in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9759214BB4EA60037CBE7 /* raytracer_old_cpu_port.cl */; };
+		8CE9759614BB4EA60037CBE7 /* raytracer.cl in Sources */ = {isa = PBXBuildFile; fileRef = 8CE9759314BB4EA60037CBE7 /* raytracer.cl */; };
 		8CEF8AB814AF719C00A39A8B /* stored-octree-loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AB514AF719C00A39A8B /* stored-octree-loader.cpp */; };
 		8CEF8ABB14AF71AA00A39A8B /* gpu-octree-cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8AB914AF71AA00A39A8B /* gpu-octree-cache.cpp */; };
 		8CEF8ABE14AF71B500A39A8B /* cl-context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF8ABC14AF71B500A39A8B /* cl-context.cpp */; };
@@ -157,9 +158,6 @@
 		8CE9757814BA08680037CBE7 /* import-obj-scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "import-obj-scene.h"; path = "scene sources/import-obj-scene.h"; sourceTree = "<group>"; };
 		8CE9757A14BA08840037CBE7 /* gpu-ray-tracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gpu-ray-tracer.cpp"; path = "GPU renderer/gpu-ray-tracer.cpp"; sourceTree = "<group>"; };
 		8CE9757B14BA08840037CBE7 /* gpu-ray-tracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "gpu-ray-tracer.h"; path = "GPU renderer/gpu-ray-tracer.h"; sourceTree = "<group>"; };
-		8CE9757C14BA08840037CBE7 /* raytracer_nvidia_port.cl */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; name = raytracer_nvidia_port.cl; path = "GPU renderer/raytracer_nvidia_port.cl"; sourceTree = "<group>"; };
-		8CE9757D14BA08840037CBE7 /* raytracer_old_cpu_port.cl */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; name = raytracer_old_cpu_port.cl; path = "GPU renderer/raytracer_old_cpu_port.cl"; sourceTree = "<group>"; };
-		8CE9757E14BA08840037CBE7 /* raytracer.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; name = raytracer.cl; path = "GPU renderer/raytracer.cl"; sourceTree = "<group>"; };
 		8CE9758314BA08900037CBE7 /* gpu-octree-cache-manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gpu-octree-cache-manager.cpp"; path = "GPU data/gpu-octree-cache-manager.cpp"; sourceTree = "<group>"; };
 		8CE9758414BA08900037CBE7 /* gpu-octree-cache-manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "gpu-octree-cache-manager.h"; path = "GPU data/gpu-octree-cache-manager.h"; sourceTree = "<group>"; };
 		8CE9758614BA08A40037CBE7 /* cl-kernel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "cl-kernel.cpp"; path = "CL util/cl-kernel.cpp"; sourceTree = "<group>"; };
@@ -168,6 +166,10 @@
 		8CE9758914BA08A40037CBE7 /* cl-texture-2d-reference.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "cl-texture-2d-reference.h"; path = "CL util/cl-texture-2d-reference.h"; sourceTree = "<group>"; };
 		8CE9758A14BA08A40037CBE7 /* rendered-image-drawer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "rendered-image-drawer.cpp"; path = "CL util/rendered-image-drawer.cpp"; sourceTree = "<group>"; };
 		8CE9758B14BA08A40037CBE7 /* rendered-image-drawer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "rendered-image-drawer.h"; path = "CL util/rendered-image-drawer.h"; sourceTree = "<group>"; };
+		8CE9758F14BAC26E0037CBE7 /* intersections.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = intersections.cpp; sourceTree = "<group>"; };
+		8CE9759114BB4EA60037CBE7 /* raytracer_nvidia_port.cl */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; path = raytracer_nvidia_port.cl; sourceTree = "<group>"; };
+		8CE9759214BB4EA60037CBE7 /* raytracer_old_cpu_port.cl */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; path = raytracer_old_cpu_port.cl; sourceTree = "<group>"; };
+		8CE9759314BB4EA60037CBE7 /* raytracer.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; path = raytracer.cl; sourceTree = "<group>"; };
 		8CEF8AB414AF719C00A39A8B /* stored-octree-block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "stored-octree-block.h"; path = "CPU data/stored-octree-block.h"; sourceTree = "<group>"; };
 		8CEF8AB514AF719C00A39A8B /* stored-octree-loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "stored-octree-loader.cpp"; path = "CPU data/stored-octree-loader.cpp"; sourceTree = "<group>"; };
 		8CEF8AB614AF719C00A39A8B /* stored-octree-loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "stored-octree-loader.h"; path = "CPU data/stored-octree-loader.h"; sourceTree = "<group>"; };
@@ -269,6 +271,7 @@
 				8CEF8AF014B2053400A39A8B /* buffer.cpp */,
 				8CEF8AF114B2053400A39A8B /* buffer.h */,
 				8C9DB53F14A3B50B00BF3DBE /* intersections.h */,
+				8CE9758F14BAC26E0037CBE7 /* intersections.cpp */,
 				8C9DB52514A3AFCB00BF3DBE /* array.h */,
 				8C9DB52614A3AFCB00BF3DBE /* color.h */,
 				8C9DB52714A3AFCB00BF3DBE /* common.h */,
@@ -430,11 +433,11 @@
 		8CAD58B414B30EAC00FBCEEB /* GPU renderer */ = {
 			isa = PBXGroup;
 			children = (
+				8CE9759114BB4EA60037CBE7 /* raytracer_nvidia_port.cl */,
+				8CE9759214BB4EA60037CBE7 /* raytracer_old_cpu_port.cl */,
+				8CE9759314BB4EA60037CBE7 /* raytracer.cl */,
 				8CE9757A14BA08840037CBE7 /* gpu-ray-tracer.cpp */,
 				8CE9757B14BA08840037CBE7 /* gpu-ray-tracer.h */,
-				8CE9757C14BA08840037CBE7 /* raytracer_nvidia_port.cl */,
-				8CE9757D14BA08840037CBE7 /* raytracer_old_cpu_port.cl */,
-				8CE9757E14BA08840037CBE7 /* raytracer.cl */,
 			);
 			name = "GPU renderer";
 			sourceTree = "<group>";
@@ -561,13 +564,14 @@
 				8CE9757614BA085B0037CBE7 /* debug-ray-cast.cpp in Sources */,
 				8CE9757914BA08680037CBE7 /* import-obj-scene.cpp in Sources */,
 				8CE9757F14BA08840037CBE7 /* gpu-ray-tracer.cpp in Sources */,
-				8CE9758014BA08840037CBE7 /* raytracer_nvidia_port.cl in Sources */,
-				8CE9758114BA08840037CBE7 /* raytracer_old_cpu_port.cl in Sources */,
-				8CE9758214BA08840037CBE7 /* raytracer.cl in Sources */,
 				8CE9758514BA08900037CBE7 /* gpu-octree-cache-manager.cpp in Sources */,
 				8CE9758C14BA08A40037CBE7 /* cl-kernel.cpp in Sources */,
 				8CE9758D14BA08A40037CBE7 /* cl-texture-2d-reference.cpp in Sources */,
 				8CE9758E14BA08A40037CBE7 /* rendered-image-drawer.cpp in Sources */,
+				8CE9759014BAC26E0037CBE7 /* intersections.cpp in Sources */,
+				8CE9759414BB4EA60037CBE7 /* raytracer_nvidia_port.cl in Sources */,
+				8CE9759514BB4EA60037CBE7 /* raytracer_old_cpu_port.cl in Sources */,
+				8CE9759614BB4EA60037CBE7 /* raytracer.cl in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

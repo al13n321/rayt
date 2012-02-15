@@ -48,9 +48,12 @@ namespace rayt {
         assert(bytes_in_block_ > 0); // catch some overflows
         
         nodes_count_ = 0;
+        all_done_ = false;
     }
     
-    StoredOctreeWriter::~StoredOctreeWriter() {}
+    StoredOctreeWriter::~StoredOctreeWriter() {
+        assert(all_done_);
+    }
     
     int StoredOctreeWriter::node_data_size() {
         return node_data_size_;
@@ -59,9 +62,21 @@ namespace rayt {
     // TODO: currently it all looks very like O(block_size) time, which can surely be improved to amortized O(1) time
     // TODO: also it would be nice to refactor it all to be more clear
     StoredOctreeWriterNodePtr StoredOctreeWriter::CreateNode(StoredOctreeWriterNodePtr* children0, const void *node_data0) {
-        ++nodes_count_;
+        assert(!all_done_);
         
-        StoredOctreeWriterNode **children = reinterpret_cast<StoredOctreeWriterNode**>(children0); // hope it will work on any needed platform
+        ++nodes_count_;
+
+		if (nodes_count_ % 1000000 == 0) {
+			cout << nodes_count_ << " nodes..." << endl;
+		}
+        
+        StoredOctreeWriterNode **children;
+        if (children0) {
+            children = reinterpret_cast<StoredOctreeWriterNode**>(children0); // hope it will work on any needed platform
+        } else {
+            static StoredOctreeWriterNode* null_children[8] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+            children = null_children;
+        }
         
         StoredOctreeWriterNode *node = new StoredOctreeWriterNode();
         
@@ -137,6 +152,9 @@ namespace rayt {
     }
     
     void StoredOctreeWriter::CommitBlock(vector<pair<int, void *> > group, void *parent_children0) {
+		if (blocks_count_ > kMaxBlocksCount)
+			crash("block count limit exceeded");
+
         vector<StoredOctreeWriterNodeData> &parent_children = *reinterpret_cast<vector<StoredOctreeWriterNodeData>*>(parent_children0);
         shared_ptr<StoredOctreeBlock> block = shared_ptr<StoredOctreeBlock>(new StoredOctreeBlock());
         block->data.Resize(nodes_in_block_ * (node_data_size_ + kNodeLinkSize));
@@ -207,6 +225,8 @@ namespace rayt {
     }
     
     void StoredOctreeWriter::FinishAndWrite(StoredOctreeWriterNodePtr root) {
+        assert(!all_done_);
+        
         // use fictive super root to write final root block the same way as other blocks
         StoredOctreeWriterNodePtr super_root_children[8] = { root, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
         Buffer super_root_channels_data(node_data_size_); // filled with undefined data deliberately
@@ -242,6 +262,8 @@ namespace rayt {
         WriteHeader(header);
         
         out_file_->close();
+        
+        all_done_ = true;
     }
     
     void StoredOctreeWriter::WriteBlock(StoredOctreeBlock &block) {

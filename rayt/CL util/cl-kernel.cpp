@@ -26,7 +26,7 @@ namespace rayt {
         err = clBuildProgram(program_, 1, &device_id, params.c_str(), NULL, NULL);
         if (err != CL_SUCCESS) {
             size_t len;
-            char buffer[2048];
+            static char buffer[65536];
             
             err = clGetProgramBuildInfo(program_, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer) - 1, buffer, &len);
             if (err != CL_SUCCESS)

@@ -22,7 +22,7 @@ namespace rayt {
         // not counting node link buffer!
         int node_data_size();
         
-        // children is an array of 8 pointers; pointers may be NULL
+        // children is NULL or an array of 8 pointers; pointers may be NULL
         // node_data is concatenated data for all channels except node link channel; must be node_data_size() bytes in length
         // only create nodes that will be used later as child or root, otherwise behavior is undefined
         StoredOctreeWriterNodePtr CreateNode(StoredOctreeWriterNodePtr* children, const void *node_data);
@@ -40,6 +40,7 @@ namespace rayt {
         int node_data_size_;
         int bytes_in_block_;
         int header_size_;
+        bool all_done_;
         boost::scoped_ptr<std::ofstream> out_file_;
         std::map<int, boost::shared_ptr<StoredOctreeBlock> > parentless_blocks; // key is block index
         

@@ -54,13 +54,22 @@ namespace rayt {
             StoredOctreeBlock *block = PushBlock();
             int index = load_queue.front();
             load_queue.pop();
-            if (cache_->BlockInCache(index))
+            if (cache_->IsBlockInCache(index))
                 continue;
+            
+            if (cache_->loaded_blocks_count() % 100 == 0) // QQQ
+                cout << cache_->loaded_blocks_count() << " / " << cache_->max_blocks_count() << " blocks loaded" << endl;
+            
             loader_->LoadBlock(index, block);
-            cache_->UploadBlock(*block, true); // TODO: make it non-blocking (I believe there's an issue with overlapping non-blocking writes)
-            if (block->header.parent_block_index == kRootBlockParent)
-                root_node_index_ = cache_->BlockIndexInCache(index) * nodes_in_block + block->header.roots[0].pointed_child_index;
-            const char *data = reinterpret_cast<const char*>(block->data.data());
+			
+			bool its_root = false;
+			int root_index_in_block;
+			if (block->header.parent_block_index == kRootBlockParent) {
+				its_root = true;
+				root_index_in_block = block->header.roots[0].pointed_child_index;
+			}
+            
+			const char *data = reinterpret_cast<const char*>(block->data.data());
             for (int i = 0; i < nodes_in_block; ++i) {
                 // non-existing nodes are handled correctly because they are filled with zeros (and have zero children mask)
                 uint link = BinaryUtil::ReadUint(data);
@@ -72,6 +81,11 @@ namespace rayt {
                 }
                 data += kNodeLinkSize;
             }
+
+            cache_->UploadBlock(*block, false); // TODO: fix GPUOctreeCache and make it non-blocking
+
+			if (its_root)
+				root_node_index_ = cache_->BlockIndexInCache(index) * nodes_in_block + root_index_in_block; // we can't take this data from block header because UploadBlock might have spoiled it
         }
         context_->WaitForAll();
         PopAllBlocks();

@@ -1,0 +1,745 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="9.00"
+	Name="rayt"
+	ProjectGUID="{3DB36090-905E-4639-A505-D0B03E574490}"
+	RootNamespace="rayt"
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="196613"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt;&quot;C:\Program Files\AMD APP\include&quot;;D:\boost\include;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\application;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU data&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU renderer&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\experimental;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU data&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU renderer&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene sources&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\util"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="glew32.lib glut32.lib OpenCL.lib"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt;&quot;C:\Program Files\AMD APP\lib\x86&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt;&quot;C:\Program Files\AMD APP\include&quot;;D:\boost\include;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\application;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU data&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU renderer&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\experimental;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU data&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU renderer&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene sources&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\util"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="glew32.lib glut32.lib OpenCL.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt;&quot;C:\Program Files\AMD APP\lib\x86&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="application"
+			>
+			<File
+				RelativePath="..\..\rayt\application\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\application\test-application.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\application\test-application.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\application\win-main.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="CL util"
+			>
+			<File
+				RelativePath="..\..\rayt\CL util\cl-buffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CL util\cl-buffer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CL util\cl-context.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CL util\cl-context.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CL util\cl-kernel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CL util\cl-kernel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CL util\cl-texture-2d-reference.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CL util\cl-texture-2d-reference.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CL util\rendered-image-drawer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CL util\rendered-image-drawer.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="CPU data"
+			>
+			<File
+				RelativePath="..\..\rayt\CPU data\compact-octree-nodes-pool.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\compact-octree-nodes-pool.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\compact-octree-statistics.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\compact-octree-statistics.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\compact-octree-structures.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\octree-constants.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\octree-constants.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-block.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-channel-set.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-channel-set.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-channel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-channel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-header.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-header.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-loader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-loader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-writer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-writer.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="CPU renderer"
+			>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\cpu-rendered-image-buffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\cpu-rendered-image-buffer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\cpu-rendered-image-drawer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\cpu-rendered-image-drawer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\cpu-rendering.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\cpu-rendering.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\old-debug-ray-cast.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\old-debug-ray-cast.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\ray-cast.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\ray-cast.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\render-statistics.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU renderer\render-statistics.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="doc"
+			>
+			<File
+				RelativePath="..\..\rayt\doc\gpu data format.txt"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\doc\rendering data format.txt"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\doc\storage data format.txt"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="experimental"
+			>
+			<File
+				RelativePath="..\..\rayt\experimental\blocking-experiment.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\experimental\blocking-experiment.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\experimental\debug-ray-cast.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\experimental\debug-ray-cast.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="GL util"
+			>
+			<File
+				RelativePath="..\..\rayt\GL util\quad-renderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GL util\quad-renderer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GL util\shader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GL util\shader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GL util\texture2d.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GL util\texture2d.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="GPU data"
+			>
+			<File
+				RelativePath="..\..\rayt\GPU data\gpu-octree-cache-manager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GPU data\gpu-octree-cache-manager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GPU data\gpu-octree-cache.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GPU data\gpu-octree-cache.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GPU data\gpu-octree-channel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GPU data\gpu-octree-channel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GPU data\gpu-octree-data.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GPU data\gpu-octree-data.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="GPU renderer"
+			>
+			<File
+				RelativePath="..\..\rayt\GPU renderer\gpu-ray-tracer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GPU renderer\gpu-ray-tracer.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="scene"
+			>
+			<File
+				RelativePath="..\..\rayt\scene\camera.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene\camera.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene\light-source.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene\scene.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene\scene.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="scene sources"
+			>
+			<File
+				RelativePath="..\..\rayt\scene sources\compact-mesh-generation.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene sources\compact-mesh-generation.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene sources\import-obj-scene.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene sources\import-obj-scene.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene sources\stored-octree-test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene sources\stored-octree-test.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="util"
+			>
+			<File
+				RelativePath="..\..\rayt\util\array.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\binary-util.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\binary-util.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\buffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\buffer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\color.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\common.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\debug.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\debug.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\intersections.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\intersections.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\mat.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\mat.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\math-util.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\statistical-value.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\statistical-value.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\string-util.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\string-util.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\test-stopwatch.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\test-stopwatch.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\vec.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="clpp"
+			>
+			<File
+				RelativePath="..\..\rayt\clpp\clpp.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clpp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppContext.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppContext.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppProgram.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppProgram.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppScan.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppScan_Default.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppScan_Default.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppScan_GPU.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppScan_GPU.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppSort.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppSort.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppSort_Blelloch.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppSort_Blelloch.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppSort_CPU.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppSort_CPU.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppSort_RadixSort.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppSort_RadixSort.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppSort_RadixSortGPU.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\clppSort_RadixSortGPU.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\StopWatch.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\clpp\StopWatch.h"
+				>
+			</File>
+		</Filter>
+		<File
+			RelativePath="..\..\rayt\log.txt"
+			>
+		</File>
+		<File
+			RelativePath="..\..\rayt\pass.frag"
+			>
+		</File>
+		<File
+			RelativePath="..\..\rayt\pass.vert"
+			>
+		</File>
+		<File
+			RelativePath="..\..\rayt\raytracer.cl"
+			>
+		</File>
+		<File
+			RelativePath="..\..\rayt\raytracer_nvidia_port.cl"
+			>
+		</File>
+		<File
+			RelativePath="..\..\rayt\raytracer_old_cpu_port.cl"
+			>
+		</File>
+		<File
+			RelativePath="..\..\rayt\raytracer_volatile.cl"
+			>
+		</File>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

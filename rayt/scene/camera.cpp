@@ -6,7 +6,7 @@ Camera::Camera() {
 	yaw_ = pitch_ =  roll_ = 0;
 	position_ = fvec3(0, 0, 0);
 	fov_ = 90;
-	near_clip_plane_ = 0.1f;
+	near_clip_plane_ = 0.01f;
 	aspect_ratio_ = 4.0f / 3.0f;
 }
 Camera::~Camera() {}

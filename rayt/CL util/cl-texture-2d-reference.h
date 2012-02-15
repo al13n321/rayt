@@ -12,8 +12,14 @@ namespace rayt {
         CLTexture2DReference(boost::shared_ptr<Texture2D> texture, cl_mem_flags flags, boost::shared_ptr<CLContext> context);
         ~CLTexture2DReference();
         
+		// write-only
         // please don't modify buffer contents of const CLTexture2DReference
+		// uchar4 RGBA
+		// only valid between BeginUpdates and EndUpdates
         cl_mem buffer() const;
+
+		void BeginUpdates();
+		void EndUpdates();
         
         boost::shared_ptr<Texture2D> texture();
         
@@ -22,6 +28,8 @@ namespace rayt {
         boost::shared_ptr<CLContext> context_;
         cl_mem buffer_;
         boost::shared_ptr<Texture2D> texture_;
+		GLuint pbo_;
+
         
         DISALLOW_COPY_AND_ASSIGN(CLTexture2DReference);
     };
