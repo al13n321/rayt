@@ -60,7 +60,8 @@ namespace rayt {
             if (cache_->loaded_blocks_count() % 100 == 0) // QQQ
                 cout << cache_->loaded_blocks_count() << " / " << cache_->max_blocks_count() << " blocks loaded" << endl;
             
-            loader_->LoadBlock(index, block);
+			if (!loader_->LoadBlock(index, block))
+				crash("failed to load block");
 			
 			bool its_root = false;
 			int root_index_in_block;
@@ -82,7 +83,7 @@ namespace rayt {
                 data += kNodeLinkSize;
             }
 
-            cache_->UploadBlock(*block, false); // TODO: fix GPUOctreeCache and make it non-blocking
+            cache_->UploadBlock(*block, true); // TODO: fix GPUOctreeCache and make it non-blocking
 
 			if (its_root)
 				root_node_index_ = cache_->BlockIndexInCache(index) * nodes_in_block + root_index_in_block; // we can't take this data from block header because UploadBlock might have spoiled it

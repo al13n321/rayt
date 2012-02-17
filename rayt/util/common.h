@@ -6,10 +6,12 @@
 #include <boost/shared_ptr.hpp>
 
 #ifdef WIN32
+#define NOMINMAX
 #include <glew.h>
 #include <wglew.h>
 #include <glut.h>
 #include <CL/opencl.h>
+#undef NOMINMAX
 #endif
 
 #ifdef __APPLE__

@@ -1,9 +1,30 @@
 GPU representation of octree consists of paraller buffers and textures called channels. One of the channels is node link buffer. Other channels are optional and not interpreted by streamer.
 
-Node link buffer format.
+Node link buffer cache format.
 uint *nodes;
 Let nodes[i] & 255 = m, (nodes[i] >> 8) & 1 = t, nodes[i] >> 9 = p.
 m is the mask of non-empty children.
 If m == 0, f and p are undefined. Otherwise
     if t == 0, p is index in cache of the first non-empty child,
     if t == 1, p is the index of block in which children are located.
+
+
+
+
+Future format:
+
+Node link buffer cache format.
+
+uint *nodes;
+uint *far_pointers;
+
+Let nodes[i] & 255 = m, (nodes[i] >> 8) & 1 = t, nodes[i] >> 9 = v.
+m is the mask of non-empty children.
+
+If m == 0,
+	t and v are undefined,
+else
+    if t == 0, let f = v & 1, p = v >> 1,
+		if f == 0, i + p - (1 << 21) is the index in cache of the first non-empty child,
+		else, far_pointers[p] is the index in cache of the first non-empty child,
+    else, children are not loaded in cache, and v is the (global, not in cache) index of block in which children are located.

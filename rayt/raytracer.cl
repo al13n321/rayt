@@ -16,7 +16,9 @@ typedef float4 float3;
 #define S_MAX 23 // Maximum scale (number of float mantissa bits).
 #define EPSILON 0.00000011920928955078125f // exp2(-S_MAX)
 
-__constant float infinite_hit_t = 1e30f;
+__constant const float infinite_hit_t = 1e30f;
+
+__constant const int ERROR_ITERATION_LIMIT = 1;
 
 int popcount(uchar a) {
     const uchar l[16] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
@@ -32,7 +34,6 @@ static  int highbit( int a) {
     return r;
 }*/
 
-/*
 struct RayCastResult
 {
 	float hit_t;
@@ -41,7 +42,7 @@ struct RayCastResult
 	int error_code;
 	
 	int node_depth; // in tree
-};*/
+};
 
 void CastRay(__global uint *node_links,
              int root_node,
@@ -49,14 +50,11 @@ void CastRay(__global uint *node_links,
              float3 d, // ray direction
              float ray_size_coef, // LOD increase along ray
              float ray_size_bias, // LOD at ray origin
-             float *hit_t,
-             int *hit_node,
-             int *fault_block,
-             int *error_code)
+             struct RayCastResult *res)
 {
     p += make_float3(1, 1, 1); // move root node from [0, 1] to [1, 2]
-    *fault_block = -1;
-    *error_code = 0;
+    res->fault_block = -1;
+    res->error_code = 0;
     
     __private uint2 stack[S_MAX + 1]; // Stack of parent voxels (local mem).
     
@@ -92,12 +90,6 @@ void CastRay(__global uint *node_links,
     float h = t_max;
     t_min = fmax(t_min, 0.0f);
     
-    if (t_max <= t_min) { // QQQ
-        *hit_t = infinite_hit_t;
-        *hit_node = -1;
-        return;
-    }
-    
     // Initialize the current voxel to the first child of the root.
     
     uint parent = root_node;
@@ -111,7 +103,8 @@ void CastRay(__global uint *node_links,
     if (1.5f * ty_coef - ty_bias > t_min) idx ^= 2, pos.y = 1.5f;
     if (1.5f * tz_coef - tz_bias > t_min) idx ^= 4, pos.z = 1.5f;
     
-    ushort iter = 0; // QQQ
+    ushort iter = 0;
+    const ushort iter_limit = 500;
     
     // Traverse voxels along the ray as long as the current voxel
     // stays within the octree.
@@ -120,10 +113,11 @@ void CastRay(__global uint *node_links,
     {   
 		// Check for iteration limit
 		
-		if (++iter > 500) {
-			*error_code = 1;
-			*hit_t = t_min;
-			*hit_node = parent;
+		if (++iter > iter_limit) {
+			res->error_code = ERROR_ITERATION_LIMIT;
+			res->hit_t = t_min;
+			res->hit_node = parent;
+			res->node_depth = S_MAX - scale - 1;
 			return;
 		}
     
@@ -150,9 +144,10 @@ void CastRay(__global uint *node_links,
             // Terminate if children are not loaded.
             
             if ((child_descriptor & (1 << 8)) != 0) {
-                *hit_node = parent;
-                *hit_t = t_min;
-                *fault_block = child_descriptor >> 9;
+                res->hit_node = parent;
+                res->hit_t = t_min;
+                res->fault_block = child_descriptor >> 9;
+				res->node_depth = S_MAX - scale - 1;
                 return;
             }
             
@@ -164,8 +159,9 @@ void CastRay(__global uint *node_links,
             // Terminate if the voxel is small enough.
             
             if (tc_max * ray_size_coef + ray_size_bias >= scale_exp2) {
-                *hit_t = t_min;
-                *hit_node = ofs;
+                res->hit_t = t_min;
+                res->hit_node = ofs;
+				res->node_depth = S_MAX - scale;
                 return;
             }
             
@@ -176,8 +172,9 @@ void CastRay(__global uint *node_links,
             // Terminate if child is a leaf.
             
             if (!(child_descriptor & 255)) {
-                *hit_t = t_min;
-                *hit_node = ofs;
+                res->hit_t = t_min;
+                res->hit_node = ofs;
+				res->node_depth = S_MAX - scale;
                 return;
             }
             
@@ -268,8 +265,8 @@ void CastRay(__global uint *node_links,
     
     // Indicate miss if we are outside the octree.
     
-    *hit_t = infinite_hit_t;
-    *hit_node = -1;
+    res->hit_t = infinite_hit_t;
+    res->hit_node = -1;
 }
 
 float4 mul(float16 mat, float3 vec3) {
@@ -309,11 +306,8 @@ __kernel void RaytraceKernel(__global uchar4 *result,
         
         float ray_size_bias = lod_voxel_size * distance(p1near, p2near);
         float ray_size_coef = (ray_size_bias < 1e-10f) ? 0 : (lod_voxel_size * (distance(p1far, p2far) - distance(p1near, p2near)) / distance(p1near, p1far));
-        
-        float hit_t;
-        int hit_node;
-        int fault_block;
-        int error_code = -1;
+
+		struct RayCastResult res;
         
         CastRay(node_links,
                 root_node_index,
@@ -321,18 +315,19 @@ __kernel void RaytraceKernel(__global uchar4 *result,
                 direction,
                 ray_size_coef,
                 ray_size_bias,
-                &hit_t,
-                &hit_node,
-                &fault_block,
-                &error_code);
+                &res);
         
-        if (error_code) {
+        if (res.error_code || res.fault_block != -1) {
             result[index] = (uchar4)(255, 0, 0, 255);
+        } else if(res.hit_node == -1) {
+			result[index] = (uchar4)(0, 0, 0, 255);
         } else {
             float lim = 2;
-            hit_t = min(1.0f, hit_t / lim);
+            float hit_t = min(1.0f, res.hit_t / lim);
             float d = 255 - hit_t * 255;
-            result[index] = (uchar4)(d, d, d, 255);
+            float g = res.node_depth * 25;
+            //result[index] = (uchar4)(d, d, d, 255);
+            result[index] = (uchar4)(g, g, g, 255);
         }
     }
 }

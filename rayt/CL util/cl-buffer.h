@@ -5,6 +5,8 @@
 
 namespace rayt {
 
+#define DEBUG_CLBUFFER // keep a copy of buffer data in memory and check all GPU reads against it
+
     class CLBuffer {
     public:
         CLBuffer(cl_mem_flags flags, int size, boost::shared_ptr<CLContext> context);
@@ -21,6 +23,10 @@ namespace rayt {
         int size_;
         boost::shared_ptr<CLContext> context_;
         cl_mem buffer_;
+
+#ifdef DEBUG_CLBUFFER
+		char *debug_buffer_;
+#endif
     };
     
 }

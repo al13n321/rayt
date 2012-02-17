@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include "common.h"
+#include <algorithm>
 
 namespace rayt {
 
@@ -45,8 +46,8 @@ struct tvec3 {
 	inline bool AllLessThan(const tvec3<ftype> &v) { return x < v.x && y < v.y && z < v.z; }
 	inline ftype MinComponent() const { return x < y ? x < z ? x : z : y < z ? y : z; }
 	inline ftype MaxComponent() const { return x > y ? x > z ? x : z : y > z ? y : z; }
-    inline tvec3<ftype> Min(const tvec3 &v) const { return tvec3(min(x, v.x), min(y, v.y), min(z, v.z)); }
-    inline tvec3<ftype> Max(const tvec3 &v) const { return tvec3(max(x, v.x), max(y, v.y), max(z, v.z)); }
+    inline tvec3<ftype> Min(const tvec3 &v) const { return tvec3(std::min(x, v.x), std::min(y, v.y), std::min(z, v.z)); }
+    inline tvec3<ftype> Max(const tvec3 &v) const { return tvec3(std::max(x, v.x), std::max(y, v.y), std::max(z, v.z)); }
 	inline tvec3<ftype> Abs() const { return tvec3(abs(x), abs(y), abs(z)); }
 };
 

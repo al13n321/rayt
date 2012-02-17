@@ -303,6 +303,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-traverser.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-traverser.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\rayt\CPU data\stored-octree-writer.cpp"
 				>
 			</File>
@@ -378,6 +386,10 @@
 				RelativePath="..\..\rayt\doc\storage data format.txt"
 				>
 			</File>
+			<File
+				RelativePath=".\todo.txt"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="experimental"
@@ -388,6 +400,14 @@
 			</File>
 			<File
 				RelativePath="..\..\rayt\experimental\blocking-experiment.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\experimental\debug-check-tree.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\experimental\debug-check-tree.h"
 				>
 			</File>
 			<File

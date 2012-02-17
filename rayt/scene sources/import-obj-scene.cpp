@@ -85,8 +85,9 @@ namespace rayt {
             }
         }
         
-        if (!non_empty_children) // it is possible due to precision issues
+		if (!non_empty_children) { // it is possible due to precision issues
             return NodeData(fvec3(0, 0, 0), fvec3(0, 0, 0), NULL);
+		}
         
         node_data.normal.NormalizeMe();
         node_data.color /= non_empty_children;

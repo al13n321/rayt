@@ -6,7 +6,7 @@ Rendering kernel outputs the following for each pixel:
 	- Accumulated color multiplier (3 components). Ones initially.
 2) Fault block index or -1.
 3) Hit node. In case of fault, parent of fault node.
-4) Dumped tracing state in case of fault. Fault can be either during casting ordinary ray or shadow ray. If shadow ray t is -1, it's ordinary ray, otherwise it's secondary ray.
+4) Dumped tracing state in case of fault. Fault can be either during casting ordinary ray or shadow ray. If shadow ray t is -1, it's ordinary ray, otherwise it's shadow ray.
 	- Ray origin.
 	- Ray direction. In case of shadow fault, it's ordinary ray direction before reflecting/refracting (if any).
 	- LOD of non-shadow ray at the origin.

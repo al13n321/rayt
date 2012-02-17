@@ -15,12 +15,15 @@ namespace rayt {
         
         int size() const;
         
-        bool Contains(std::string name) const;
+        bool Contains(const std::string &name) const;
         
         int SumBytesInNode() const;
+
+		// returns -1 if there's no such channel
+		int OffsetToChannel(const std::string &name) const;
         
         const StoredOctreeChannel& operator[](int index) const;
-        const StoredOctreeChannel& operator[](std::string name) const;
+        const StoredOctreeChannel& operator[](const std::string &name) const;
         
         // asserts unique name
         void AddChannel(const StoredOctreeChannel &channel);
@@ -28,7 +31,7 @@ namespace rayt {
         bool operator == (const StoredOctreeChannelSet &c) const;
         bool operator != (const StoredOctreeChannelSet &c) const;
     private:
-        std::map<std::string, StoredOctreeChannel*> channel_by_name_; // points to elements of channels_
+        std::map<std::string, int> channel_by_name_; // index in channels_
         std::vector<StoredOctreeChannel> channels_;
     };
     

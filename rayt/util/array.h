@@ -47,7 +47,7 @@ Array<T>::Array() {
 template <class T>
 Array<T>::Array(int size) {
 	size_ = size;
-	capacity_ = max(size, kDefaultArrayCapacity);
+	capacity_ = std::max(size, kDefaultArrayCapacity);
 	data_ = new T[capacity_];
 }
 

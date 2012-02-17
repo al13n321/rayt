@@ -9,6 +9,7 @@
 #include "binary-util.h"
 #include "debug.h"
 #include "debug-ray-cast.h"
+#include "debug-check-tree.h"
 #include "import-obj-scene.h"
 #include <cstdio>
 #include <iostream>
@@ -139,8 +140,14 @@ namespace rayt {
             crash("wrong endianness");
         
 		//ImportObjScene(15, 1000, "/Users/me/codin/raytracer/scenes/hairball.obj", "/Users/me/codin/raytracer/scenes/hairball15.tree", true);
-		//ImportObjScene(9, 10000, "H:/rayt scenes/hairball.obj", "H:/rayt scenes/hairball9.tree", true);
+		//ImportObjScene(2, 10, "H:/rayt scenes/hairball.obj", "H:/rayt scenes/hairball2.tree", true);
+		//WriteTestOctreeSphere(fvec3(.5F, .5F, .5F), .45F, 7, "H:/rayt scenes/sphere7.tree", 100);
         //return;
+
+		//DebugCheckConstantDepthTree("H:/rayt scenes/hairball9.tree", 9);
+		//CheckTestOctreeSphereWithLoader(fvec3(.5F, .5F, .5F), .45F, 7, "H:/rayt scenes/sphere7.tree");
+		//cout << "passed" << endl;
+		//return;
         
         glutInit(&argc, argv);
         
@@ -174,16 +181,17 @@ namespace rayt {
         
         camera.set_aspect_ratio(1);
         
-        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("H:/rayt scenes/hairball9.tree"));
+        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("H:/rayt scenes/sphere7.tree"));
 		//loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("/Users/me/codin/raytracer/scenes/hairball11.tree"));
         cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(loader->header().blocks_count, loader, context));
 
-        //cout << "root node: " << cache_manager->root_node_index() << endl;
-        //DebugOutputCLBuffer(*cache_manager->data()->ChannelByName("node links")->cl_buffer());
+		CheckTestOctreeSphereWithGPUData(fvec3(.5F, .5F, .5F), .45F, 7, cache_manager->data(), cache_manager->root_node_index(), true);
+		cout << "passed" << endl;
+		return;
         
-        raytracer.reset(new GPURayTracer(cache_manager, imgwid, imghei, context));
+		raytracer.reset(new GPURayTracer(cache_manager, imgwid, imghei, context));
         //raytracer->set_lod_voxel_size(2);
-		raytracer->set_lod_voxel_size(0.1);
+		raytracer->set_lod_voxel_size(1.5);
         drawer.reset(new RenderedImageDrawer(imgwid, imghei, context));
         
         glutMainLoop();
