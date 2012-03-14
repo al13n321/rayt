@@ -164,7 +164,7 @@ namespace rayt {
 
 		
         
-        queue_ = clCreateCommandQueue(context_, device_id_, 0, NULL);
+        queue_ = clCreateCommandQueue(context_, device_id_, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, NULL);
         if (!queue_)
             crash("failed to create command queue");
     }

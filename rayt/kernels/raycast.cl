@@ -1,40 +1,25 @@
 // I don't know how to write such copyright-related texts at the top of the file, but here's the point:
 // Ray cast function is an adaptation of source code from an extended version ("Efficient Sparse Voxel Octrees – Analysis, Extensions, and Implementation") of a great article [LAINE, S., AND KARRAS, T. 2010. Efficient sparse voxel octrees. In Proceedings of ACM SIGGRAPH 2010 Symposium on Interactive 3D Graphics and Games]
 
+#include "common.cl"
+
 #ifdef __FAST_RELAXED_MATH__
 #error it's unlikely to work with __FAST_RELAXED_MATH__
 #endif
 
-#if !defined(WIDTH) || !defined(HEIGHT)
-#define WIDTH 128
-#define HEIGHT 128
-#endif
-
-typedef float4 float3;
-#define make_float3(x, y, z) ((float4)(x, y, z, 0.0f))
-
 #define S_MAX 23 // Maximum scale (number of float mantissa bits).
 #define EPSILON 0.00000011920928955078125f // exp2(-S_MAX)
 
-__constant const float infinite_hit_t = 1e30f;
+#define infinite_hit_t 1e30f;
 
-__constant const int ERROR_ITERATION_LIMIT = 1;
+#define ERROR_ITERATION_LIMIT 1;
 
 int popcount(uchar a) {
     const uchar l[16] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
     return l[a & 15] + l[a >> 4];
 }
-/*
-static  int highbit( int a) {
-     int r = 0;
-    while (a > 1) {
-        ++r;
-        a >>= 1;
-    }
-    return r;
-}*/
 
-struct RayCastResult
+typedef struct RayCastResult
 {
 	float hit_t;
 	int hit_node;
@@ -42,9 +27,10 @@ struct RayCastResult
 	int error_code;
 	
 	int node_depth; // in tree
-};
+} RayCastResult;
 
 void CastRay(__global uint *node_links,
+             __global uint *far_pointers,
              int root_node,
              float3 p, // ray origin
              float3 d, // ray direction
@@ -153,7 +139,12 @@ void CastRay(__global uint *node_links,
             
             // Child node pointer.
             
-            uint ofs = child_descriptor >> 9; // child pointer
+            uint ofs;
+            if (child_descriptor & (1 << 9)) { // far pointer
+				ofs = far_pointers[child_descriptor >> 10];
+            } else {
+				ofs = (child_descriptor >> 10) + parent - (1 << 21); // child pointer
+			}
             ofs += popcount(child_descriptor & (child_masks - 1));
             
             // Terminate if the voxel is small enough.
@@ -267,67 +258,4 @@ void CastRay(__global uint *node_links,
     
     res->hit_t = infinite_hit_t;
     res->hit_node = -1;
-}
-
-float4 mul(float16 mat, float3 vec3) {
-    float4 vec = (float4)(vec3.x, vec3.y, vec3.z, 1);
-    float d = dot(vec, (float4)(mat.sc, mat.sd, mat.se, mat.sf));
-    return make_float3(dot(vec, (float4)(mat.s0, mat.s1, mat.s2, mat.s3)),
-                       dot(vec, (float4)(mat.s4, mat.s5, mat.s6, mat.s7)),
-                       dot(vec, (float4)(mat.s8, mat.s9, mat.sa, mat.sb))) / d;
-}
-
-__kernel void RaytraceKernel(__global uchar4 *result,
-                             __global uint *node_links,
-                             int root_node_index,
-                             float16 view_proj_inv,
-                             float lod_voxel_size)
-{
-    int x = get_global_id(0);
-    int y = get_global_id(1);
-    
-    if(x < WIDTH && y < HEIGHT) {
-        int index = y * WIDTH + x;
-        
-        float3 tmp = make_float3((x + 0.5f) / WIDTH * 2 - 1, (y + 0.5f) / HEIGHT * 2 - 1, -1);
-        float3 origin = mul(view_proj_inv, tmp);
-        tmp.z = 0;
-        float3 direction = mul(view_proj_inv, tmp) - origin;
-        direction = normalize(direction);
-        
-        tmp = make_float3((float)x / WIDTH * 2 - 1, (float)y / HEIGHT * 2 - 1, -1);
-        float3 p1near = mul(view_proj_inv, tmp);
-        tmp.z = 0;
-        float3 p1far = mul(view_proj_inv, tmp);
-        tmp = make_float3((float)(x + 1) / WIDTH * 2 - 1, (float)(y + 1) / HEIGHT * 2 - 1, -1);
-        float3 p2near = mul(view_proj_inv, tmp);
-        tmp.z = 0;
-        float3 p2far = mul(view_proj_inv, tmp);
-        
-        float ray_size_bias = lod_voxel_size * distance(p1near, p2near);
-        float ray_size_coef = (ray_size_bias < 1e-10f) ? 0 : (lod_voxel_size * (distance(p1far, p2far) - distance(p1near, p2near)) / distance(p1near, p1far));
-
-		struct RayCastResult res;
-        
-        CastRay(node_links,
-                root_node_index,
-                origin,
-                direction,
-                ray_size_coef,
-                ray_size_bias,
-                &res);
-        
-        if (res.error_code || res.fault_block != -1) {
-            result[index] = (uchar4)(255, 0, 0, 255);
-        } else if(res.hit_node == -1) {
-			result[index] = (uchar4)(0, 0, 0, 255);
-        } else {
-            float lim = 2;
-            float hit_t = min(1.0f, res.hit_t / lim);
-            float d = 255 - hit_t * 255;
-            float g = res.node_depth * 25;
-            //result[index] = (uchar4)(d, d, d, 255);
-            result[index] = (uchar4)(g, g, g, 255);
-        }
-    }
 }

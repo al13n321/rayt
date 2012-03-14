@@ -6,7 +6,7 @@
 
 namespace rayt {
 
-    // manages LRU cache, decides which block to unload, bot doesn't decide, which to load; manages links consistency: converts node links channel from storage format to GPU format (see docs)
+    // manages LRU cache, decides which block to unload, but doesn't decide, which to load; manages links consistency: converts node links channel from storage format to GPU format (see docs)
     class GPUOctreeCache {
     public:
         GPUOctreeCache(int nodes_in_block, int max_blocks_count, const StoredOctreeChannelSet &channels, boost::shared_ptr<CLContext> context);
@@ -24,14 +24,16 @@ namespace rayt {
         
         void MarkBlockAsUsed(int block_index_in_cache);
         
-        // modifies block contents and header!
-        // if blocking is false, block should be valid until next clFinish or similar call
+        // modifies block contents (even with blocking)!
+        // if blocking is false, block should be valid until next clFinish or similar call;
         // parent block must be in cache
         void UploadBlock(StoredOctreeBlock &block, bool blocking);
     private:
         struct CachedBlockRoot {
             ushort pointer_index_in_parent;
             uchar parent_children_mask;
+			uint pointer_value_in_parent;
+			uint far_pointer_value;
         };
         
         struct CachedBlockInfo {
@@ -40,6 +42,9 @@ namespace rayt {
             int roots_count;
             CachedBlockRoot roots[8];
             std::list<int>::iterator lru_queue_iterator;
+
+			CLEventList far_pointer_write_events;
+			std::vector<CLEventList> block_write_events; // one list for each channel
         };
         
         int nodes_in_block_;

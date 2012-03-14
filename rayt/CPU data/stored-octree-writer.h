@@ -1,10 +1,10 @@
 #pragma once
 
 #include <vector>
-#include <fstream>
 #include <map>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+#include "binary-file.h"
 #include "stored-octree-channel.h"
 #include "stored-octree-header.h"
 #include "stored-octree-block.h"
@@ -41,7 +41,7 @@ namespace rayt {
         int bytes_in_block_;
         int header_size_;
         bool all_done_;
-        boost::scoped_ptr<std::ofstream> out_file_;
+        boost::scoped_ptr<BinaryFile> out_file_;
         std::map<int, boost::shared_ptr<StoredOctreeBlock> > parentless_blocks; // key is block index
         
         void CommitBlock(std::vector<std::pair<int, void*> > group, void *parent_children); // first void* is StoredOctreeWriterNode*; second void* is vector<StoredOctreeWriterNodeData>*; I'm starting to like PImpl in such moments

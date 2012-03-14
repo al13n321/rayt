@@ -19,8 +19,8 @@ namespace rayt {
         out_image_.reset(new CLBuffer(CL_MEM_WRITE_ONLY, 4 * frame_width * frame_height, context));
         
         char params[300];
-        sprintf(params, "-D WIDTH=%d -D HEIGHT=%d", frame_width, frame_height);
-        raytrace_kernel_.reset(new CLKernel("raytracer.cl", params, "RaytraceKernel", context));
+		sprintf_s(params, sizeof(params), "-D WIDTH=%d -D HEIGHT=%d -I kernels", frame_width, frame_height);
+        raytrace_kernel_.reset(new CLKernel("kernels/raytracer.cl", params, "RaytraceKernel", context));
     }
     
     GPURayTracer::~GPURayTracer() {}
@@ -46,9 +46,10 @@ namespace rayt {
     void GPURayTracer::RenderFrame(const Camera &camera) {
         raytrace_kernel_->SetBufferArg(0, out_image_.get());
         raytrace_kernel_->SetBufferArg(1, cache_manager_->data()->ChannelByIndex(0)->cl_buffer());
-        raytrace_kernel_->SetIntArg(2, cache_manager_->root_node_index());
-        raytrace_kernel_->SetFloat16Arg(3, camera.ViewProjectionMatrix().Inverse());
-        raytrace_kernel_->SetFloatArg(4, lod_voxel_size_);
+		raytrace_kernel_->SetBufferArg(2, cache_manager_->data()->far_pointers_buffer());
+        raytrace_kernel_->SetIntArg(3, cache_manager_->root_node_index());
+        raytrace_kernel_->SetFloat16Arg(4, camera.ViewProjectionMatrix().Inverse());
+        raytrace_kernel_->SetFloatArg(5, lod_voxel_size_);
         raytrace_kernel_->Run2D(frame_width_, frame_height_, true);
     }
     

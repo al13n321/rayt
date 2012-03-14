@@ -69,7 +69,7 @@ namespace rayt {
         if (cur_frame_number % fps_update_period == 0) {
             char fps_str[100];
             double fps = 1.0 / fps_stopwatch.Restart() * fps_update_period;
-            sprintf(fps_str, "%lf", fps);
+            sprintf_s(fps_str, sizeof(fps_str), "%lf", fps);
             string title = string("FPS: ") + fps_str;
 
             glutSetWindowTitle(title.c_str());
@@ -79,8 +79,10 @@ namespace rayt {
     }
 
     static void KeyboardFunc(unsigned char key, int x, int y) {
-        if (key == 27)
+		if (key == 27) {
+			context->WaitForAll();
             exit(0);
+		}
         key_pressed[key] = true;
     }
 
@@ -140,7 +142,7 @@ namespace rayt {
             crash("wrong endianness");
         
 		//ImportObjScene(15, 1000, "/Users/me/codin/raytracer/scenes/hairball.obj", "/Users/me/codin/raytracer/scenes/hairball15.tree", true);
-		//ImportObjScene(2, 10, "H:/rayt scenes/hairball.obj", "H:/rayt scenes/hairball2.tree", true);
+		//ImportObjScene(11, 10000, "H:/rayt scenes/hairball.obj", "H:/rayt scenes/hairball11.tree", true);
 		//WriteTestOctreeSphere(fvec3(.5F, .5F, .5F), .45F, 7, "H:/rayt scenes/sphere7.tree", 100);
         //return;
 
@@ -181,13 +183,16 @@ namespace rayt {
         
         camera.set_aspect_ratio(1);
         
-        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("H:/rayt scenes/sphere7.tree"));
+        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("H:/rayt scenes/hairball8.tree"));
 		//loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("/Users/me/codin/raytracer/scenes/hairball11.tree"));
-        cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(loader->header().blocks_count, loader, context));
+		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(loader->header().blocks_count, loader, context));
+		cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(2000, loader, context));
 
-		CheckTestOctreeSphereWithGPUData(fvec3(.5F, .5F, .5F), .45F, 7, cache_manager->data(), cache_manager->root_node_index(), true);
-		cout << "passed" << endl;
-		return;
+		//cache_manager->data()->ChannelByIndex(0)->cl_buffer()->CheckContents();
+
+		//CheckTestOctreeSphereWithGPUData(fvec3(.5F, .5F, .5F), .45F, 7, cache_manager->data(), cache_manager->root_node_index(), true);
+		//cout << "passed" << endl;
+		//return;
         
 		raytracer.reset(new GPURayTracer(cache_manager, imgwid, imghei, context));
         //raytracer->set_lod_voxel_size(2);

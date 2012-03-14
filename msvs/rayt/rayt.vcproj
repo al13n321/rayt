@@ -211,6 +211,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\rayt\CL util\cl-event.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CL util\cl-event.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\rayt\CL util\cl-kernel.cpp"
 				>
 			</File>
@@ -555,6 +563,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\rayt\util\binary-file.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\binary-file.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\rayt\util\binary-util.cpp"
 				>
 			</File>
@@ -731,6 +747,38 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="kernels"
+			>
+			<File
+				RelativePath="..\..\rayt\kernels\common.cl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\kernels\finish_tracing_frame.cl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\kernels\init_tracing_frame.cl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\kernels\raycast.cl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\kernels\raytracer.cl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\kernels\raytracing_pass.cl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\kernels\shading.cl"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\..\rayt\log.txt"
 			>
@@ -741,10 +789,6 @@
 		</File>
 		<File
 			RelativePath="..\..\rayt\pass.vert"
-			>
-		</File>
-		<File
-			RelativePath="..\..\rayt\raytracer.cl"
 			>
 		</File>
 		<File

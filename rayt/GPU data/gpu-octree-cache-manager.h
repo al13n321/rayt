@@ -7,6 +7,9 @@
 namespace rayt {
 
     // manages loading data to GPU octree cache; prevents infinite loading-unloading of data (when working set is larger than cache)
+	// TODO: add methods to get recommendations about
+	// a) finishing the session (because the cache is not big enough to hold everything requested)
+	// b) decreasing detail level (for the same reason)
     class GPUOctreeCacheManager {
     public:
         GPUOctreeCacheManager(int max_blocks_count, boost::shared_ptr<StoredOctreeLoader> loader, boost::shared_ptr<CLContext> context);
@@ -18,9 +21,10 @@ namespace rayt {
         // session - a set of transactions; no block can be loaded more than once during a session; if some block was loaded during this session, then was thrown away from cache, then was requested again, this last request will be ignored; typically session is a frame
         void StartRequestSession();
         
-        // transaction - a set of request; the processing of the requests is guaranteed to be finished when transaction ends (but may be finished earlier); typically transaction is an iteration of feedback-driven loading
+        // transaction - a set of requests; the processing of the requests is guaranteed to be finished when transaction ends (but may be finished earlier); typically transaction is an iteration of feedback-driven loading
         void StartRequestTransaction();
         
+		void MarkBlockAsUsed(int block_index_in_cache);
         void RequestBlock(int block_index);
         
         void EndRequestTransaction();

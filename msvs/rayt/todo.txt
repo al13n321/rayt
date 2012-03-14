@@ -1,7 +1,3 @@
-Change GPU data format to allow more than 2^23 nodes in cache.
-Find out if it's UB to upload non-intersecting changes to the same buffer simultaneously (intersecting ones are apparently UB).
-Fix CLBuffer to take this into account.
-Fix GPUOctreeCache to use less blocking (also find out if blocking is equivalent to clFinish, and if not, even current blocking-everything implementation is invalid).
 Fix large files.
 Implement feedback with hacky kernel.
 ???

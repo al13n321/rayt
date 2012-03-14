@@ -20,10 +20,11 @@ namespace rayt {
         return res;
     }
     
-    bool ReadFile(const wchar_t *file, string &res) {
+    bool ReadFile(string file, string &res) {
+		res.clear();
         const int bufsize = 4096;
         char buf[bufsize];
-        ifstream in(WstringToString(file).c_str());
+        ifstream in(file.c_str());
         if(in.fail())
             return false;
         int c;
@@ -34,5 +35,18 @@ namespace rayt {
         } while (c == bufsize);
         return true;
     }
+	
+	vector<string> Tokenize(string &s, string delims) {
+		vector<string> res;
+		res.push_back("");
+		for (int i = 0; i < (int)s.length(); ++i) {
+			if (delims.find(s[i]) == string::npos) {
+				res.back() += s[i];
+			} else {
+				res.push_back("");
+			}
+		}
+		return res;
+	}
 
 }

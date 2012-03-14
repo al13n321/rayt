@@ -249,9 +249,9 @@ namespace rayt {
         Buffer chan2(data->max_blocks_count() * data->nodes_in_block() * 1);
         if (data->channels_count() != 3 || data->ChannelByIndex(0)->name() != "node links" || data->ChannelByIndex(1)->name() != "node index" || data->ChannelByIndex(2)->name() != "node index % 211" || data->ChannelByIndex(0)->bytes_in_node() != 4 || data->ChannelByIndex(1)->bytes_in_node() != 4 || data->ChannelByIndex(2)->bytes_in_node() != 1)
             crash("wrong channels in GPU");
-        data->ChannelByName("node links")->cl_buffer()->Read(0, link.size(), link.data(), true);
-        data->ChannelByName("node index")->cl_buffer()->Read(0, chan1.size(), chan1.data(), true);
-        data->ChannelByName("node index % 211")->cl_buffer()->Read(0, chan2.size(), chan2.data(), true);
+        data->ChannelByName("node links")->cl_buffer()->Read(0, link.size(), link.data());
+        data->ChannelByName("node index")->cl_buffer()->Read(0, chan1.size(), chan1.data());
+        data->ChannelByName("node index % 211")->cl_buffer()->Read(0, chan2.size(), chan2.data());
         s.node_link_data = reinterpret_cast<const char*>(link.data());
         s.channel1 = reinterpret_cast<const char*>(chan1.data());
         s.channel2 = reinterpret_cast<const char*>(chan2.data());

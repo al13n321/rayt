@@ -2,8 +2,8 @@
 
 #include <string>
 #include <vector>
-#include <fstream>
 #include <boost/scoped_ptr.hpp>
+#include "binary-file.h"
 #include "stored-octree-block.h"
 #include "stored-octree-header.h"
 #include "stored-octree-channel-set.h"
@@ -23,7 +23,7 @@ namespace rayt {
         bool LoadBlock(int index, StoredOctreeBlock *out_block);
     private:
         StoredOctreeHeader header_;
-        boost::scoped_ptr<std::ifstream> in_file_;
+        boost::scoped_ptr<BinaryFile> in_file_;
         int block_content_size_;
         int header_size_;
         int block_stride_size_;

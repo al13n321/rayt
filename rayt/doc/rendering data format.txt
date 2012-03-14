@@ -1,18 +1,15 @@
-Refracting and and reflecting surfaces are (going to be) supported. Hard shadows are supported.
+Refracting and and reflecting surfaces are (going to be) supported.
+Only one path is traced for each pixel. It can change direction (for reflection OR refraction) after hitting surfaces, but it can't create additional rays (for shadows or reflecting-AND-refracting surfaces).
 
 Rendering kernel outputs the following for each pixel:
 1) Blending state:
 	- Color, accumulated so far. Zeros initially. Just color, if there's no fault. Zero, if there's a fault and no secondary rays.
-	- Accumulated color multiplier (3 components). Ones initially.
-2) Fault block index or -1.
-3) Hit node. In case of fault, parent of fault node.
-4) Dumped tracing state in case of fault. Fault can be either during casting ordinary ray or shadow ray. If shadow ray t is -1, it's ordinary ray, otherwise it's shadow ray.
+	- Color multiplier, accumulated so far (3 components). Ones initially. Zeroes indicate that this pixel is rendered completely (i.e. there's no fault).
+2) Fault block index (global index) or hit node index (index in cache). Let the value be x. If x < 0, fault block index is -x-1. If x=NO_HIT, there's no hit (during this pass). Otherwise, hit node index is x-1.
+3) Tracing state in case of fault.
 	- Ray origin.
-	- Ray direction. In case of shadow fault, it's ordinary ray direction before reflecting/refracting (if any).
-	- LOD of non-shadow ray at the origin.
-	- LOD increase along non-shadow ray.
-	- Shadow ray direction. Shadow ray origin coincides with ray origin.
-	- Shadow ray t. If -1, it's ordinary (non-shadow) fault.
-	- Shadow ray light source index.
-
-TODO: LOD change for secondary and shadow rays.
+	- Ray direction.
+	- LOD at the origin of the ray.
+	- LOD increase along the ray.
+	- Index of parent of fault node. To use it if fault is not fulfiled.
+	- Number of reflections/refractions occured. To stop if it's too big.

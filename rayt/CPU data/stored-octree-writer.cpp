@@ -28,8 +28,8 @@ namespace rayt {
     
     StoredOctreeWriter::StoredOctreeWriter(std::string filename, int nodes_in_block, const StoredOctreeChannelSet &channels) {
         assert(nodes_in_block > 0);
-        out_file_.reset(new ofstream(filename.c_str(), ios_base::binary | ios_base::trunc));
-        assert(!out_file_->fail());
+        out_file_.reset(new BinaryFile(filename.c_str(), false, true));
+        assert(out_file_->Writable());
         blocks_count_ = 0;
         nodes_in_block_ = nodes_in_block;
         
@@ -261,7 +261,7 @@ namespace rayt {
         
         WriteHeader(header);
         
-        out_file_->close();
+        out_file_.reset(NULL);
         
         all_done_ = true;
     }
@@ -281,8 +281,7 @@ namespace rayt {
         }
         memcpy(data + pos, block.data.data(), block.data.size());
         
-        out_file_->seekp(header_size_ + static_cast<long long>(bytes_in_block_) * block.header.block_index);
-        out_file_->write(data, bytes_in_block_);
+        out_file_->Write(header_size_ + static_cast<long long>(bytes_in_block_) * block.header.block_index, bytes_in_block_, data);
     }
     
     void StoredOctreeWriter::WriteHeader(StoredOctreeHeader &header) {
@@ -312,8 +311,7 @@ namespace rayt {
         
         assert(pos == header_size_);
         
-        out_file_->seekp(0);
-        out_file_->write(data, header_size_);
+        out_file_->Write(0, header_size_, data);
     }
     
     void StoredOctreeWriter::PrintReport() {

@@ -83,7 +83,7 @@ namespace rayt {
                 data += kNodeLinkSize;
             }
 
-            cache_->UploadBlock(*block, true); // TODO: fix GPUOctreeCache and make it non-blocking
+            cache_->UploadBlock(*block, false); // TODO: fix GPUOctreeCache and make it non-blocking
 
 			if (its_root)
 				root_node_index_ = cache_->BlockIndexInCache(index) * nodes_in_block + root_index_in_block; // we can't take this data from block header because UploadBlock might have spoiled it

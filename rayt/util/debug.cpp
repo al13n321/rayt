@@ -16,7 +16,7 @@ namespace rayt {
         int l = buffer.size();
         Buffer buf(l);
         uchar *data = reinterpret_cast<uchar*>(buf.data());
-        buffer.Read(0, l, data, true);
+        buffer.Read(0, l, data);
         for (int i = 0; i < l; ++i) {
             if (i && i % 4 == 0)
                 cout << ' ';

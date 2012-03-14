@@ -14,7 +14,11 @@ class Array {
 public:
 	Array();
 	Array(int size);
+	Array(const T &a); // initializes array of size 1 containing a
+	Array(const Array<T> &a);
 	~Array();
+
+	Array<T>& operator=(const Array<T> &a);
 
 	inline int size() const { return size_; }
 	inline T* begin() { return data_; }
@@ -30,8 +34,6 @@ private:
 	int capacity_;
 	int size_;
 	T *data_;
-
-	DISALLOW_COPY_AND_ASSIGN(Array);
 };
 
 
@@ -52,8 +54,41 @@ Array<T>::Array(int size) {
 }
 
 template <class T>
+Array<T>::Array(const T &a) {
+	size_ = 1;
+	capacity_ = 1;
+	data_ = new T[capacity_];
+	data_[0] = T;
+}
+
+template <class T>
+Array<T>::Array(const Array<T> &a) {
+	size_ = a.size_;
+	capacity_ = size_;
+	data_ = new T[capacity_];
+	for (int i = 0; i < size_; ++i)
+		data_[i] = a.data_[i];
+}
+
+template <class T>
 Array<T>::~Array() {
 	delete[] data_;
+}
+
+template<class T>
+Array<T>& Array<T>::operator =(const Array<T> &a) {
+	if (a.size_ > capacity_) {
+		capacity_ = a.size_;
+		delete[] data_;
+		data_ = new T[capacity_];
+	}
+
+	size_ = a.size_;
+
+	for (int i = 0; i < size_; ++i)
+		data_[i] = a.data_[i];
+
+	return *this;
 }
 
 template <class T>
@@ -68,7 +103,8 @@ void Array<T>::Resize(int newsize) {
 
 	T *newdata = new T[capacity_];
 
-	memcpy(newdata, data_, size_);
+	for (int i = 0; i < size_; ++i)
+		newdata[i] = data_[i];
 
 	delete[] data_;
 

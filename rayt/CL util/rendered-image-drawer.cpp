@@ -14,7 +14,7 @@ namespace rayt {
         frame_height_ = frame_height;
         shared_ptr<Texture2D> tex(new Texture2D(frame_width, frame_height, GL_RGBA8));
         texture_.reset(new CLTexture2DReference(tex, CL_MEM_WRITE_ONLY, context));
-        drawing_shader_.reset(new Shader(L"pass.vert", L"pass.frag"));
+        drawing_shader_.reset(new Shader("pass.vert", "pass.frag"));
         uniform_texture_ = glGetUniformLocation(drawing_shader_->program_id(),"inp");
     }
     

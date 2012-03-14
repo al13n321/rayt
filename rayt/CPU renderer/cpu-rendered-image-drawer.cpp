@@ -8,7 +8,7 @@ CPURenderedImageDrawer::CPURenderedImageDrawer(int width, int height) : image_da
 	height_ = height;
 	rendered_image_ = new CPURenderedImageBuffer(width, height);
 	image_texture_ = new Texture2D(width, height, GL_RGB8);
-	drawing_shader_ = new Shader(L"pass.vert", L"pass.frag");
+	drawing_shader_ = new Shader("pass.vert", "pass.frag");
 	uniform_texture_ = glGetUniformLocation(drawing_shader_->program_id(),"inp");
 }
 CPURenderedImageDrawer::~CPURenderedImageDrawer() {

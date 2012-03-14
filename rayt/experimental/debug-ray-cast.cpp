@@ -132,7 +132,7 @@ namespace rayt {
     
     void DebugRayCast(const CLBuffer &node_links_buffer, int root_node, fvec3 origin, fvec3 direction) {
         uint *data = new uint[node_links_buffer.size() / 4];
-        node_links_buffer.Read(0, node_links_buffer.size(), data, true);
+        node_links_buffer.Read(0, node_links_buffer.size(), data);
         float hit_t;
         int hit_node;
         int fault_block;

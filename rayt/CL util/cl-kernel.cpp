@@ -1,40 +1,42 @@
 #include "cl-kernel.h"
 #include "string-util.h"
+#include "kernel-preprocessor.h"
 using namespace std;
 using namespace boost;
 
 namespace rayt {
 
-    CLKernel::CLKernel(std::string filename, std::string params, std::string kernel_name, shared_ptr<CLContext> context) {
+    CLKernel::CLKernel(std::string file_name, std::string params, std::string kernel_name, shared_ptr<CLContext> context) {
         assert(context);
         
         context_ = context;
         
-        string text;
-        
-        if (!ReadFile(StringToWstring(filename).c_str(), text))
-            crash("failed to read kernel code");
+		string text;
+		
+		if (!ReadFile(file_name, text))
+			crash("failed to read " + file_name);
         
         int err;
         
         const char *text_c = text.c_str();
         program_ = clCreateProgramWithSource(context->context(), 1, &text_c, NULL, &err);
         if (!program_ || err != CL_SUCCESS)
-            crash("failed to create compute program");
+            crash("failed to create program");
         
         cl_device_id device_id = context_->device_id();
-        err = clBuildProgram(program_, 1, &device_id, params.c_str(), NULL, NULL);
-        if (err != CL_SUCCESS) {
-            size_t len;
-            static char buffer[65536];
-            
-            err = clGetProgramBuildInfo(program_, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer) - 1, buffer, &len);
-            if (err != CL_SUCCESS)
-                crash("failed to get program build log");
-            buffer[len] = 0;
-            cout << buffer << endl;
+        int build_err = clBuildProgram(program_, 1, &device_id, params.c_str(), NULL, NULL);
+
+		size_t len;
+        static char buffer[65536];
+        
+        err = clGetProgramBuildInfo(program_, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer) - 1, buffer, &len);
+        if (err != CL_SUCCESS)
+            crash("failed to get program build log");
+        buffer[len] = 0;
+        cout << buffer << endl;
+
+        if (build_err != CL_SUCCESS)
             crash("failed to build program");
-        }
         
         kernel_ = clCreateKernel(program_, kernel_name.c_str(), &err);
         if (!kernel_ || err != CL_SUCCESS)

@@ -1,4 +1,5 @@
 #include "import-obj-scene.h"
+#include <fstream>
 #include "stored-octree-writer.h"
 #include "vec.h"
 #include "intersections.h"

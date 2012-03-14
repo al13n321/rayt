@@ -7,8 +7,8 @@ using namespace boost;
 namespace rayt {
     
     StoredOctreeLoader::StoredOctreeLoader(string file_name) {
-        in_file_.reset(new ifstream(file_name.c_str(), ios_base::binary));
-        assert(!in_file_->fail());
+        in_file_.reset(new BinaryFile(file_name.c_str(), true, false));
+        assert(in_file_->Readable());
         
         ReadHeader();
         
@@ -27,14 +27,14 @@ namespace rayt {
     // if out_block has wrong size, it will be resized; typically, you can use the same block for all calls, so that it gets resized only in the first call, avoiding unneeded memory allocations;
     // returns true in case of success
     bool StoredOctreeLoader::LoadBlock(int index, StoredOctreeBlock *out_block) {
-        assert(index >= 0 && index < header_.blocks_count);
+        assert(index >= 0 && (uint)index < header_.blocks_count);
         assert(out_block);
         
         char *header_data = reinterpret_cast<char*>(block_header_buf_.data());
-        if (!in_file_->seekg(header_size_ + static_cast<long long>(block_stride_size_) * index))
+		long long file_pos = header_size_ + static_cast<long long>(block_stride_size_) * index;
+        if (!in_file_->Read(file_pos, kBlockHeaderSize, header_data))
             return false;
-        if (!in_file_->read(header_data, kBlockHeaderSize))
-            return false;
+		file_pos += kBlockHeaderSize;
         
         out_block->header.block_index = BinaryUtil::ReadUint(header_data + 0 * 4);
         out_block->header.parent_block_index = BinaryUtil::ReadUint(header_data + 1 * 4);
@@ -49,7 +49,7 @@ namespace rayt {
         if (out_block->data.size() != block_content_size_)
             out_block->data.Resize(block_content_size_);
         
-        if (!in_file_->read(reinterpret_cast<char*>(out_block->data.data()), block_content_size_))
+        if (!in_file_->Read(file_pos, block_content_size_, out_block->data.data()))
             return false;
         
         return true;
@@ -59,10 +59,7 @@ namespace rayt {
         Buffer buf(4 * 5);
         char *data = reinterpret_cast<char*>(buf.data());
         int pos = 0;
-        if (!in_file_->seekg(pos))
-            crash("failed to seek file");
-        
-        if (!in_file_->read(data, 4 * 5))
+        if (!in_file_->Read(pos, 4 * 5, data))
             crash("failed to read header");
         pos += 4 * 5;
         
@@ -73,7 +70,7 @@ namespace rayt {
         uint channels_count = BinaryUtil::ReadUint(data + 4 * 4);
         
         for (uint i = 0; i < channels_count; ++i) {
-            if (!in_file_->read(data, 4 * 2))
+            if (!in_file_->Read(pos, 4 * 2, data))
                 crash("failed to read channel header");
             pos += 4 * 2;
             
@@ -86,7 +83,7 @@ namespace rayt {
                 data = reinterpret_cast<char*>(buf.data());
             }
             
-            if (!in_file_->read(data, l))
+            if (!in_file_->Read(pos, l, data))
                 crash("failed to read channel name");
             pos += l;
             

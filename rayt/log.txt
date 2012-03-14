@@ -8,24 +8,17 @@ device version: OpenCL 1.0 AMD-APP (851.4)
 device type: GPU
 device image support: no
 
-0 / 1619 blocks loaded
-100 / 1619 blocks loaded
-200 / 1619 blocks loaded
-300 / 1619 blocks loaded
-400 / 1619 blocks loaded
-500 / 1619 blocks loaded
-600 / 1619 blocks loaded
-700 / 1619 blocks loaded
-800 / 1619 blocks loaded
-900 / 1619 blocks loaded
-1000 / 1619 blocks loaded
-1100 / 1619 blocks loaded
-1200 / 1619 blocks loaded
-1300 / 1619 blocks loaded
-1400 / 1619 blocks loaded
-1500 / 1619 blocks loaded
-1600 / 1619 blocks loaded
-pass.vert, pass.frag:
+0 / 2000 blocks loaded
+100 / 2000 blocks loaded
+200 / 2000 blocks loaded
+300 / 2000 blocks loaded
+kernels\common.cl(26): warning: #warning directive:
+          MAX_ALLOWED_TRACING_STATE_SIZE not defined
+  #warning MAX_ALLOWED_TRACING_STATE_SIZE not defined
+   ^
+
+
+pass.vert00D5573Cpass.frag:
 Vertex shader(s) linked, fragment shader(s) linked.
 
 

@@ -8,7 +8,7 @@ namespace rayt {
 
     class CLKernel {
     public:
-        CLKernel(std::string filename, std::string params, std::string kernel_name, boost::shared_ptr<CLContext> context);
+		CLKernel(std::string file_name, std::string params, std::string kernel_name, boost::shared_ptr<CLContext> context);
         ~CLKernel();
         
         void SetArg(int index, int size, void *data);

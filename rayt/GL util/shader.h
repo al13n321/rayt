@@ -13,7 +13,7 @@ const char * const kDefaultShaderAttribnames[]={"inScreenPos","inCanvasPos"};
 
 class Shader {
 public:
-	Shader(const wchar_t *vert, const wchar_t *frag, int attribcnt = 2, const char * const *attribnames = kDefaultShaderAttribnames);
+	Shader(std::string vert, std::string frag, int attribcnt = 2, const char * const *attribnames = kDefaultShaderAttribnames);
 	~Shader();
 
 	void Use();

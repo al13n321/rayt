@@ -7,7 +7,7 @@ using namespace std;
 
 namespace rayt {
 
-Shader::Shader(const wchar_t *vert, const wchar_t *frag, int attribcnt, const char * const * attribnames) {
+Shader::Shader(string vert, string frag, int attribcnt, const char * const * attribnames) {
 	string str;
 	const char *strs[1];
 	int l;
@@ -15,7 +15,7 @@ Shader::Shader(const wchar_t *vert, const wchar_t *frag, int attribcnt, const ch
 	bool log;
 	vs_ = glCreateShader(GL_VERTEX_SHADER);
 	if(!ReadFile(vert, str)) {
-        cout << "failed to open " << WstringToString(vert) << endl;
+        cout << "failed to open " << vert << endl;
         exit(4233);
     }
 	strs[0] = str.c_str();
@@ -28,7 +28,7 @@ Shader::Shader(const wchar_t *vert, const wchar_t *frag, int attribcnt, const ch
 		GLchar buffer[4096];
 		GLsizei l;
 		glGetShaderInfoLog(vs_, 4096, &l, buffer);
-		wcout << vert;
+		cout << vert;
 		cout << " compilation failed:\n" << buffer << "\n" << endl;
 	}
 	if (!ret)
@@ -37,7 +37,7 @@ Shader::Shader(const wchar_t *vert, const wchar_t *frag, int attribcnt, const ch
 	ps_ = glCreateShader(GL_FRAGMENT_SHADER);
 	str.clear();
 	if(!ReadFile(frag, str)) {
-        cout << "failed to open " << WstringToString(frag) << endl;
+        cout << "failed to open " << frag << endl;
         exit(4234);
     }
 	strs[0] = str.c_str();
@@ -50,7 +50,7 @@ Shader::Shader(const wchar_t *vert, const wchar_t *frag, int attribcnt, const ch
 		GLchar buffer[4096];
 		GLsizei l;
 		glGetShaderInfoLog(ps_, 4096, &l, buffer);
-		wcout << frag;
+		cout << frag;
 		cout << " ps compilation failed:\n" << buffer << "\n" << endl;
 	}
 	if (!ret)
@@ -74,7 +74,7 @@ Shader::Shader(const wchar_t *vert, const wchar_t *frag, int attribcnt, const ch
 		GLsizei l;
 		glGetProgramInfoLog(program_, 4096, &l, buffer);
 		if (buffer[0]){
-			wcout << vert << L", " << frag;
+			cout << vert << L", " << frag;
 			cout << ":\n" << buffer << "\n" << endl;
 		}
 	}

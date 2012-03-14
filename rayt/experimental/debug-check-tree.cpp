@@ -51,7 +51,7 @@ namespace rayt {
 	void DebugCheckConstantDepthTree(GPUOctreeData *gpu_data, int expected_depth) {
 		const CLBuffer *clbuf = gpu_data->ChannelByName(kNodeLinkChannelName)->cl_buffer();
 		char *data = new char[clbuf->size()];
-		clbuf->Read(0, clbuf->size(), data, true);
+		clbuf->Read(0, clbuf->size(), data);
 
 	}
 
