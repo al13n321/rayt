@@ -14,8 +14,6 @@ float4 mul(float16 mat, float3 vec3) {
 }
 
 __kernel void RaytraceKernel(__global uchar4 *result_colors,
-							 //__global int *result_fault_blocks,
-							 //__global TracingState *tracing_states,
                              __global uint *node_links,
                              __global uint *far_pointers,
                              int root_node_index,

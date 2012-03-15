@@ -13,11 +13,12 @@ namespace rayt {
         
         void SetArg(int index, int size, void *data);
         void SetIntArg(int index, int val);
+        void SetFloat4Arg(int index, fvec3 xyz, float w);
         void SetFloatArg(int index, float val);
         void SetBufferArg(int index, const CLBuffer *buf); // please don't modify (in kernel) contents of const CLBuffer
         void SetFloat16Arg(int index, fmat4 mat);
         
-        void Run2D(int size0, int size1, bool blocking);
+        void Run2D(int size0, int size1, const CLEventList *wait_list, CLEvent *out_event);
     private:
         boost::shared_ptr<CLContext> context_;
         cl_program program_;

@@ -1,3 +1,5 @@
+#ifndef COMMON_CL_INCLUDED
+#define COMMON_CL_INCLUDED
 
 // hacks to work on OpenCL 1.0
 typedef float4 float3;
@@ -24,6 +26,13 @@ typedef struct TracingState {
 
 #if !defined(MAX_ALLOWED_TRACING_STATE_SIZE)
 #warning MAX_ALLOWED_TRACING_STATE_SIZE not defined
-#elif MAX_ALLOWED_TRACING_STATE_SIZE < sizeof(TracingState)
-#error sizeof(TracingState) > MAX_ALLOWED_TRACING_STATE_SIZE
+// TODO: find a way to assert this
+//#elif sizeof(TracingState) > MAX_ALLOWED_TRACING_STATE_SIZE 
+//#error sizeof(TracingState) > MAX_ALLOWED_TRACING_STATE_SIZE
 #endif
+
+int is_zero(uchar4 v) {
+	return !v.x && !v.y && !v.z && !v.w;
+}
+
+#endif // COMMON_CL_INCLUDED

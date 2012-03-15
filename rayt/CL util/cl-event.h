@@ -36,6 +36,8 @@ namespace rayt {
 
 		int size() const;
 
+		void WaitFor() const;
+
 		const cl_event* events() const;
 	private:
 		Array<cl_event> events_;

@@ -2,7 +2,7 @@
 #include "shading.cl"
 
 __kernel void RaytracingPass(__global int *faults_and_hits, // out
-							 __global TracingState *tracing_states, // in-out
+                             __global TracingState *tracing_states, // in-out
                              __global uint *node_links,
                              __global uint *far_pointers,
                              int root_node_index)
@@ -19,7 +19,7 @@ __kernel void RaytracingPass(__global int *faults_and_hits, // out
 		do {
 			done = true;
         
-			if (s.color_multiplier == (uchar4)(0, 0, 0, 0)) {
+			if (is_zero(s.color_multiplier)) {
 				faults_and_hits[index] = NO_HIT;
 			} else {
 				RayCastResult res;
@@ -27,8 +27,8 @@ __kernel void RaytracingPass(__global int *faults_and_hits, // out
 				CastRay(node_links,
 						far_pointers,
 						root_node_index,
-						s.ray_origin.xyz,
-						s.ray_direction.xyz,
+						s.ray_origin,
+						s.ray_direction,
 						s.ray_direction.w,
 						s.ray_origin.w,
 						&res);
@@ -38,7 +38,7 @@ __kernel void RaytracingPass(__global int *faults_and_hits, // out
 					s.color_multiplier = (uchar4)(0, 0, 0, 0);
 					faults_and_hits[index] = NO_HIT;
 				} else if (res.fault_block != -1) {
-					s.ray_origin += s.ray_direction * res.hit_t;
+					s.ray_origin += s.ray_direction * res.hit_t; // note that it also updates ray size bias (ray_origin.w)
 					s.fault_parent_node = res.hit_node;
 					faults_and_hits[index] = -res.fault_block - 1;
 				} else if(res.hit_node == -1) {
@@ -46,9 +46,8 @@ __kernel void RaytracingPass(__global int *faults_and_hits, // out
 					faults_and_hits[index] = NO_HIT;
 				} else {
 					ProcessHit(res.hit_t, res.hit_node, &s);
-					if (s.color_multiplier == (uchar4)(0, 0, 0, 0)) {
-						faults_and_hits[index] = s.hit_node + 1;
-					} else {
+					faults_and_hits[index] = res.hit_node + 1;
+					if (!is_zero(s.color_multiplier)) {
 						done = false;
 					}
 				}

@@ -26,11 +26,22 @@ namespace rayt {
         int loading_time_limit_;
         float lod_voxel_size_;
         boost::shared_ptr<CLContext> context_;
-        boost::scoped_ptr<CLBuffer> out_image_;
         boost::shared_ptr<GPUOctreeCacheManager> cache_manager_;
         int frame_width_;
         int frame_height_;
-        boost::scoped_ptr<CLKernel> raytrace_kernel_;
+		
+		// uchar4
+        boost::scoped_ptr<CLBuffer> out_image_;
+
+		// struct TracingState
+        boost::scoped_ptr<CLBuffer> tracing_states_;
+
+		// int
+        boost::scoped_ptr<CLBuffer> faults_and_hits_;
+
+        boost::scoped_ptr<CLKernel> init_frame_kernel_;
+		boost::scoped_ptr<CLKernel> raytracing_pass_kernel_;
+		boost::scoped_ptr<CLKernel> finish_frame_kernel_;
         
         DISALLOW_COPY_AND_ASSIGN(GPURayTracer);
     };

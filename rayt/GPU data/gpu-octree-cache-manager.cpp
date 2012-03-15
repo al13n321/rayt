@@ -46,7 +46,7 @@ namespace rayt {
     }
     
     void GPUOctreeCacheManager::InitialFillCache() {
-        // use BFS to load highest nodes while cache is not full
+        // use BFS to load highest nodes until cache is full
         int nodes_in_block = loader_->header().nodes_in_block;
         queue<int> load_queue;
         load_queue.push(loader_->header().root_block_index);
@@ -57,7 +57,7 @@ namespace rayt {
             if (cache_->IsBlockInCache(index))
                 continue;
             
-            if (cache_->loaded_blocks_count() % 100 == 0) // QQQ
+            if (cache_->loaded_blocks_count() % 100 == 0)
                 cout << cache_->loaded_blocks_count() << " / " << cache_->max_blocks_count() << " blocks loaded" << endl;
             
 			if (!loader_->LoadBlock(index, block))
@@ -91,5 +91,17 @@ namespace rayt {
         context_->WaitForAll();
         PopAllBlocks();
     }
+
+	void StartRequestSession();
+        
+        // transaction - a set of requests; the processing of the requests is guaranteed to be finished when transaction ends (but may be finished earlier); typically transaction is an iteration of feedback-driven loading
+        void StartRequestTransaction();
+        
+		void MarkBlockAsUsed(int block_index_in_cache);
+        void RequestBlock(int block_index);
+        
+        void EndRequestTransaction();
+        
+        void EndRequestSession();
     
 }

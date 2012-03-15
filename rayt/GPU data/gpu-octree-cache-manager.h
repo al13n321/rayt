@@ -38,6 +38,8 @@ namespace rayt {
         boost::scoped_ptr<GPUOctreeCache> cache_;
         std::vector<boost::shared_ptr<StoredOctreeBlock> > uploaded_blocks_buffer_; // holds blocks of current transaction; never popped to prevent unnecessary allocations, instead its current virtual size is kept in uploaded_blocks_buffer_index_
         int uploaded_blocks_buffer_index_;
+
+		std::set<int> blocks_loaded_in_session_;
         
         StoredOctreeBlock* PushBlock();
         void PopAllBlocks();

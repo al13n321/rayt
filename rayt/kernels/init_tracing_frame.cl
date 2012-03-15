@@ -9,8 +9,8 @@ float4 mul(float16 mat, float3 vec3) {
 }
 
 __kernel void InitTracingFrame(__global TracingState *tracing_states,
-                             float16 view_proj_inv,
-                             float lod_voxel_size)
+                               float16 view_proj_inv,
+                               float lod_voxel_size)
 {
     int x = get_global_id(0);
     int y = get_global_id(1);

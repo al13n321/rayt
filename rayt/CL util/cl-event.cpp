@@ -95,6 +95,11 @@ namespace rayt {
 		return events_.size();
 	}
 
+	void CLEventList::WaitFor() const {
+		if (clWaitForEvents(events_.size(), events_.begin()) != CL_SUCCESS)
+			crash("failed to wait for events");
+	}
+
 	const cl_event* CLEventList::events() const {
 		return events_.begin();
 	}

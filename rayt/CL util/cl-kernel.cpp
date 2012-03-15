@@ -73,6 +73,11 @@ namespace rayt {
         SetArg(index, sizeof(cl_float), &val);
     }
     
+    void CLKernel::SetFloat4Arg(int index, fvec3 xyz, float w) {
+		float v[4] = { xyz.x, xyz.y, xyz.z, w };
+		SetArg(index, 4 * sizeof(cl_float), v);
+    }
+    
     void CLKernel::SetBufferArg(int index, const CLBuffer *buf) {
         cl_mem mem = buf->buffer();
         SetArg(index, sizeof(cl_mem), &mem);
@@ -82,7 +87,7 @@ namespace rayt {
         SetArg(index, sizeof(cl_float16), mat.m);
     }
     
-    void CLKernel::Run2D(int size0, int size1, bool blocking) {
+    void CLKernel::Run2D(int size0, int size1, const CLEventList *wait_list, CLEvent *out_event) {
         int s0 = 1;
         while (s0 < size0 && s0 * s0 < work_group_size_) // something nearly square
             s0 *= 2;
@@ -92,12 +97,23 @@ namespace rayt {
         size_t local[2] = { s0, s1 };
         size_t global[2] = { (size0 + s0 - 1) / s0 * s0, (size1 + s1 - 1) / s1 * s1 };
         
-        int err = clEnqueueNDRangeKernel(context_->queue(), kernel_, 2, NULL, global, local, 0, NULL, NULL);
+        int wait_list_size = 0;
+		const cl_event *wait_list_events = NULL;
+
+		if (wait_list) {
+			wait_list_size = wait_list->size();
+			if (wait_list_size)
+				wait_list_events = wait_list->events();
+		}
+
+		cl_event event;
+		cl_event *eventptr = out_event ? &event : NULL;
+
+		int err = clEnqueueNDRangeKernel(context_->queue(), kernel_, 2, NULL, global, local, wait_list_size, wait_list_events, eventptr);
         if (err != CL_SUCCESS)
             crash("failed to enqueue kernel");
-        
-        if (blocking)
-            context_->WaitForAll();
+
+		out_event->reset(event);
     }
     
 }
