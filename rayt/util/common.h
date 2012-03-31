@@ -61,3 +61,5 @@ inline void crash(std::string message) {
 typedef unsigned int uint;
 typedef unsigned short ushort;
 typedef unsigned char uchar;
+
+#define PROFILING_ENABLED

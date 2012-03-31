@@ -3,6 +3,8 @@
 using namespace std;
 using namespace boost;
 
+//#define NO_OPENGL_SHARING
+
 namespace rayt {
 
     CLContext::CLContext() {
@@ -114,6 +116,8 @@ namespace rayt {
 		if (!clGetGLContextInfoKHR)
 			crash("failed to query proc address for clGetGLContextInfoKHR");
 
+#ifndef NO_OPENGL_SHARING
+
 		cl_context_properties properties[] = 
         {
 			CL_CONTEXT_PLATFORM, (cl_context_properties) platform_id,
@@ -160,11 +164,45 @@ namespace rayt {
 		                           0,
 		                           0,
 		                           &err);
+
+#else
+
+		cl_int error = 0;
+		cl_platform_id platform;
+		
+		// Platform
+		error = clGetPlatformIDs(1, &platform, NULL);
+		if (error != CL_SUCCESS) {
+		   cout << "Error getting platform id: " << error << endl;
+		   exit(error);
+		}
+		// Device
+		error = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device_id_, NULL);
+		if (err != CL_SUCCESS) {
+		   cout << "Error getting device ids: " << error << endl;
+		   exit(error);
+		}
+		// Context
+		context_ = clCreateContext(0, 1, &device_id_, NULL, NULL, &error);
+		if (error != CL_SUCCESS) {
+		   cout << "Error creating context: " << error << endl;
+		   exit(error);
+		}
+
+#endif
+
 #endif
 
 		
-        
-        queue_ = clCreateCommandQueue(context_, device_id_, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, NULL);
+        cl_command_queue_properties queue_properties = 0;
+
+		queue_properties |= CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
+
+#ifdef PROFILING_ENABLED
+		queue_properties |= CL_QUEUE_PROFILING_ENABLE;
+#endif
+
+        queue_ = clCreateCommandQueue(context_, device_id_, queue_properties, NULL);
         if (!queue_)
             crash("failed to create command queue");
     }

@@ -1,3 +1,10 @@
-Fix large files.
-Implement feedback with hacky kernel.
-???
+Visualize block load time
+Visualize iteration count
+Decrease LOD when cache is too small
+Lighting
+Textures
+Reflections
+Nicer scenes
+Try different blocking strategies in StoredOctreeWriter: minimize depth difference
+Optimize StoredOctreeWriter
+Beam optimization

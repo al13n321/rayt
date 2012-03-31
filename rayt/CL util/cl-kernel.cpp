@@ -6,17 +6,29 @@ using namespace boost;
 
 namespace rayt {
 
-    CLKernel::CLKernel(std::string file_name, std::string params, std::string kernel_name, shared_ptr<CLContext> context) {
-        assert(context);
-        
-        context_ = context;
-        
-		string text;
+    CLKernel::CLKernel(string file_name, string params, string kernel_name, shared_ptr<CLContext> context) {
+        string text;
 		
 		if (!ReadFile(file_name, text))
 			crash("failed to read " + file_name);
         
-        int err;
+        Init(text, params, kernel_name, context);
+    }
+	
+	CLKernel::CLKernel(string include_dir, string file_name, string params, string kernel_name, shared_ptr<CLContext> context) {
+		params += " -I ";
+		params += include_dir; // TODO: escape spaces
+		string text = "#include \"" + file_name + "\"\n";
+		
+		Init(text, params, kernel_name, context);
+    }
+
+	void CLKernel::Init(string text, string params, string kernel_name, shared_ptr<CLContext> context) {
+		assert(context);
+        
+        context_ = context;
+        
+		int err;
         
         const char *text_c = text.c_str();
         program_ = clCreateProgramWithSource(context->context(), 1, &text_c, NULL, &err);
@@ -48,21 +60,28 @@ namespace rayt {
             crash("failed to retrieve kernel work group info");
         
         work_group_size_ = static_cast<int>(wgsize);
-    }
+	}
     
     CLKernel::~CLKernel() {
         context_->WaitForAll();
         clReleaseKernel(kernel_);
         clReleaseProgram(program_);
     }
+
+	int CLKernel::work_group_size() const {
+		return work_group_size_;
+	}
     
     void CLKernel::SetArg(int index, int size, void *data) {
         assert(index >= 0);
         assert(size > 0);
-        assert(data);
         int err = clSetKernelArg(kernel_, index, size, data);
         if (err != CL_SUCCESS)
             crash("failed to set kernel arg");
+    }
+    
+    void CLKernel::SetLocalBufferArg(int index, int size) {
+        SetArg(index, size, NULL);
     }
     
     void CLKernel::SetIntArg(int index, int val) {
@@ -85,6 +104,29 @@ namespace rayt {
     
     void CLKernel::SetFloat16Arg(int index, fmat4 mat) {
         SetArg(index, sizeof(cl_float16), mat.m);
+    }
+    
+    void CLKernel::Run1D(int size, const CLEventList *wait_list, CLEvent *out_event) {
+        int wait_list_size = 0;
+		const cl_event *wait_list_events = NULL;
+
+		if (wait_list) {
+			wait_list_size = wait_list->size();
+			if (wait_list_size)
+				wait_list_events = wait_list->events();
+		}
+
+		cl_event event;
+		cl_event *eventptr = out_event ? &event : NULL;
+
+		size_t global_size = (size + work_group_size_ - 1) / work_group_size_ * work_group_size_;
+		size_t local_size = work_group_size_;
+		int err = clEnqueueNDRangeKernel(context_->queue(), kernel_, 1, NULL, &global_size, &local_size, wait_list_size, wait_list_events, eventptr);
+        if (err != CL_SUCCESS)
+            crash("failed to enqueue kernel");
+
+		if (out_event)
+			out_event->reset(event);
     }
     
     void CLKernel::Run2D(int size0, int size1, const CLEventList *wait_list, CLEvent *out_event) {
@@ -113,7 +155,8 @@ namespace rayt {
         if (err != CL_SUCCESS)
             crash("failed to enqueue kernel");
 
-		out_event->reset(event);
+		if (out_event)
+			out_event->reset(event);
     }
     
 }

@@ -2,6 +2,7 @@
 #include <queue>
 #include "octree-constants.h"
 #include "binary-util.h"
+#include "profiler.h"
 using namespace std;
 using namespace boost;
 
@@ -18,8 +19,8 @@ namespace rayt {
         cache_.reset(new GPUOctreeCache(loader->header().nodes_in_block, max_blocks_count, loader->header().channels, context));
         
         uploaded_blocks_buffer_index_ = 0;
-        
-        InitialFillCache();
+
+		session_in_progress_ = transaction_in_progress_ = false;
     }
     
     GPUOctreeCacheManager::~GPUOctreeCacheManager() {}
@@ -51,13 +52,14 @@ namespace rayt {
         queue<int> load_queue;
         load_queue.push(loader_->header().root_block_index);
         while (!cache_->full() && !load_queue.empty()) {
-            StoredOctreeBlock *block = PushBlock();
             int index = load_queue.front();
             load_queue.pop();
             if (cache_->IsBlockInCache(index))
                 continue;
             
-            if (cache_->loaded_blocks_count() % 100 == 0)
+            StoredOctreeBlock *block = PushBlock();
+            
+			if (cache_->loaded_blocks_count() % 100 == 0)
                 cout << cache_->loaded_blocks_count() << " / " << cache_->max_blocks_count() << " blocks loaded" << endl;
             
 			if (!loader_->LoadBlock(index, block))
@@ -76,14 +78,14 @@ namespace rayt {
                 uint link = BinaryUtil::ReadUint(data);
                 int children_mask = link & 255;
                 link >>= 8;
-                if (children_mask && (link & 1)) { // far pointer
+                if (children_mask && (link & 1)) { // pointer to other block
                     link >>= 1;
                     load_queue.push(link);
                 }
                 data += kNodeLinkSize;
             }
 
-            cache_->UploadBlock(*block, false); // TODO: fix GPUOctreeCache and make it non-blocking
+            cache_->UploadBlock(*block, false);
 
 			if (its_root)
 				root_node_index_ = cache_->BlockIndexInCache(index) * nodes_in_block + root_index_in_block; // we can't take this data from block header because UploadBlock might have spoiled it
@@ -92,16 +94,102 @@ namespace rayt {
         PopAllBlocks();
     }
 
-	void StartRequestSession();
+	void GPUOctreeCacheManager::StartRequestSession() {
+		assert(!session_in_progress_);
+
+		session_in_progress_ = true;
+
+		session_lru_marker_ = cache_->InsertLRUMarker();
+	}
         
-        // transaction - a set of requests; the processing of the requests is guaranteed to be finished when transaction ends (but may be finished earlier); typically transaction is an iteration of feedback-driven loading
-        void StartRequestTransaction();
-        
-		void MarkBlockAsUsed(int block_index_in_cache);
-        void RequestBlock(int block_index);
-        
-        void EndRequestTransaction();
-        
-        void EndRequestSession();
+	void GPUOctreeCacheManager::StartRequestTransaction() {
+		assert(!transaction_in_progress_ && session_in_progress_);
+
+		transaction_in_progress_ = true;
+
+		transaction_lru_marker_ = cache_->InsertLRUMarker();
+	}
+    
+	void GPUOctreeCacheManager::MarkBlockAsUsed(int block_index_in_cache) {
+		assert(transaction_in_progress_);
+
+		cache_->MarkBlockAsUsed(block_index_in_cache);
+	}
+
+	void GPUOctreeCacheManager::RequestBlock(int index) {
+		assert(transaction_in_progress_);
+
+		if (cache_->IsBlockInCache(index))
+            return;
+
+		// defer actual loading until transaction end to mark all parents as used before uploading anything
+		transaction_blocks_.push_back(index);
+
+		cache_->MarkParentAsUsed(index);
+	}
+    
+	void GPUOctreeCacheManager::EndRequestTransaction() {
+		assert(transaction_in_progress_);
+
+		for (int i = 0; i < (int)transaction_blocks_.size(); ++i) {
+			if (TransactionFilledCache())
+				break;
+
+			int index = transaction_blocks_[i];
+
+			StoredOctreeBlock *block = PushBlock();
+
+			PROFILE_TIMER_START("HDD");
+			PROFILE_TIMER_START("HDD? load block");
+
+			if (!loader_->LoadBlock(index, block))
+				crash("failed to load block");
+
+			PROFILE_TIMER_STOP();
+			PROFILE_TIMER_STOP();
+
+			bool its_root = false;
+			int root_index_in_block;
+			if (block->header.parent_block_index == kRootBlockParent) {
+				its_root = true;
+				root_index_in_block = block->header.roots[0].pointed_child_index;
+			}
+	        
+			cache_->UploadBlock(*block, false);
+
+			if (its_root)
+				root_node_index_ = cache_->BlockIndexInCache(index) * loader_->header().nodes_in_block + root_index_in_block; // we can't take this data from block header because UploadBlock might have spoiled it
+		}
+
+		transaction_blocks_.clear();
+
+		context_->WaitForAll();
+
+		PROFILE_CL_EVENTS_FINISH();
+
+		transaction_in_progress_ = false;
+
+		transaction_lru_marker_.reset();
+
+		PopAllBlocks();
+	}
+    
+	void GPUOctreeCacheManager::EndRequestSession() {
+		assert(session_in_progress_ && !transaction_in_progress_);
+
+		session_in_progress_ = false;
+
+		session_lru_marker_.reset();
+	}
+
+	bool GPUOctreeCacheManager::TransactionFilledCache() const {
+		assert(transaction_in_progress_);
+		return transaction_lru_marker_->is_hit();
+	}
+
+	bool GPUOctreeCacheManager::SessionFilledCache() const {
+		assert(session_in_progress_);
+		return session_lru_marker_->is_hit();
+	}
     
 }

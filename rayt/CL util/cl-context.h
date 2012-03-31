@@ -13,7 +13,7 @@ namespace rayt {
         cl_device_id device_id();
         cl_command_queue queue();
         
-        void WaitForAll(); // it's clFinish actually
+        void WaitForAll(); // just clFinish actually
     private:
         cl_context context_;
         cl_command_queue queue_;

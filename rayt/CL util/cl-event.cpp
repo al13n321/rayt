@@ -1,5 +1,7 @@
 #include "cl-event.h"
 #include <cassert>
+#include <vector>
+using namespace std;
 
 namespace rayt {
 
@@ -51,6 +53,41 @@ namespace rayt {
 		return event_;
 	}
 
+	void CLEvent::WaitFor() const {
+		if (clWaitForEvents(1, &event_) != CL_SUCCESS)
+			crash("failed to wait for event");
+	}
+
+#ifdef PROFILING_ENABLED
+
+	struct EnqueuedProfiledEvent {
+		Profiler *profiler;
+		std::string timer_name;
+		CLEvent event;
+
+		EnqueuedProfiledEvent(Profiler *profiler, const std::string &timer_name, const CLEvent &event) : profiler(profiler), timer_name(timer_name), event(event) {}
+	};
+
+	static vector<EnqueuedProfiledEvent> profiled_events_;
+
+	void CLEvent::BeginAddToProfiler(Profiler *profiler, const std::string &timer_name) {
+		profiled_events_.push_back(EnqueuedProfiledEvent(profiler, timer_name, *this));
+	}
+
+	void CLEvent::FinishAddingToProfiler() {
+		for (int i = 0; i < (int) profiled_events_.size(); ++i) {
+			EnqueuedProfiledEvent &ev = profiled_events_[i];
+			ev.event.WaitFor();
+			cl_ulong start, end;
+			if (clGetEventProfilingInfo(ev.event.event(), CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &start , NULL) != CL_SUCCESS ||
+				clGetEventProfilingInfo(ev.event.event(), CL_PROFILING_COMMAND_END  , sizeof(cl_ulong), &end   , NULL) != CL_SUCCESS)
+				crash("failed to get event profiling info");
+			ev.profiler->AddTimerValue(ev.timer_name, (end - start) * 1e-9);
+		}
+		profiled_events_.clear();
+	}
+
+#endif
 
 	CLEventList::CLEventList() {}
 

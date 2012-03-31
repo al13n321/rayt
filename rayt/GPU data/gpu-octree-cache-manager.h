@@ -1,5 +1,6 @@
 #pragma once
 
+#include <set>
 #include "stored-octree-loader.h"
 #include "gpu-octree-data.h"
 #include "gpu-octree-cache.h"
@@ -18,7 +19,10 @@ namespace rayt {
         const GPUOctreeData* data() const;
         int root_node_index() const;
         
-        // session - a set of transactions; no block can be loaded more than once during a session; if some block was loaded during this session, then was thrown away from cache, then was requested again, this last request will be ignored; typically session is a frame
+		// fills cache with nodes closest to the root
+        void InitialFillCache();
+        
+        // session - a set of transactions; typically session is a frame
         void StartRequestSession();
         
         // transaction - a set of requests; the processing of the requests is guaranteed to be finished when transaction ends (but may be finished earlier); typically transaction is an iteration of feedback-driven loading
@@ -26,6 +30,12 @@ namespace rayt {
         
 		void MarkBlockAsUsed(int block_index_in_cache);
         void RequestBlock(int block_index);
+
+		// if true, all the blocks in cache were loaded or marked as used during current transaction; this usually means that it is useless to request anything else during this transaction
+		bool TransactionFilledCache() const;
+
+		// if true, all the blocks in cache were loaded or marked as used during current session; this usually means that cache size is insufficient to render the frame in one transaction; the frame may still be rendered in several transaction, but with current implementation the feedback-driven loading may end up in an endless loop of loading and unloading the same blocks
+		bool SessionFilledCache() const;
         
         void EndRequestTransaction();
         
@@ -38,13 +48,16 @@ namespace rayt {
         boost::scoped_ptr<GPUOctreeCache> cache_;
         std::vector<boost::shared_ptr<StoredOctreeBlock> > uploaded_blocks_buffer_; // holds blocks of current transaction; never popped to prevent unnecessary allocations, instead its current virtual size is kept in uploaded_blocks_buffer_index_
         int uploaded_blocks_buffer_index_;
+		std::vector<int> transaction_blocks_;
 
-		std::set<int> blocks_loaded_in_session_;
+		bool session_in_progress_;
+		bool transaction_in_progress_;
+
+		boost::shared_ptr<GPUOctreeCache::LRUMarker> session_lru_marker_;
+		boost::shared_ptr<GPUOctreeCache::LRUMarker> transaction_lru_marker_;
         
         StoredOctreeBlock* PushBlock();
         void PopAllBlocks();
-        
-        void InitialFillCache();
         
         DISALLOW_COPY_AND_ASSIGN(GPUOctreeCacheManager);
     };

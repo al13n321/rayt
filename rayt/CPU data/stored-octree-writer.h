@@ -44,7 +44,7 @@ namespace rayt {
         boost::scoped_ptr<BinaryFile> out_file_;
         std::map<int, boost::shared_ptr<StoredOctreeBlock> > parentless_blocks; // key is block index
         
-        void CommitBlock(std::vector<std::pair<int, void*> > group, void *parent_children); // first void* is StoredOctreeWriterNode*; second void* is vector<StoredOctreeWriterNodeData>*; I'm starting to like PImpl in such moments
+        void CommitBlock(std::vector<std::pair<int, void*> > group, void *parent_children); // first void* is StoredOctreeWriterNode*; second void* is vector<StoredOctreeWriterNodeData>*; I'm starting to like PImpl at such moments
         void WriteBlock(StoredOctreeBlock &block);
         void WriteHeader(StoredOctreeHeader &header);
         

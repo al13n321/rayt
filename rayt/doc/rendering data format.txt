@@ -5,7 +5,7 @@ Rendering kernel outputs the following for each pixel:
 1) Blending state:
 	- Color, accumulated so far. Zeros initially. Just color, if there's no fault. Zero, if there's a fault and no secondary rays.
 	- Color multiplier, accumulated so far (3 components). Ones initially. Zeroes indicate that this pixel is rendered completely (i.e. there's no fault).
-2) Fault block index (global index) or hit node index (index in cache). Let the value be x. If x < 0, fault block index is -x-1. If x=NO_HIT, there's no hit (during this pass). Otherwise, hit node index is x-1.
+2) Fault block index (global index) or hit node index (index in cache). Let the value be x. If x < 0, fault block index is -x-1. If x=NO_HIT (=2^31-1), there's no hit (during this pass). Otherwise, hit node index is x-1.
 3) Tracing state in case of fault.
 	- Ray origin.
 	- Ray direction.

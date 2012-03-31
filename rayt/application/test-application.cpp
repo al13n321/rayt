@@ -1,6 +1,5 @@
 #include "test-application.h"
-#include "test-stopwatch.h"
-#include "blocking-experiment.h"
+#include "stopwatch.h"
 #include "stored-octree-test.h"
 #include "camera.h"
 #include "cl-context.h"
@@ -11,8 +10,12 @@
 #include "debug-ray-cast.h"
 #include "debug-check-tree.h"
 #include "import-obj-scene.h"
+#include "gpu-sort.h"
+#include "gpu-scan.h"
+#include "profiler.h"
 #include <cstdio>
 #include <iostream>
+#include <fstream>
 using namespace std;
 using namespace boost;
 
@@ -27,13 +30,14 @@ namespace rayt {
     int prev_mousex;
     int prev_mousey;
     bool key_pressed[256];
-    TestStopwatch frame_stopwatch;
+    Stopwatch frame_stopwatch;
     
     const float movement_speed = 0.5; // units per second
     const float looking_speed = 0.2; // degrees per pixel
 
-    TestStopwatch fps_stopwatch;
+    Stopwatch fps_stopwatch;
     const int fps_update_period = 20;
+	const int profiling_update_period = 20;
     int cur_frame_number;
     
     Camera camera;
@@ -74,6 +78,12 @@ namespace rayt {
 
             glutSetWindowTitle(title.c_str());
         }
+
+		if (cur_frame_number % profiling_update_period == 0) {
+			static ofstream out("profiling log.txt");
+			out << Profiler::default_profiler().FormatTableReport() << '\n' << endl;
+			Profiler::default_profiler().Reset();
+		}
 
         ++cur_frame_number;
     }
@@ -137,6 +147,118 @@ namespace rayt {
         cout << "checked" << endl;
     }
     
+	static void TestGPUSort() {
+		const int n = 2013;
+		int src[n];
+		int expected[n];
+		int found[n];
+		GPUSort srt(n, context);
+		CLBuffer buf(0, n * 4, context);
+		int failed = 0;
+		for (int test = 0; test < 10; ++test) {
+			for (int i = 0; i < n; ++i) {
+				src[i] = rand() % 201 - 100;
+			}
+			memcpy(expected, src, sizeof(src));
+			sort(expected, expected + n);
+			buf.Write(0, n * 4, src, true, NULL, NULL);
+			context->WaitForAll();
+			srt.Sort(buf);
+			buf.Read(0, n * 4, found);
+			if (memcmp(expected, found, sizeof(expected))) {
+				cout << "failed test " << test << endl;
+				cout << "source: " << endl;
+				for (int i = 0; i < n; ++i) {
+					cout.width(4);
+					cout << src[i] << ' ';
+				}
+				cout << endl << "expected: " << endl;
+				for (int i = 0; i < n; ++i) {
+					cout.width(4);
+					cout << expected[i] << ' ';
+				}
+				cout << endl << "found: " << endl;
+				for (int i = 0; i < n; ++i) {
+					cout.width(4);
+					cout << found[i] << ' ';
+				}
+				cout << endl << endl;
+				
+				if (++failed >= 1)
+					break;
+			}
+		}
+		if (!failed)
+			cout << "passed" << endl;
+	}
+
+	static void TestGPUScan() {
+		const int n = 2013;
+		int src[n];
+		int expected[n];
+		int found[n];
+		GPUScan scan(n, context);
+		CLBuffer buf(0, n * 4, context);
+		int failed = 0;
+		for (int test = 0; test < 10; ++test) {
+			for (int i = 0; i < n; ++i) {
+				src[i] = rand() % 201 - 100;
+			}
+			memcpy(expected, src, sizeof(src));
+			for(int i=1;i<n;++i){
+				expected[i]+=expected[i-1];
+			}
+			buf.Write(0, n * 4, src, true, NULL, NULL);
+			context->WaitForAll();
+			scan.Scan(buf);
+			buf.Read(0, n * 4, found);
+			if (memcmp(expected, found, sizeof(expected))) {
+				cout << "failed test " << test << endl;
+				cout << "source: " << endl;
+				for (int i = 0; i < n; ++i) {
+					cout.width(4);
+					cout << src[i] << ' ';
+				}
+				cout << endl << "expected: " << endl;
+				for (int i = 0; i < n; ++i) {
+					cout.width(4);
+					cout << expected[i] << ' ';
+				}
+				cout << endl << "found: " << endl;
+				for (int i = 0; i < n; ++i) {
+					cout.width(4);
+					cout << found[i] << ' ';
+				}
+				cout << endl << endl;
+				
+				if (++failed >= 1)
+					break;
+			}
+		}
+		if (!failed)
+			cout << "passed" << endl;
+	}
+
+	void TestProfilingWriteBuffer() {
+		const int sz = 100000000;
+		CLBuffer clbuf(0, sz, context);
+		CLEvent ev;
+		unsigned char *data = new unsigned char[100000000];
+		for (int i = 0; i < sz; ++i)
+			data[i] = rand()%256;
+		clbuf.Write(0, sz, data, false, NULL, &ev);
+		ev.WaitFor();
+		cl_ulong queued, submit, start, end;
+		assert(!clGetEventProfilingInfo(ev.event(), CL_PROFILING_COMMAND_QUEUED, sizeof(cl_ulong), &queued, NULL));
+		assert(!clGetEventProfilingInfo(ev.event(), CL_PROFILING_COMMAND_SUBMIT, sizeof(cl_ulong), &submit, NULL));
+		assert(!clGetEventProfilingInfo(ev.event(), CL_PROFILING_COMMAND_START , sizeof(cl_ulong), &start , NULL));
+		assert(!clGetEventProfilingInfo(ev.event(), CL_PROFILING_COMMAND_END   , sizeof(cl_ulong), &end   , NULL));
+		double mul = 1e-9;
+		cout << "queued-submit: " << (submit - queued) * mul << endl;
+		cout << "submit-start : " << (start  - submit) * mul << endl;
+		cout << " start-end   : " << (end    - start ) * mul << endl;
+	}
+
     void RunTestApplication(int argc, char **argv) {
         if (!BinaryUtil::CheckEndianness())
             crash("wrong endianness");
@@ -150,7 +272,7 @@ namespace rayt {
 		//CheckTestOctreeSphereWithLoader(fvec3(.5F, .5F, .5F), .45F, 7, "H:/rayt scenes/sphere7.tree");
 		//cout << "passed" << endl;
 		//return;
-        
+
         glutInit(&argc, argv);
         
         glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
@@ -167,7 +289,7 @@ namespace rayt {
             cout << "GLEW is not initialized!" << endl;
         
         context = shared_ptr<CLContext>(new CLContext());
-        
+
 		//WriteTestOctreeSphere(fvec3(.75, .75, .25), 3./16, 6, "sphere_small.tree", 8);
         //WriteTestOctreeSphere(fvec3(.5, .5, .5), 0.3, 9, "/Users/me/codin/raytracer/scenes/sphere9.tree", 10000);
 		//WriteTestOctreeSphere(fvec3(.5, .5, .5), 0.3, 9, "H:/rayt scenes/sphere9.tree", 10000);
@@ -183,10 +305,11 @@ namespace rayt {
         
         camera.set_aspect_ratio(1);
         
-        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("H:/rayt scenes/hairball8.tree"));
+        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("H:/rayt scenes/hairball11.tree"));
 		//loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("/Users/me/codin/raytracer/scenes/hairball11.tree"));
 		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(loader->header().blocks_count, loader, context));
 		cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(2000, loader, context));
+		cache_manager->InitialFillCache();
 
 		//cache_manager->data()->ChannelByIndex(0)->cl_buffer()->CheckContents();
 
@@ -195,8 +318,9 @@ namespace rayt {
 		//return;
         
 		raytracer.reset(new GPURayTracer(cache_manager, imgwid, imghei, context));
+		raytracer->set_frame_time_limit(0.1);
         //raytracer->set_lod_voxel_size(2);
-		raytracer->set_lod_voxel_size(1.5);
+		raytracer->set_lod_voxel_size(10);
         drawer.reset(new RenderedImageDrawer(imgwid, imghei, context));
         
         glutMainLoop();

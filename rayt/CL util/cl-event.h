@@ -2,6 +2,19 @@
 
 #include "cl-context.h"
 #include "array.h"
+#include "profiler.h"
+
+#ifdef PROFILING_ENABLED
+
+#define PROFILE_CL_EVENT(event, name) ((rayt::CLEvent&)event).BeginAddToProfiler(&rayt::Profiler::default_profiler(), name)
+#define PROFILE_CL_EVENTS_FINISH() rayt::CLEvent::FinishAddingToProfiler()
+
+#else // PROFILING_ENABLED
+
+#define PROFILE_CL_EVENT(event, name)
+#define PROFILE_CL_EVENTS_FINISH()
+
+#endif // PROFILING_ENABLED
 
 namespace rayt {
 
@@ -19,7 +32,16 @@ namespace rayt {
 		// please don't release it;
 		// can be null
         cl_event event() const;
-    private:
+
+		void WaitFor() const;
+
+#ifdef PROFILING_ENABLED
+		// To profile events, first BeginAddToProfiler them, then call FinishAddingToProfiler.
+		// FinishAddingToProfiler waits for all enqueued events and dequeues them.
+		void BeginAddToProfiler(Profiler *profiler, const std::string &timer_name);
+		static void FinishAddingToProfiler();
+#endif
+	private:
         cl_event event_;
     };
 
