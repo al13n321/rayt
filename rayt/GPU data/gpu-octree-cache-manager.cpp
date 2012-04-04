@@ -8,7 +8,9 @@ using namespace boost;
 
 namespace rayt {
     
-    GPUOctreeCacheManager::GPUOctreeCacheManager(int max_blocks_count, boost::shared_ptr<StoredOctreeLoader> loader, boost::shared_ptr<CLContext> context) {
+	const int kMinUploadedBufferBytes = 10 * 1000 * 1000;
+
+	GPUOctreeCacheManager::GPUOctreeCacheManager(int max_blocks_count, boost::shared_ptr<StoredOctreeLoader> loader, boost::shared_ptr<CLContext> context) {
         assert(max_blocks_count > 0);
         assert(loader);
         assert(context);
@@ -19,6 +21,13 @@ namespace rayt {
         cache_.reset(new GPUOctreeCache(loader->header().nodes_in_block, max_blocks_count, loader->header().channels, context));
         
         uploaded_blocks_buffer_index_ = 0;
+
+		int bytes_in_block = loader->BytesInBlockContent();
+		int uploaded_buffer_size = kMinUploadedBufferBytes / bytes_in_block + 1;
+
+		uploaded_blocks_buffer_.resize(uploaded_buffer_size);
+		for (int i = 0; i < uploaded_buffer_size; ++i)
+			uploaded_blocks_buffer_[i].reset(new StoredOctreeBlock());
 
 		session_in_progress_ = transaction_in_progress_ = false;
     }
@@ -37,8 +46,10 @@ namespace rayt {
     int uploaded_blocks_buffer_index_;
     
     StoredOctreeBlock* GPUOctreeCacheManager::PushBlock() {
-        if (uploaded_blocks_buffer_index_ == uploaded_blocks_buffer_.size())
-            uploaded_blocks_buffer_.push_back(shared_ptr<StoredOctreeBlock>(new StoredOctreeBlock()));
+		if (uploaded_blocks_buffer_index_ == uploaded_blocks_buffer_.size()) {
+			context_->WaitForAll();
+			uploaded_blocks_buffer_index_ = 0;
+		}
         return uploaded_blocks_buffer_[uploaded_blocks_buffer_index_++].get();
     }
     
@@ -90,8 +101,8 @@ namespace rayt {
 			if (its_root)
 				root_node_index_ = cache_->BlockIndexInCache(index) * nodes_in_block + root_index_in_block; // we can't take this data from block header because UploadBlock might have spoiled it
         }
-        context_->WaitForAll();
-        PopAllBlocks();
+		context_->WaitForAll();
+		PopAllBlocks();
     }
 
 	void GPUOctreeCacheManager::StartRequestSession() {

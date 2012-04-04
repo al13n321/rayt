@@ -1,5 +1,6 @@
 #include "import-obj-scene.h"
 #include <fstream>
+#include <set>
 #include "stored-octree-writer.h"
 #include "vec.h"
 #include "intersections.h"
@@ -13,6 +14,13 @@ namespace rayt {
     // vn x y z
     // f v//vn v//vn v//vn (triangles only)
     
+	struct Material {
+		fvec3 diffuse_color;
+		fvec3 specular_color;
+		float specular_coefficient;
+		float alpha;
+	};
+
     struct Triangle {
         dvec3 pos[3];
         fvec3 normal;
@@ -26,16 +34,18 @@ namespace rayt {
         NodeData() {}
         NodeData(fvec3 n, fvec3 c, StoredOctreeWriterNodePtr node) : normal(n), color(c), node(node) {}
         
-        // normal (3 signed chars) and color (3 unsigned chars)
+        // normal (4 signed chars) and color (4 unsigned chars)
         // returned data valid until next call
         void* ChannelsData() {
-            static char data[6];
+            static char data[8];
             data[0] = (char)(normal.x * 127);
             data[1] = (char)(normal.y * 127);
             data[2] = (char)(normal.z * 127);
-            data[3] = (uchar)max(0.0f, min(255.0f, color.x * 255));
-            data[4] = (uchar)max(0.0f, min(255.0f, color.y * 255));
-            data[5] = (uchar)max(0.0f, min(255.0f, color.z * 255));
+			data[3] = 0;
+            data[4] = (uchar)max(0.0f, min(255.0f, color.x * 255));
+            data[5] = (uchar)max(0.0f, min(255.0f, color.y * 255));
+            data[6] = (uchar)max(0.0f, min(255.0f, color.z * 255));
+            data[7] = (uchar)255;
             return data;
         }
     };
@@ -97,6 +107,20 @@ namespace rayt {
         return node_data;
     }
     
+	static void report_unsupported_element(const char *line, set<string> &was) {
+		int l = 0;
+		while (line[l] && line[l] != ' ')
+			++l;
+		string s(line, l);
+		if (was.count(s) || was.size() >= 100)
+			return;
+		was.insert(s);
+		cout << "unsupported element: " << s << endl;
+		if (was.size() >= 100) {
+			cout << "no more unsupported elements will be reported (even if there are some)" << endl;
+		}
+	}
+
     static void ReadObjFile(string file_name, vector<Triangle> &out) {
         ifstream in(file_name.c_str());
         if (in.bad())
@@ -104,54 +128,68 @@ namespace rayt {
         static char line[2048];
         vector<dvec3> positions;
         vector<fvec3> normals;
+		set<string> unsupported_elements;
         while (in.getline(line, sizeof(line))) {
             if (line[0] == 'v') {
                 dvec3 v;
-                if (line[1] != 'n' && line[1] != ' ')
-                    crash("unsupported vertex type in obj file");
-                if (sscanf(line + 2, "%lf %lf %lf", &v.x, &v.y, &v.z) != 3)
-                    crash("bad coordinates in obj file");
-                if (line[1] == 'n')
-                    normals.push_back(v);
-                else
-                    positions.push_back(v);
+				if (line[1] != 'n' && line[1] != ' ') {
+                    report_unsupported_element(line, unsupported_elements);
+				} else {
+					if (sscanf(line + 2, "%lf %lf %lf", &v.x, &v.y, &v.z) != 3)
+						crash("bad coordinates in obj file");
+					if (line[1] == 'n')
+						normals.push_back(v);
+					else
+						positions.push_back(v);
+				}
             } else if (line[0] == 'f') {
-                if (line[1] != ' ')
-                    crash("unsupported face type in obj file");
-                int slashes = 0;
-                for (int i = 0; line[i]; ++i) {
-                    if (line[i] == '/') {
-                        if (line[i + 1] != '/')
-                            crash("face texture coordinates in obj file");
-                        line[i] = ' ';
-                        ++i;
-                        line[i] = ' ';
-                        slashes += 2;
-                    }
-                }
-                if (slashes % 2 || slashes < 6)
-                    crash("invalid face in obj file");
-                if (slashes > 6)
-                    crash("more than 3 vertices in face in obj file");
-                int v[3];
-                int vn[3];
-                sscanf(line + 2, "%d %d %d %d %d %d", v + 0, vn + 0, v + 1, vn + 1, v + 2, vn + 2);
-                fvec3 vnorm(0, 0, 0);
-                Triangle tri;
-                for (int i = 0; i < 3; ++i) {
-                    if (v[i] < 1 || v[i] > static_cast<int>(positions.size()) || vn[i] < 1 || vn[i] > static_cast<int>(normals.size()))
-                        crash("index out of range in obj file");
-                    --v[i];
-                    --vn[i];
-                    vnorm += normals[vn[i]];
-                    tri.pos[i] = positions[v[i]];
-                }
-                tri.normal = (tri.pos[1] - tri.pos[0]).Cross(tri.pos[2] - tri.pos[0]).Normalized();
-                if (tri.normal.Dot(vnorm) < 0)
-                    tri.normal *= -1;
-                out.push_back(tri);
-            } else if (line[0])
-                crash("unsupported element in obj file");
+				if (line[1] != ' ') {
+                    report_unsupported_element(line, unsupported_elements);
+				} else {
+					int face_vertices = 0;
+					for (int i = 0; line[i]; ++i) {
+						if (line[i] == '/') {
+							line[i] = ' ';
+							++i;
+							if (line[i] != '/') {
+								report_unsupported_element("texture-coordinates", unsupported_elements); // kinda hack
+							}
+							// skip texture coordinates
+							while (line[i] && line[i] != '/') {
+								line[i] = ' ';
+								++i;
+							}
+							if (!line[i])
+								crash("invalid face in obj file");
+							line[i] = ' ';
+							++face_vertices;
+						}
+					}
+					if (face_vertices < 3)
+						crash("invalid face in obj file");
+					if (face_vertices > 3)
+						crash("more than 3 vertices in face in obj file");
+					int v[3];
+					int vn[3];
+					sscanf(line + 2, "%d %d %d %d %d %d", v + 0, vn + 0, v + 1, vn + 1, v + 2, vn + 2);
+					fvec3 vnorm(0, 0, 0);
+					Triangle tri;
+					for (int i = 0; i < 3; ++i) {
+						if (v[i] < 1 || v[i] > static_cast<int>(positions.size()) || vn[i] < 1 || vn[i] > static_cast<int>(normals.size()))
+							crash("index out of range in obj file");
+						--v[i];
+						--vn[i];
+						vnorm += normals[vn[i]];
+						tri.pos[i] = positions[v[i]];
+					}
+					tri.normal = (tri.pos[1] - tri.pos[0]).Cross(tri.pos[2] - tri.pos[0]).Normalized();
+					if (tri.normal.Dot(vnorm) < 0)
+						tri.normal *= -1;
+					out.push_back(tri);
+				}
+			} else if (line[0]) {
+                report_unsupported_element(line, unsupported_elements);
+			}
         }
     }
     
@@ -173,12 +211,13 @@ namespace rayt {
         vector<Triangle> tris;
         ReadObjFile(obj_file_name, tris);
         StoredOctreeChannelSet channels;
-        channels.AddChannel(StoredOctreeChannel(3, "normals"));
-        channels.AddChannel(StoredOctreeChannel(3, "colors"));
+        channels.AddChannel(StoredOctreeChannel(4, "normals"));
+        channels.AddChannel(StoredOctreeChannel(4, "colors"));
         StoredOctreeWriter writer(out_tree_file_name, nodes_in_block, channels);
         pair<dvec3, dvec3> bound = BoundingCube(tris);
         NodeData d = BuildOctree(tris.begin(), static_cast<int>(tris.size()), bound.first, bound.second, 0, max_level, writer);
         writer.FinishAndWrite(d.node);
+		cerr << "done" << endl;
         if (print_report)
             writer.PrintReport();
     }

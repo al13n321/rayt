@@ -105,6 +105,8 @@ namespace rayt {
 			raytracing_pass_kernel_->SetBufferArg(2, cache_manager_->data()->ChannelByIndex(0)->cl_buffer());
 			raytracing_pass_kernel_->SetBufferArg(3, cache_manager_->data()->far_pointers_buffer());
 			raytracing_pass_kernel_->SetIntArg(4, cache_manager_->root_node_index());
+			raytracing_pass_kernel_->SetBufferArg(5, cache_manager_->data()->ChannelByName("normals")->cl_buffer());
+			raytracing_pass_kernel_->SetBufferArg(6, cache_manager_->data()->ChannelByName("colors")->cl_buffer());
 			raytracing_pass_kernel_->Run2D(frame_width_, frame_height_, NULL, &ev);
 
 			ev.WaitFor();
@@ -174,6 +176,8 @@ namespace rayt {
 		finish_frame_kernel_->SetBufferArg(0, out_image_.get());
 		finish_frame_kernel_->SetBufferArg(1, tracing_states_.get());
 		finish_frame_kernel_->SetFloat4Arg(2, fvec3(0, 216/255., 1), 1);
+		finish_frame_kernel_->SetBufferArg(3, cache_manager_->data()->ChannelByName("normals")->cl_buffer());
+		finish_frame_kernel_->SetBufferArg(4, cache_manager_->data()->ChannelByName("colors")->cl_buffer());
 		finish_frame_kernel_->Run2D(frame_width_, frame_height_, NULL, &ev);
 
 		ev.WaitFor();

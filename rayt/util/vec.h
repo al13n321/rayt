@@ -31,7 +31,7 @@ struct tvec3 {
 	inline tvec3<ftype>& operator /= (ftype d) { d = 1.0f / d; x *= d; y *= d; z *= d; return *this; }
 
 	inline ftype Dot(const tvec3<ftype> &v) const { return x*v.x + y*v.y + z*v.z; }
-	inline tvec3<ftype> Cross(const tvec3<ftype> &v) const { return tvec3<ftype>(y*v.z - z*v.y, z*v.z - x*v.z, x*v.y - y*v.x); }
+	inline tvec3<ftype> Cross(const tvec3<ftype> &v) const { return tvec3<ftype>(y*v.z - z*v.y, z*v.x - x*v.z, x*v.y - y*v.x); }
 
 	inline ftype LengthSquare() { return Dot(*this); }
 	inline ftype Length() { return sqrt(LengthSquare()); }

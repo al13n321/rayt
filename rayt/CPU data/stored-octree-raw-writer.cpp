@@ -32,7 +32,7 @@ namespace rayt {
 	StoredOctreeRawWriter::~StoredOctreeRawWriter() {}
     
 	void StoredOctreeRawWriter::WriteHeader(int blocks_count, int root_block_index) {
-		assert(blocks_count > max_written_block);
+		assert(blocks_count > max_written_block_);
 		assert(root_block_index >= 0 && root_block_index < blocks_count);
 
 		StoredOctreeHeader header;

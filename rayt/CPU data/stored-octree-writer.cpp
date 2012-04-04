@@ -23,6 +23,7 @@ namespace rayt {
         vector<Buffer> root_channels_data;
         uchar root_children_mask;
         int root_children_pointer; // relative to this block
+		int subtree_depth;
         vector<StoredOctreeWriterNodeData> nodes; // nodes of unfinished block containing children of this node
     };
     
@@ -67,7 +68,7 @@ namespace rayt {
         ++nodes_count_;
 
 		if (nodes_count_ % 1000000 == 0) {
-			cout << nodes_count_ << " nodes..." << endl;
+			cerr << nodes_count_ << " nodes..." << endl;
 		}
         
         StoredOctreeWriterNode **children;
@@ -133,6 +134,8 @@ namespace rayt {
             CommitBlock(group, &node->nodes);
         }
         
+		node->subtree_depth = 1;
+
         // add ungrouped children to unfinished block
         for (uint i = 0; i < subtrees.size(); ++i) {
             int child_index = subtrees[i].first.second;
@@ -140,6 +143,7 @@ namespace rayt {
             node->nodes[child_index].children_in_same_block = true;
             node->nodes[child_index].children.node_index_offset = n->root_children_pointer + static_cast<int>(node->nodes.size()) - child_index;
             node->nodes.insert(node->nodes.end(), n->nodes.begin(), n->nodes.end());
+			node->subtree_depth = max(node->subtree_depth, n->subtree_depth + 1);
         }
         
         // free children memory

@@ -17,6 +17,9 @@ namespace rayt {
         ~StoredOctreeLoader();
         
         const StoredOctreeHeader& header() const;
+
+		// only channels data (no headers)
+		int BytesInBlockContent() const;
         
         // if out_block has wrong size, it will be resized; typically, you can use the same block for all calls, so that it gets resized only in the first call, avoiding unneeded memory allocations;
         // returns true in case of success

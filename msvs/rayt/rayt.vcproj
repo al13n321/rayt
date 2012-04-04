@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt;&quot;C:\Program Files\AMD APP\include&quot;;D:\boost\include;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\application;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU data&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU renderer&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\experimental;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU data&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU renderer&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene sources&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\util"
+				AdditionalIncludeDirectories="Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt;&quot;C:\Program Files\AMD APP\include&quot;;D:\boost\include;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\application;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU data&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU renderer&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\experimental;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU data&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU_renderer;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene sources&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\util;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU algorithms&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt;&quot;C:\Program Files\AMD APP\include&quot;;D:\boost\include;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\application;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU data&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU renderer&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\experimental;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU data&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU renderer&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene sources&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\util"
+				AdditionalIncludeDirectories="Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt;&quot;C:\Program Files\AMD APP\include&quot;;D:\boost\include;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\application;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU data&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\CPU renderer&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\experimental;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GL util&quot;;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU data&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU_renderer;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\scene sources&quot;;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\util;&quot;Q:\Dropbox\coding\raytracer\raytracer\rayt\rayt\GPU algorithms&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -176,6 +176,14 @@
 			>
 			<File
 				RelativePath="..\..\rayt\application\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\application\octree-application.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\application\octree-application.h"
 				>
 			</File>
 			<File
@@ -247,26 +255,6 @@
 			Name="CPU data"
 			>
 			<File
-				RelativePath="..\..\rayt\CPU data\compact-octree-nodes-pool.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU data\compact-octree-nodes-pool.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU data\compact-octree-statistics.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU data\compact-octree-statistics.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU data\compact-octree-structures.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\rayt\CPU data\octree-constants.cpp"
 				>
 			</File>
@@ -311,6 +299,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-raw-writer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-raw-writer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\rayt\CPU data\stored-octree-traverser.cpp"
 				>
 			</File>
@@ -324,58 +320,6 @@
 			</File>
 			<File
 				RelativePath="..\..\rayt\CPU data\stored-octree-writer.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="CPU renderer"
-			>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\cpu-rendered-image-buffer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\cpu-rendered-image-buffer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\cpu-rendered-image-drawer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\cpu-rendered-image-drawer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\cpu-rendering.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\cpu-rendering.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\old-debug-ray-cast.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\old-debug-ray-cast.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\ray-cast.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\ray-cast.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\render-statistics.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\CPU renderer\render-statistics.h"
 				>
 			</File>
 		</Filter>
@@ -402,14 +346,6 @@
 		<Filter
 			Name="experimental"
 			>
-			<File
-				RelativePath="..\..\rayt\experimental\blocking-experiment.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\experimental\blocking-experiment.h"
-				>
-			</File>
 			<File
 				RelativePath="..\..\rayt\experimental\debug-check-tree.cpp"
 				>
@@ -492,16 +428,56 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="GPU renderer"
+			Name="GPU_renderer"
 			>
 			<File
-				RelativePath="..\..\rayt\GPU renderer\gpu-ray-tracer.cpp"
+				RelativePath="..\..\rayt\GPU_renderer\gpu-ray-tracer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\rayt\GPU renderer\gpu-ray-tracer.h"
+				RelativePath="..\..\rayt\GPU_renderer\gpu-ray-tracer.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\rayt\GPU_renderer\ray-tracing-feedback-extractor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\GPU_renderer\ray-tracing-feedback-extractor.h"
+				>
+			</File>
+			<Filter
+				Name="kernels"
+				>
+				<File
+					RelativePath="..\..\rayt\GPU_renderer\kernels\common.cl"
+					>
+				</File>
+				<File
+					RelativePath="..\..\rayt\GPU_renderer\kernels\feedback_compression.cl"
+					>
+				</File>
+				<File
+					RelativePath="..\..\rayt\GPU_renderer\kernels\finish_tracing_frame.cl"
+					>
+				</File>
+				<File
+					RelativePath="..\..\rayt\GPU_renderer\kernels\init_tracing_frame.cl"
+					>
+				</File>
+				<File
+					RelativePath="..\..\rayt\GPU_renderer\kernels\raycast.cl"
+					>
+				</File>
+				<File
+					RelativePath="..\..\rayt\GPU_renderer\kernels\raytracing_pass.cl"
+					>
+				</File>
+				<File
+					RelativePath="..\..\rayt\GPU_renderer\kernels\shading.cl"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="scene"
@@ -518,32 +494,24 @@
 				RelativePath="..\..\rayt\scene\light-source.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\rayt\scene\scene.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\scene\scene.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="scene sources"
 			>
-			<File
-				RelativePath="..\..\rayt\scene sources\compact-mesh-generation.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\scene sources\compact-mesh-generation.h"
-				>
-			</File>
 			<File
 				RelativePath="..\..\rayt\scene sources\import-obj-scene.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\rayt\scene sources\import-obj-scene.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene sources\stored-octree-channel-processing.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene sources\stored-octree-channel-processing.h"
 				>
 			</File>
 			<File
@@ -623,11 +591,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\rayt\util\profiler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\profiler.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\rayt\util\statistical-value.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\rayt\util\statistical-value.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\stopwatch.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\util\stopwatch.h"
 				>
 			</File>
 			<File
@@ -639,145 +623,41 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\rayt\util\test-stopwatch.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\util\test-stopwatch.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\rayt\util\vec.h"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="clpp"
+			Name="GPU algorithms"
 			>
 			<File
-				RelativePath="..\..\rayt\clpp\clpp.cpp"
+				RelativePath="..\..\rayt\GPU algorithms\gpu-scan.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\rayt\clpp\clpp.h"
+				RelativePath="..\..\rayt\GPU algorithms\gpu-scan.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\rayt\clpp\clppContext.cpp"
+				RelativePath="..\..\rayt\GPU algorithms\gpu-sort.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\rayt\clpp\clppContext.h"
+				RelativePath="..\..\rayt\GPU algorithms\gpu-sort.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppProgram.cpp"
+			<Filter
+				Name="kernels"
 				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppProgram.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppScan.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppScan_Default.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppScan_Default.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppScan_GPU.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppScan_GPU.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppSort.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppSort.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppSort_Blelloch.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppSort_Blelloch.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppSort_CPU.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppSort_CPU.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppSort_RadixSort.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppSort_RadixSort.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppSort_RadixSortGPU.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\clppSort_RadixSortGPU.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\StopWatch.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\clpp\StopWatch.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="kernels"
-			>
-			<File
-				RelativePath="..\..\rayt\kernels\common.cl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\kernels\finish_tracing_frame.cl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\kernels\init_tracing_frame.cl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\kernels\raycast.cl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\kernels\raytracer.cl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\kernels\raytracing_pass.cl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\rayt\kernels\shading.cl"
-				>
-			</File>
+				<File
+					RelativePath="..\..\rayt\GPU algorithms\kernels\merge_sort.cl"
+					>
+				</File>
+				<File
+					RelativePath="..\..\rayt\GPU algorithms\kernels\scan.cl"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath="..\..\rayt\log.txt"
@@ -789,18 +669,6 @@
 		</File>
 		<File
 			RelativePath="..\..\rayt\pass.vert"
-			>
-		</File>
-		<File
-			RelativePath="..\..\rayt\raytracer_nvidia_port.cl"
-			>
-		</File>
-		<File
-			RelativePath="..\..\rayt\raytracer_old_cpu_port.cl"
-			>
-		</File>
-		<File
-			RelativePath="..\..\rayt\raytracer_volatile.cl"
 			>
 		</File>
 	</Files>

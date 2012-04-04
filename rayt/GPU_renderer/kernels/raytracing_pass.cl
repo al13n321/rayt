@@ -5,7 +5,9 @@ __kernel void RaytracingPass(__global int *faults_and_hits, // out
                              __global TracingState *tracing_states, // in-out
                              __global uint *node_links,
                              __global uint *far_pointers,
-                             int root_node_index)
+                             int root_node_index,
+                             __global char4 *node_normals,
+                             __global uchar4 *node_colors)
 {
     int x = get_global_id(0);
     int y = get_global_id(1);
@@ -45,7 +47,7 @@ __kernel void RaytracingPass(__global int *faults_and_hits, // out
 					s.color_multiplier = (uchar4)(0, 0, 0, 0);
 					faults_and_hits[index] = NO_HIT;
 				} else {
-					ProcessHit(res.hit_t, res.hit_node, &s);
+					ProcessHit(res.hit_t, res.hit_node, &s, node_normals, node_colors);
 					faults_and_hits[index] = res.hit_node + 1;
 					if (!is_zero(s.color_multiplier)) {
 						done = false;

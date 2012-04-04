@@ -4,6 +4,6 @@
 
 namespace rayt {
 
-	void RunTestApplication(int argc, char **argv);
+	void RunOctreeApplication(int argc, char **argv);
 
 }

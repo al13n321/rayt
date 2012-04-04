@@ -42,6 +42,7 @@ T abs(T a) {
 
 inline void crash(std::string message) {
     std::cout << "critical error: " << message << std::endl;
+	std::cerr << "critical error: " << message << std::endl;
     // use a simple hash of message as program return code
     int h = 0;
     for (int i = 0; i < (int)message.length(); ++i)

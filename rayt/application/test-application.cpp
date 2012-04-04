@@ -305,10 +305,10 @@ namespace rayt {
         
         camera.set_aspect_ratio(1);
         
-        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("H:/rayt scenes/hairball11.tree"));
+        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("H:/rayt scenes/conference13.tree"));
 		//loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("/Users/me/codin/raytracer/scenes/hairball11.tree"));
 		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(loader->header().blocks_count, loader, context));
-		cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(2000, loader, context));
+		cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(4000, loader, context));
 		cache_manager->InitialFillCache();
 
 		//cache_manager->data()->ChannelByIndex(0)->cl_buffer()->CheckContents();

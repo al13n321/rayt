@@ -56,7 +56,11 @@ namespace rayt {
 		boost::shared_ptr<GPUOctreeCache::LRUMarker> session_lru_marker_;
 		boost::shared_ptr<GPUOctreeCache::LRUMarker> transaction_lru_marker_;
         
+		// storage for blocks while they are uploaded asynchronously to GPU
+		// returned pointer valid until next PushBlock or PopAllBlocks;
+		// can call context_->WaitForAll() and pop all blocks
         StoredOctreeBlock* PushBlock();
+
         void PopAllBlocks();
         
         DISALLOW_COPY_AND_ASSIGN(GPUOctreeCacheManager);
