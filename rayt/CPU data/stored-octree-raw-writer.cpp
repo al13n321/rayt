@@ -15,14 +15,15 @@ namespace rayt {
 		max_written_block_ = -1;
         
         header_size_ = 20 + (8 + static_cast<int>(strlen(kNodeLinkChannelName))); // 20 bytes of fixed length part and node links channel description
-        node_data_size_ = 0;
-        for (int i = 0; i < channels.size(); ++i) {
-            if (channels[i].name != kNodeLinkChannelName) {
-                channels_.AddChannel(channels[i]);
-                node_data_size_ += channels[i].bytes_in_node;
-                header_size_ += 8 + channels[i].name.length(); // channel description size
-            }
-        }
+        
+		channels_ = channels;
+		if (channels_.Contains(kNodeLinkChannelName))
+			channels_.RemoveChannel(kNodeLinkChannelName);
+		
+		node_data_size_ = channels_.SumBytesInNode();
+        
+		for (int i = 0; i < channels_.size(); ++i)
+            header_size_ += 8 + channels[i].name.length(); // channel description size
         
         bytes_in_block_ = kBlockHeaderSize + nodes_in_block_ * (node_data_size_ + kNodeLinkSize);
         

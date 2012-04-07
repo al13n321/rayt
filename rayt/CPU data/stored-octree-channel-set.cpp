@@ -48,6 +48,23 @@ namespace rayt {
         channel_by_name_[channel.name] = static_cast<int>(channels_.size());
         channels_.push_back(channel);
     }
+
+	void StoredOctreeChannelSet::InsertChannel(const StoredOctreeChannel &channel, int index) {
+		assert(!Contains(channel.name));
+		assert(index >= 0 && index <= channels_.size());
+        channels_.insert(channels_.begin() + index, channel);
+		for (int i = 0; i < (int)channels_.size(); ++i)
+			channel_by_name_[channels_[i].name] = i;
+	}
+
+	void StoredOctreeChannelSet::RemoveChannel(const std::string &name) {
+		assert(Contains(name));
+		int index = channel_by_name_[name];
+		channels_.erase(channels_.begin() + index);
+		channel_by_name_.erase(name);
+		for (int i = index; i < (int)channels_.size(); ++i)
+			channel_by_name_[channels_[i].name] = i;
+	}
     
     bool StoredOctreeChannelSet::operator == (const StoredOctreeChannelSet &c) const {
         return channels_ == c.channels_;

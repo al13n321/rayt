@@ -325,6 +325,7 @@ namespace rayt {
         cout << "Blocks: " << blocks_count_ << endl;
         cout << "Total bytes: " << header_size_ << " header + " << bytes_in_block_ << " * " << blocks_count_ << " blocks = " << header_size_ + static_cast<long long>(bytes_in_block_) * blocks_count_ << endl;
         cout << "Blocking overhead (without headers): " << (((static_cast<double>(bytes_in_block_ - kBlockHeaderSize) * blocks_count_) / (static_cast<double>(node_data_size_ + 4) * nodes_count_)) - 1) * 100 << "%" << endl;
+		cout << endl;
     }
     
 }

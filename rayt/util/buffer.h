@@ -22,6 +22,10 @@ namespace rayt {
         // loses all data
         void Resize(int new_size);
         
+		// just like C++11 move constructor;
+		// src.size() becomes 0
+		void DestroyingMoveFrom(Buffer &src);
+
         void Zero();
     private:
         int size_;

@@ -1,4 +1,6 @@
-Blocking is terrible. Try another strategy. Sort unfinished child blocks by depth and force detach subtrees of depth at least 5. If it works, think of a better form of this approach.
+Current blocking sucks. Use top-down bfs-dfs approach.
+	Apparently top-down BFS approach sucks too, but in a different way. Add deep child grouping and modify storage data format to support it.
+Rename StoredOctreeWriter to StoredOctreeBuilderOld, StoredOctreeRawWriter to StoredOctreeWriter.
 Visualize depth and block index. Check if blocking exploits spatial coherence by any chance.
 Decrease LOD when cache is too small
 Beam optimization

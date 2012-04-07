@@ -267,6 +267,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-builder-impl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-builder.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\rayt\CPU data\stored-octree-channel-set.cpp"
 				>
 			</File>
@@ -498,6 +506,14 @@
 		<Filter
 			Name="scene sources"
 			>
+			<File
+				RelativePath="..\..\rayt\scene sources\import-obj-scene-old.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\rayt\scene sources\import-obj-scene-old.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\rayt\scene sources\import-obj-scene.cpp"
 				>

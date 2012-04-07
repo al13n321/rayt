@@ -9,7 +9,7 @@ namespace rayt {
     class StoredOctreeChannelSet {
     public:
         StoredOctreeChannelSet();
-        ~StoredOctreeChannelSet();
+		~StoredOctreeChannelSet();
         
         // Default copy and assign operations are deliberately allowed.
         
@@ -27,6 +27,8 @@ namespace rayt {
         
         // asserts unique name
         void AddChannel(const StoredOctreeChannel &channel);
+		void InsertChannel(const StoredOctreeChannel &channel, int index);
+		void RemoveChannel(const std::string &name);
         
         bool operator == (const StoredOctreeChannelSet &c) const;
         bool operator != (const StoredOctreeChannelSet &c) const;

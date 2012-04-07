@@ -88,6 +88,15 @@ namespace rayt {
             assert(data_);
         }
     }
+
+	void Buffer::DestroyingMoveFrom(Buffer &src) {
+		if (data_)
+			delete[] data_;
+		data_ = src.data_;
+		size_ = src.size_;
+		src.data_ = NULL;
+		src.size_ = 0;
+	}
     
     void Buffer::Zero() {
         memset(data_, 0, size_);

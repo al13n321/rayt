@@ -1,4 +1,5 @@
 #include "test-application.h"
+#include "stored-octree-builder.h"
 #include "stopwatch.h"
 #include "stored-octree-test.h"
 #include "camera.h"
@@ -259,10 +260,24 @@ namespace rayt {
 		cout << " start-end   : " << (end    - start ) * mul << endl;
 	}
 
+	void TestBuilder() {
+		WriteTestOctreeSphere          (fvec3(.4, .3, .65), .26, 10, "H:/rayt scenes/sphere5.tree", 500);
+		CheckTestOctreeSphereWithLoader(fvec3(.4, .3, .65), .26, 10, "H:/rayt scenes/sphere5.tree");
+		//WriteTestOctreeSphereOld       (fvec3(.4, .3, .65), .26, 10, "H:/rayt scenes/sphere5_old.tree", 500);
+
+		//float t = pow(2.f, -30.f);
+		//WriteTestOctreeSphere          (fvec3(t, t, t), t / 2, 30, "H:/rayt scenes/sphere5.tree", 12);
+		//CheckTestOctreeSphereWithLoader(fvec3(t, t, t), t / 2, 30, "H:/rayt scenes/sphere5.tree");
+		cout << "done" << endl;
+	}
+
     void RunTestApplication(int argc, char **argv) {
         if (!BinaryUtil::CheckEndianness())
             crash("wrong endianness");
         
+		TestBuilder();
+		return;
+
 		//ImportObjScene(15, 1000, "/Users/me/codin/raytracer/scenes/hairball.obj", "/Users/me/codin/raytracer/scenes/hairball15.tree", true);
 		//ImportObjScene(11, 10000, "H:/rayt scenes/hairball.obj", "H:/rayt scenes/hairball11.tree", true);
 		//WriteTestOctreeSphere(fvec3(.5F, .5F, .5F), .45F, 7, "H:/rayt scenes/sphere7.tree", 100);

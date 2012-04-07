@@ -9,7 +9,6 @@ using namespace boost;
 namespace rayt {
     
     struct GenerationState {
-        int node_index; // for writing to channels 1 and 2
         fvec3 center; // of the sphere
         float radius_square; // of the sphere
         int max_depth;
@@ -39,7 +38,8 @@ namespace rayt {
                                                              GenerationState *s,
                                                              int depth,
                                                              fvec3 minp,
-                                                             fvec3 maxp) {
+                                                             fvec3 maxp,
+															 int node_id) {
         if (!PointInsideBox(s->center, minp, maxp)) {
             fvec3 verts[8] = {fvec3(minp.x, minp.y, minp.z),
                 fvec3(maxp.x, minp.y, minp.z),
@@ -159,7 +159,7 @@ namespace rayt {
                         nci = -1;
                     }
                 }
-                children[i] = GenerateSphereRecursive(nb, nindex, nci, s, depth + 1, nmin, nmax);
+                children[i] = GenerateSphereRecursive(nb, nindex, nci, s, depth + 1, nmin, nmax, node_id * 8 + i);
             }
         } else {
             if (s->loader) {
@@ -180,9 +180,8 @@ namespace rayt {
         }
         
         char node_data[5]; // two channels: 4-byte and 1-byte
-        ++s->node_index;
-        BinaryUtil::WriteUint(s->node_index, node_data);
-        node_data[4] = s->node_index % 211;
+        BinaryUtil::WriteUint(node_id, node_data);
+        node_data[4] = node_id % 211;
         
         if (s->loader) {
             char *block_data = reinterpret_cast<char*>(block->data.data());
@@ -204,7 +203,7 @@ namespace rayt {
             return NULL;
     }
     
-    void WriteTestOctreeSphere(fvec3 center, float radius, int level, std::string filename, int nodes_in_block) {
+    void WriteTestOctreeSphereOld(fvec3 center, float radius, int level, std::string filename, int nodes_in_block) {
         GenerationState s;
         s.center = center;
         s.max_depth = level;
@@ -214,7 +213,7 @@ namespace rayt {
         channels.AddChannel(StoredOctreeChannel(1, "node index % 211"));
         StoredOctreeWriter writer(filename, nodes_in_block, channels);
         s.writer = &writer;
-        writer.FinishAndWrite(GenerateSphereRecursive(shared_ptr<StoredOctreeBlock>(), 0, -1, &s, 0, fvec3(0,0,0), fvec3(1,1,1)));
+        writer.FinishAndWrite(GenerateSphereRecursive(shared_ptr<StoredOctreeBlock>(), 0, -1, &s, 0, fvec3(0,0,0), fvec3(1,1,1), 1));
         writer.PrintReport();
     }
     
@@ -235,7 +234,7 @@ namespace rayt {
             crash("failed to load root block");
         int root_index = root_block->header.roots[0].pointed_child_index;
         s.loader = &loader;
-        GenerateSphereRecursive(root_block, root_index, -1, &s, 0, fvec3(0,0,0), fvec3(1,1,1));
+        GenerateSphereRecursive(root_block, root_index, -1, &s, 0, fvec3(0,0,0), fvec3(1,1,1), 1);
     }
     
     void CheckTestOctreeSphereWithGPUData(fvec3 center, float radius, int level, const GPUOctreeData *data, int root_node_index, bool faultless) {
@@ -255,7 +254,91 @@ namespace rayt {
         s.node_link_data = reinterpret_cast<const char*>(link.data());
         s.channel1 = reinterpret_cast<const char*>(chan1.data());
         s.channel2 = reinterpret_cast<const char*>(chan2.data());
-        GenerateSphereRecursive(shared_ptr<StoredOctreeBlock>(), 0, root_node_index, &s, 0, fvec3(0,0,0), fvec3(1,1,1));
+        GenerateSphereRecursive(shared_ptr<StoredOctreeBlock>(), 0, root_node_index, &s, 0, fvec3(0,0,0), fvec3(1,1,1), 1);
+    }
+
+	struct BuilderNode {
+		int depth;
+        fvec3 minp;
+        fvec3 maxp;
+		int node_id;
+
+		BuilderNode(int depth, fvec3 minp, fvec3 maxp, int node_id) : depth(depth), minp(minp), maxp(maxp), node_id(node_id) {}
+	};
+	
+	class BuilderDataSource : public StoredOctreeBuilderDataSource<BuilderNode> {
+	public:
+		BuilderDataSource(fvec3 center, float radius_square, int max_depth) : center(center), radius_square(radius_square), max_depth(max_depth) {}
+
+		virtual BuilderNode GetRoot() {
+			return BuilderNode(0, fvec3(0, 0, 0), fvec3(1, 1, 1), 1);
+		}
+
+		virtual vector<pair<int, BuilderNode> > GetChildren(BuilderNode &node) {
+			vector<pair<int, BuilderNode> > res;
+			if (node.depth == max_depth)
+				return res;
+
+			for (int ch = 0; ch < 8; ++ch) {
+				fvec3 minp = node.minp;
+				fvec3 maxp = node.maxp;
+				fvec3 midp = (minp + maxp) / 2;
+				if (ch & 1) minp.x = midp.x; else maxp.x = midp.x;
+				if (ch & 2) minp.y = midp.y; else maxp.y = midp.y;
+				if (ch & 4) minp.z = midp.z; else maxp.z = midp.z;
+
+				if (!PointInsideBox(center, minp, maxp)) {
+					fvec3 verts[8] = {fvec3(minp.x, minp.y, minp.z),
+									  fvec3(maxp.x, minp.y, minp.z),
+									  fvec3(minp.x, maxp.y, minp.z),
+									  fvec3(maxp.x, maxp.y, minp.z),
+									  fvec3(minp.x, minp.y, maxp.z),
+									  fvec3(maxp.x, minp.y, maxp.z),
+									  fvec3(minp.x, maxp.y, maxp.z),
+									  fvec3(maxp.x, maxp.y, maxp.z)};
+		            
+					bool was_inside = false, was_outside = false;
+		            
+					for (int i = 0; i < 8; ++i) {
+						if (center.DistanceSquare(verts[i]) < radius_square) {
+							was_inside = true;
+							if (was_outside)
+								break;
+						} else {
+							was_outside = true;
+							if (was_inside)
+								break;
+						}
+					}
+		            
+					if (!was_inside || !was_outside)
+						continue;
+				}
+				
+				BuilderNode n(node.depth + 1, minp, maxp, node.node_id * 8 + ch);
+				res.push_back(make_pair(ch, n));
+			}
+
+			return res;
+		}
+
+		virtual void GetNodeData(BuilderNode &node, vector<pair<int, BuilderNode*> > &children, void *out_data) {
+			char *node_data = reinterpret_cast<char*>(out_data);
+			BinaryUtil::WriteUint(node.node_id, node_data);
+			node_data[4] = node.node_id % 211;
+		}
+	private:
+		fvec3 center; // of the sphere
+        float radius_square; // of the sphere
+        int max_depth;
+	};
+    
+    void WriteTestOctreeSphere(fvec3 center, float radius, int level, std::string filename, int nodes_in_block) {
+		BuilderDataSource s(center, radius * radius, level);
+        StoredOctreeChannelSet channels;
+        channels.AddChannel(StoredOctreeChannel(4, "node index"));
+        channels.AddChannel(StoredOctreeChannel(1, "node index % 211"));
+		BuildOctree(filename, nodes_in_block, channels, &s);
     }
     
 }
