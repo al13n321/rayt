@@ -1,6 +1,6 @@
 #include "common.cl"
 
-#define SHOW_BLOCKS
+//#define SHOW_BLOCKS
 #define BLOCK_SIZE 4096
 
 // state is in-out
@@ -14,8 +14,8 @@ void ProcessHit(float hit_t, int hit_node, TracingState *state, __global char4 *
 	float light = ambient_light - dot(normal, light_vec);
 	
 	uchar4 cncol = node_colors[hit_node];
-	//float4 color = min((float4)(255, 255, 255, 255), (float4)(cncol.x, cncol.y, cncol.z, 0) * light);
-	float4 color = fabs(normal) * 255; // QQQ
+	float4 color = min((float4)(255, 255, 255, 255), (float4)(cncol.x, cncol.y, cncol.z, 0) * light);
+	//float4 color = fabs(normal) * 255; // QQQ
 	
 #ifdef SHOW_BLOCKS
 	int id = hit_node / BLOCK_SIZE * 1500;

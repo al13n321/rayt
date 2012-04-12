@@ -43,9 +43,9 @@ namespace rayt {
         out_block->header.roots_count = BinaryUtil::ReadUint(header_data + 2 * 4);
         
         for (int i = 0; i < 8; ++i) {
-            out_block->header.roots[i].parent_pointer_index = BinaryUtil::ReadUshort(header_data + 3 * 4 + i * 5 + 0);
-            out_block->header.roots[i].pointed_child_index  = BinaryUtil::ReadUshort(header_data + 3 * 4 + i * 5 + 2);
-            out_block->header.roots[i].parent_pointer_children_mask = header_data[3 * 4 + i * 5 + 4]; // is cast from char to unsigned char deterministic or UB? who cares
+            out_block->header.roots[i].parent_pointer_index = BinaryUtil::ReadUshort(header_data + 3 * 4 + i * 8 + 0);
+            out_block->header.roots[i].pointed_child_index  = BinaryUtil::ReadUshort(header_data + 3 * 4 + i * 8 + 2);
+            out_block->header.roots[i].parent_pointer_value = BinaryUtil::ReadUint  (header_data + 3 * 4 + i * 8 + 4);
         }
         
         if (out_block->data.size() != block_content_size_)

@@ -3,13 +3,16 @@
 #include <vector>
 #include <map>
 #include <queue>
+#include <list>
 #include <memory.h>
+#include <boost/optional.hpp>
 #include "stored-octree-channel.h"
 #include "stored-octree-header.h"
 #include "stored-octree-block.h"
 #include "stored-octree-raw-writer.h"
 #include "octree-constants.h"
 #include "binary-util.h"
+#include "stopwatch.h"
 
 namespace rayt {
 
@@ -28,7 +31,7 @@ namespace rayt {
 		// will be called exactly once for each node, after GetChildren
 		// first in pair is index of child (0-7)
 		// out_data should be filled with concatenated data for all channels, except node links channel
-		virtual void GetNodeData(Tnode &node, std::vector<std::pair<int, Tnode*> > &children, void *out_data) = 0;
+		virtual void GetNodeData(Tnode &node, const std::vector<std::pair<int, Tnode*> > &children, void *out_data) = 0;
 	};
 
 	// writes report and errors to stdout

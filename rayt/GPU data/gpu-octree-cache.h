@@ -57,7 +57,7 @@ namespace rayt {
     private:
         struct CachedBlockRoot {
             ushort pointer_index_in_parent;
-            uchar parent_children_mask;
+            uint pointer_value_in_parent; // in storage format, i.e. non-fault link is relative to block
 			uint loaded_pointer_in_parent;   // storage for non-blocking write to CLBuffer
 			uint unloaded_pointer_in_parent; // storage for non-blocking write to CLBuffer
 			uint far_pointer_value;

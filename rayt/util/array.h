@@ -58,7 +58,7 @@ Array<T>::Array(const T &a) {
 	size_ = 1;
 	capacity_ = 1;
 	data_ = new T[capacity_];
-	data_[0] = T;
+	data_[0] = a;
 }
 
 template <class T>

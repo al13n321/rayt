@@ -23,7 +23,7 @@ namespace rayt {
 		
 		void Read(int start, int length, void *data, const CLEventList *wait_list, CLEvent *out_event);
 
-		// intended for debug purposes, so it is blocking and does clFinish before reading, expect poor performance
+		// intended for debug purposes, so it is blocking and does clFinish before reading; expect poor performance
         void Read(int start, int length, void *data) const;
 
     private:

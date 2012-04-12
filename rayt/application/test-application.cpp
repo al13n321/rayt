@@ -33,7 +33,8 @@ namespace rayt {
     bool key_pressed[256];
     Stopwatch frame_stopwatch;
     
-    const float movement_speed = 0.5; // units per second
+    float movement_speed = 0.5; // units per second
+	const float all_movement_speeds[] = {.01, .05, .2, .5};
     const float looking_speed = 0.2; // degrees per pixel
 
     Stopwatch fps_stopwatch;
@@ -74,7 +75,7 @@ namespace rayt {
         if (cur_frame_number % fps_update_period == 0) {
             char fps_str[100];
             double fps = 1.0 / fps_stopwatch.Restart() * fps_update_period;
-            sprintf_s(fps_str, sizeof(fps_str), "%lf", fps);
+            sprintf(fps_str, "%lf", fps);
             string title = string("FPS: ") + fps_str;
 
             glutSetWindowTitle(title.c_str());
@@ -95,6 +96,10 @@ namespace rayt {
             exit(0);
 		}
         key_pressed[key] = true;
+
+		if (key >= '1' && key - '1' < sizeof(all_movement_speeds) / sizeof(all_movement_speeds[0])) {
+			movement_speed = all_movement_speeds[key - '1'];
+		}
     }
 
     static void KeyboardUpFunc(unsigned char key, int x, int y) {
@@ -106,20 +111,6 @@ namespace rayt {
             if (state == GLUT_DOWN) {
                 prev_mousex = x;
                 prev_mousey = y;
-            }
-        }
-        if (button == GLUT_RIGHT_BUTTON) {
-            if (state == GLUT_DOWN) {
-                int test_x = x;
-                int test_y = winhei - y;
-                
-                fmat4 inv_proj = camera.ViewProjectionMatrix().Inverse();
-                fvec3 tmp((test_x + 0.5f) / winwid * 2 - 1, (test_y + 0.5f) / winhei * 2 - 1, -1);
-                fvec3 origin =  inv_proj.Transform(tmp);
-                tmp.z = 0;
-                fvec3 direction = inv_proj.Transform(tmp) - origin;
-                direction.NormalizeMe();
-                DebugRayCast(*cache_manager->data()->ChannelByName("node links")->cl_buffer(), cache_manager->root_node_index(), origin, direction);
             }
         }
     }
@@ -240,7 +231,7 @@ namespace rayt {
 			cout << "passed" << endl;
 	}
 
-	void TestProfilingWriteBuffer() {
+	static void TestProfilingWriteBuffer() {
 		const int sz = 100000000;
 		CLBuffer clbuf(0, sz, context);
 		CLEvent ev;
@@ -260,27 +251,49 @@ namespace rayt {
 		cout << " start-end   : " << (end    - start ) * mul << endl;
 	}
 
-	void TestBuilder() {
-		WriteTestOctreeSphere          (fvec3(.4, .3, .65), .26, 10, "H:/rayt scenes/sphere5.tree", 500);
-		CheckTestOctreeSphereWithLoader(fvec3(.4, .3, .65), .26, 10, "H:/rayt scenes/sphere5.tree");
-		//WriteTestOctreeSphereOld       (fvec3(.4, .3, .65), .26, 10, "H:/rayt scenes/sphere5_old.tree", 500);
+	static void TestBuilder() {
+#ifdef WIN32
+#define path "H:/rayt scenes"
+#else
+#define path "/Users/me/temp"
+#endif
+        
+		fvec3 c(.5, .5, .5);float r = .3; int level = 3; int nodes_in_block = 45;
+		//fvec3 c(.4, .3, .65); float r = .26; int level = 3; int nodes_in_block = 16;
+		WriteTestOctreeSphere          (c, r, level, path"/test_sphere.tree", nodes_in_block);
+		CheckTestOctreeSphereWithLoader(c, r, level, path"/test_sphere.tree");
+		WriteTestOctreeSphereOld       (c, r, level, path"/test_sphere_old.tree", nodes_in_block);
+		CheckTestOctreeSphereWithLoader(c, r, level, path"/test_sphere_old.tree");
+		
+		cout << "done" << endl;
+		return;
+
+		loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader(path"/test_sphere.tree"));
+
+		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(min(loader->header().blocks_count, 200000000 / loader->header().nodes_in_block / loader->header().channels.SumBytesInNode() + 1), loader, context));
+		cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(loader->header().blocks_count, loader, context));
+		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(3, loader, context));
+		cache_manager->InitialFillCache();
+
+		CheckTestOctreeSphereWithGPUData(c, r, level, cache_manager->data(), cache_manager->root_node_index(), true);
 
 		//float t = pow(2.f, -30.f);
 		//WriteTestOctreeSphere          (fvec3(t, t, t), t / 2, 30, "H:/rayt scenes/sphere5.tree", 12);
 		//CheckTestOctreeSphereWithLoader(fvec3(t, t, t), t / 2, 30, "H:/rayt scenes/sphere5.tree");
 		cout << "done" << endl;
+        
+#undef path
 	}
 
     void RunTestApplication(int argc, char **argv) {
         if (!BinaryUtil::CheckEndianness())
             crash("wrong endianness");
-        
-		TestBuilder();
-		return;
 
-		//ImportObjScene(15, 1000, "/Users/me/codin/raytracer/scenes/hairball.obj", "/Users/me/codin/raytracer/scenes/hairball15.tree", true);
-		//ImportObjScene(11, 10000, "H:/rayt scenes/hairball.obj", "H:/rayt scenes/hairball11.tree", true);
-		//WriteTestOctreeSphere(fvec3(.5F, .5F, .5F), .45F, 7, "H:/rayt scenes/sphere7.tree", 100);
+		/*WriteTestOctreeSphere(fvec3(.4, .3, .65), .26, 14, "H:/rayt scenes/sphere14.tree"    , 8192);
+		cout << "done" << endl;
+		return;*/
+
+		//ImportObjScene(7, 8192, "H:/rayt scenes/hairball.obj", "H:/rayt scenes/hairball10.tree");
         //return;
 
 		//DebugCheckConstantDepthTree("H:/rayt scenes/hairball9.tree", 9);
@@ -309,21 +322,24 @@ namespace rayt {
         //WriteTestOctreeSphere(fvec3(.5, .5, .5), 0.3, 9, "/Users/me/codin/raytracer/scenes/sphere9.tree", 10000);
 		//WriteTestOctreeSphere(fvec3(.5, .5, .5), 0.3, 9, "H:/rayt scenes/sphere9.tree", 10000);
 		
+		//TestBuilder(); return;
+
         camera.set_field_of_view(60);
         
         camera.set_yaw(-54.1999893);
         camera.set_pitch(6.00000143);
-        camera.set_postion(fvec3(2.36080551, 0.5, 1.63407874));
+        camera.set_postion(fvec3(1.5, .5, 1.5));
         
         //camera.set_postion(fvec3(0.5, 0.5f, -2.0f));
         //camera.set_yaw(180);
         
         camera.set_aspect_ratio(1);
         
-        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("H:/rayt scenes/conference13.tree"));
+        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("H:/rayt scenes/hairball12.tree"));
 		//loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("/Users/me/codin/raytracer/scenes/hairball11.tree"));
 		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(loader->header().blocks_count, loader, context));
-		cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(4000, loader, context));
+		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(2, loader, context));
+		cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(min(loader->header().blocks_count, 200000000 / loader->header().nodes_in_block / loader->header().channels.SumBytesInNode() + 1), loader, context));
 		cache_manager->InitialFillCache();
 
 		//cache_manager->data()->ChannelByIndex(0)->cl_buffer()->CheckContents();
@@ -334,8 +350,7 @@ namespace rayt {
         
 		raytracer.reset(new GPURayTracer(cache_manager, imgwid, imghei, context));
 		raytracer->set_frame_time_limit(0.1);
-        //raytracer->set_lod_voxel_size(2);
-		raytracer->set_lod_voxel_size(10);
+        raytracer->set_lod_voxel_size(1);
         drawer.reset(new RenderedImageDrawer(imgwid, imghei, context));
         
         glutMainLoop();

@@ -35,7 +35,7 @@ namespace rayt {
 		tracing_states_.reset(new CLBuffer(0, kTracingStateSize * frame_width * frame_height, context));
         
         char params[300];
-		sprintf_s(params, sizeof(params), "-D WIDTH=%d -D HEIGHT=%d -D MAX_ALLOWED_TRACING_STATE_SIZE=%d", frame_width, frame_height, kTracingStateSize);
+		sprintf(params, "-D WIDTH=%d -D HEIGHT=%d -D MAX_ALLOWED_TRACING_STATE_SIZE=%d", frame_width, frame_height, kTracingStateSize);
         init_frame_kernel_     .reset(new CLKernel("GPU_renderer/kernels", "init_tracing_frame.cl"  , params, "InitTracingFrame"  , context));
         raytracing_pass_kernel_.reset(new CLKernel("GPU_renderer/kernels", "raytracing_pass.cl"     , params, "RaytracingPass"    , context));
         finish_frame_kernel_   .reset(new CLKernel("GPU_renderer/kernels", "finish_tracing_frame.cl", params, "FinishTracingFrame", context));
@@ -105,8 +105,14 @@ namespace rayt {
 			raytracing_pass_kernel_->SetBufferArg(2, cache_manager_->data()->ChannelByIndex(0)->cl_buffer());
 			raytracing_pass_kernel_->SetBufferArg(3, cache_manager_->data()->far_pointers_buffer());
 			raytracing_pass_kernel_->SetIntArg(4, cache_manager_->root_node_index());
-			raytracing_pass_kernel_->SetBufferArg(5, cache_manager_->data()->ChannelByName("normals")->cl_buffer());
-			raytracing_pass_kernel_->SetBufferArg(6, cache_manager_->data()->ChannelByName("colors")->cl_buffer());
+			const CLBuffer *b = NULL;
+			if (cache_manager_->data()->ChannelByName("normals"))
+				b = cache_manager_->data()->ChannelByName("normals")->cl_buffer();
+			raytracing_pass_kernel_->SetBufferArg(5, b);
+			b = NULL;
+			if (cache_manager_->data()->ChannelByName("colors"))
+				b = cache_manager_->data()->ChannelByName("colors")->cl_buffer();
+			raytracing_pass_kernel_->SetBufferArg(6, b);
 			raytracing_pass_kernel_->Run2D(frame_width_, frame_height_, NULL, &ev);
 
 			ev.WaitFor();
@@ -176,8 +182,14 @@ namespace rayt {
 		finish_frame_kernel_->SetBufferArg(0, out_image_.get());
 		finish_frame_kernel_->SetBufferArg(1, tracing_states_.get());
 		finish_frame_kernel_->SetFloat4Arg(2, fvec3(0, 216/255., 1), 1);
-		finish_frame_kernel_->SetBufferArg(3, cache_manager_->data()->ChannelByName("normals")->cl_buffer());
-		finish_frame_kernel_->SetBufferArg(4, cache_manager_->data()->ChannelByName("colors")->cl_buffer());
+		const CLBuffer *b = NULL;
+		if (cache_manager_->data()->ChannelByName("normals"))
+			b = cache_manager_->data()->ChannelByName("normals")->cl_buffer();
+		finish_frame_kernel_->SetBufferArg(3, b);
+		b = NULL;
+		if (cache_manager_->data()->ChannelByName("colors"))
+			b = cache_manager_->data()->ChannelByName("colors")->cl_buffer();
+		finish_frame_kernel_->SetBufferArg(4, b);
 		finish_frame_kernel_->Run2D(frame_width_, frame_height_, NULL, &ev);
 
 		ev.WaitFor();

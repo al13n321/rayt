@@ -4,6 +4,12 @@ using namespace boost;
 
 namespace rayt {
     
+#ifdef WIN32
+#define SEEK_FUNCTION _fseeki64
+#else
+#define SEEK_FUNCTION fseek
+#endif
+    
 	BinaryFile::BinaryFile(const char *filename, bool read, bool write) {
 		readable_ = read;
 		writable_ = write;
@@ -42,7 +48,7 @@ namespace rayt {
 		if (!readable_)
 			return false;
 
-		if (_fseeki64(file_, start, SEEK_SET))
+		if (SEEK_FUNCTION(file_, start, SEEK_SET))
 			return false;
 		if (fread(out, 1, size, file_) != size)
 			return false;
@@ -53,7 +59,7 @@ namespace rayt {
 		if (!writable_)
 			return false;
 
-		if (_fseeki64(file_, start, SEEK_SET))
+		if (SEEK_FUNCTION(file_, start, SEEK_SET))
 			return false;
 		if (fwrite(in, 1, size, file_) != size)
 			return false;

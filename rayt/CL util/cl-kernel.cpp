@@ -98,7 +98,11 @@ namespace rayt {
     }
     
     void CLKernel::SetBufferArg(int index, const CLBuffer *buf) {
-        cl_mem mem = buf->buffer();
+		cl_mem mem;
+		if (buf)
+			mem = buf->buffer();
+		else
+			mem = NULL;
         SetArg(index, sizeof(cl_mem), &mem);
     }
     

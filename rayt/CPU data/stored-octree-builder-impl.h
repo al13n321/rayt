@@ -5,464 +5,491 @@ namespace rayt {
 		using namespace std;
 		using namespace boost;
 
-		template<class T, class U>
-		bool CompareFirstLess(const pair<T, U> &a, const pair<T, U> &b) {
-			return a.first < b.first;
-		}
-
-		// unlike finished block, has one root
-		struct UnfinishedBlock {
-			int block_index; // can be -1; if it's not -1, the block can't be merged into other blocks
-			int used_nodes_count;
-			int nodes_in_block;
-			Buffer channels_data; // including node links
-			int root_children_index;
-
-			UnfinishedBlock(int nodes_in_block_, int bytes_in_node) {
-				block_index = -1;
-				used_nodes_count = 0;
-				nodes_in_block = nodes_in_block_;
-				root_children_index = -1;
-				channels_data.Resize(bytes_in_node * nodes_in_block);
-			}
-
-			void SetNodeLink(int index, uchar children_mask, bool farr /* who the hell put #define far in WinDef.h! */, int node_or_block_index) {
-				assert(index >= 0 && index < nodes_in_block);
-				
-				char *data = reinterpret_cast<char*>(channels_data.data());
-				data += kNodeLinkSize * index;
-				uint p = node_or_block_index << 1;
-				if (farr)
-					++p;
-				p = (p << 8) | children_mask;
-				BinaryUtil::WriteUint(p, data);
-			}
-
-			// 0-th channel is ignored (assumed to be node links channel)
-			void SetChannelsData(const StoredOctreeChannelSet &channels, int node_index, const void *data) {
-				char *dest = reinterpret_cast<char*>(channels_data.data());
-				dest += kNodeLinkSize * nodes_in_block;
-				const char *src = reinterpret_cast<const char*>(data);
-				for (int i = 1; i < channels.size(); ++i) {
-					int s = channels[i].bytes_in_node;
-					memcpy(dest + s * node_index, src, s);
-					src += s;
-					dest += s * nodes_in_block;
-				}
-			}
-
-		private:
-			void IncreaseNearNodeLinks(uint delta) {
-				delta <<= 9; // for adding directly to packed node link
-				char *data = reinterpret_cast<char*>(channels_data.data());
-				for (int i = 0; i < used_nodes_count; ++i) {
-					uint p = BinaryUtil::ReadUint(data);
-					if (!(p & (1 << 8))) {
-						p += delta;
-						BinaryUtil::WriteUint(p, data);
-					}
-					data += kNodeLinkSize;
-				}
-			}
-
-		public:
-			// invalidates b
-			// the resulting block has multiple roots (which kinda relaxes invariant); root original_used_nodes_count + b->root_children_index is added
-			void ConcatenateDataFrom(UnfinishedBlock &b, const StoredOctreeChannelSet &channels) {
-				assert(nodes_in_block == b.nodes_in_block);
-				assert(used_nodes_count + b.used_nodes_count <= nodes_in_block);
-				b.IncreaseNearNodeLinks(static_cast<uint>(used_nodes_count));
-				char *dest = reinterpret_cast<char*>(channels_data.data());
-				char *src = reinterpret_cast<char*>(b.channels_data.data());
-				for (int i = 0; i < channels.size(); ++i) {
-					int s = channels[i].bytes_in_node;
-
-					memcpy(dest + s * used_nodes_count, src, s * b.used_nodes_count);
-
-					dest += s * nodes_in_block;
-					src += s * nodes_in_block;
-				}
-
-				used_nodes_count += b.used_nodes_count;
-			}
-		};
-
-		// linked to parent block
-		struct LinkedUnfinishedBlock {
-			UnfinishedBlock *block;
-
-			int parent_pointer_index; // within parent block
-			uchar parent_pointer_children_mask;
-
-			LinkedUnfinishedBlock(UnfinishedBlock *block, int parent_pointer_index, uchar parent_children_mask) : block(block), parent_pointer_index(parent_pointer_index), parent_pointer_children_mask(parent_children_mask) {}
-
-			static bool UsedNodesCountLess(const LinkedUnfinishedBlock &a, const LinkedUnfinishedBlock &b) {
-				return a.block->used_nodes_count < b.block->used_nodes_count;
-			}
-		};
-
 		template<class Tnode>
 		class StoredOctreeBuilder {
-		public:
-			StoredOctreeBuilder(string filename, int nodes_in_block, const StoredOctreeChannelSet &channels, StoredOctreeBuilderDataSource<Tnode> *data_source) {
-				writer_.reset(new StoredOctreeRawWriter(filename, nodes_in_block, channels));
-				nodes_in_block_ = nodes_in_block;
-				channels_ = channels;
-				if (!channels_.Contains(kNodeLinkChannelName))
-					channels_.InsertChannel(StoredOctreeChannel(kNodeLinkSize, kNodeLinkChannelName), 0);
-				bytes_in_node_ = channels_.SumBytesInNode();
-				data_source_ = data_source;
-				temp_node_data_.Resize(bytes_in_node_ - kNodeLinkSize);
-				blocks_count_ = 0;
-				
-				leaf_blocks_count_ = 0;
-				non_leaf_blocks_count_ = 0;
-				allocated_blocks_ = 0;
-				deallocated_blocks_ = 0;
-				allocated_nodes_ = 0;
-				deallocated_nodes_ = 0;
+		private:
+			struct TempTreeNode {
+				int index_in_block; // -1 means this node is not assigned an index yet
+				struct Node {
+					Tnode node;
+					Buffer channels_data; // without node links channel
+					bool got_channels_data; // only for assert
+					int children_mask; // -1 if unknown
+					TempTreeNode *child;
+					int fault_block; // valid if is_fault; -1 means the block is unknown yet
 
-				blocks_count_by_size_.resize(nodes_in_block_ + 1, 0);
-				blocks_count_by_children_.resize(nodes_in_block_ + 1, 0);
-				blocks_count_by_leaves_.resize(nodes_in_block_ + 1, 0);
-			}
-			
-			// TODO: maybe simple custom allocator can improve performance
-			UnfinishedBlock* AllocateUnfinishedBlock() {
-				++allocated_blocks_;
-				return new UnfinishedBlock(nodes_in_block_, bytes_in_node_);
-			}
+					Node() : children_mask(-1), child(NULL), fault_block(-1), got_channels_data(false) {}
+					Node(const Tnode &node) : node(node), children_mask(-1), child(NULL), fault_block(-1), got_channels_data(false) {}
 
-			void DeallocateUnfinishedBlock(UnfinishedBlock *b) {
-				++deallocated_blocks_;
-				delete b;
-			}
+					uint NodeLink() const {
+						assert(children_mask != -1);
+						if (!children_mask)
+							return 0;
+						uint p;
+						if (child) {
+							assert(child->index_in_block != -1);
+							p = (child->index_in_block << 1) + 0;
+						} else {
+							assert(fault_block != -1);
+							p = (fault_block << 1) + 1;
+						}
+						return (p << 8) + children_mask;
+					}
+				};
+				vector<Node> nodes;
+                
+                TempTreeNode() : index_in_block(-1) {}
+			};
+            
+            typedef typename TempTreeNode::Node TempTreeNodeNode;
 
-			// TODO: maybe simple custom allocator can improve performance
-			Tnode* AllocateNode(const Tnode &copy_of) {
-				++allocated_nodes_;
-				if (allocated_nodes_ % 10000000 == 0) {
-					cerr << allocated_nodes_ << " nodes..." << endl;
-				}
-				return new Tnode(copy_of);
-			}
+			struct BlockSubtree {
+				TempTreeNode *root; // in this block
+				TempTreeNode *parent; // in parent block
+				int child_index;
+				int node_count;
 
-			void DeallocateNode(Tnode *n) {
-				++deallocated_nodes_;
-				delete n;
-			}
-
-			// also deallocates blocks;
-			// only parts[0] can have block_index != -1;
-			int CommitBlock(const vector<LinkedUnfinishedBlock> &parts, int parent_block_index) {
-				assert(!parts.empty());
-				StoredOctreeBlock block;
-				if (parts[0].block->block_index != -1)
-					block.header.block_index = parts[0].block->block_index;
-				else
-					block.header.block_index = blocks_count_++;
-				block.header.parent_block_index = parent_block_index;
-				block.header.roots_count = parts.size();
-				block.header.roots[0].parent_pointer_index = parts[0].parent_pointer_index;
-				block.header.roots[0].parent_pointer_children_mask = parts[0].parent_pointer_children_mask;
-				block.header.roots[0].pointed_child_index = parts[0].block->root_children_index;
-
-				// merge all blocks into parts[0].block
-				for (int i = 1; i < static_cast<int>(parts.size()); ++i) {
-					assert(parts[i].block->block_index == -1);
-
-					block.header.roots[i].parent_pointer_index = parts[i].parent_pointer_index;
-					block.header.roots[i].parent_pointer_children_mask = parts[i].parent_pointer_children_mask;
-					block.header.roots[i].pointed_child_index = parts[i].block->root_children_index + parts[0].block->used_nodes_count;
-
-					parts[0].block->ConcatenateDataFrom(*parts[i].block, channels_);
-				}
-
-				block.data.DestroyingMoveFrom(parts[0].block->channels_data);
-
-				writer_->WriteBlock(block);
-
-				parts[0].block->channels_data.DestroyingMoveFrom(block.data); // just for performance in case of UnfinishedBlock reuse
-
-				for (int i = 0; i < static_cast<int>(parts.size()); ++i)
-					DeallocateUnfinishedBlock(parts[i].block);
-
-				return block.header.block_index;
-			}
-
-			struct NodeKidsData {
-				int first_index_in_block;
-				vector<Tnode*> kids;
-
-				NodeKidsData(int first_index, const vector<Tnode*> &kids) : first_index_in_block(first_index), kids(kids) {}
+				BlockSubtree() {}
+				BlockSubtree(TempTreeNode *root, TempTreeNode *parent, int child_index, int node_count) : root(root), parent(parent), child_index(child_index), node_count(node_count) {}
 			};
 
-			struct PendingNodeDataRequest {
-				Tnode *node;
-				vector<pair<int, Tnode*> > kids;
-				int index_in_block;
+			// TODO: try reusing nodes for performance
+			TempTreeNode* AllocNode() {
+				assert(!allocated_nodes_.empty());
+				TempTreeNode *n = new TempTreeNode();
+				allocated_nodes_.back().push_front(n);
+				return n;
+			}
 
-				PendingNodeDataRequest(Tnode *node, const vector<pair<int, Tnode*> > &kids, int index_in_block) : node(node), kids(kids), index_in_block(index_in_block) {}
+			void AllocMarker() {
+				allocated_nodes_.push_back(list<TempTreeNode*>());
+			}
+
+			// deallocates all nodes allocated since last unmatched AllocMarker()
+			void DeallocToMarker() {
+				assert(!allocated_nodes_.empty());
+				list<TempTreeNode*> &l = allocated_nodes_.back();
+				for (typename list<TempTreeNode*>::iterator it = l.begin(); it != l.end(); ++it)
+					delete *it;
+				allocated_nodes_.pop_back();
+			}
+
+			// removes last marker without removing any nodes
+			void DropMarker() {
+				assert(allocated_nodes_.size() >= 2);
+				list<TempTreeNode*> &prev = allocated_nodes_[allocated_nodes_.size() - 2];
+				list<TempTreeNode*> &cur = allocated_nodes_.back();
+				prev.insert(prev.end(), cur.begin(), cur.end());
+				allocated_nodes_.pop_back();
+			}
+
+			void SetFaultBlock(TempTreeNodeNode &n, int block) {
+                assert(n.children_mask != -1);
+                if (n.children_mask && !n.child)
+                    n.fault_block = block;
+                if (n.child)
+                    for (int i = 0; i < static_cast<int>(n.child->nodes.size()); ++i)
+                        SetFaultBlock(n.child->nodes[i], block);
+			}
+
+			void FillIndexInBlockRecursive(TempTreeNode *root, int &index) {
+				assert(root->index_in_block == -1);
+				root->index_in_block = index;
+				index += root->nodes.size();
+				for (int i = 0; i < static_cast<int>(root->nodes.size()); ++i)
+					if (root->nodes[i].child)
+						FillIndexInBlockRecursive(root->nodes[i].child, index);
+			}
+
+			void FillIndexInBlock(TempTreeNode *root, int first_index) {
+				FillIndexInBlockRecursive(root, first_index);
+			}
+
+			bool IndexInBlockFilled(TempTreeNode *root) {
+				if (root->index_in_block == -1)
+					return false;
+				for (int i = 0; i < static_cast<int>(root->nodes.size()); ++i)
+					if (root->nodes[i].child)
+						if (!IndexInBlockFilled(root->nodes[i].child))
+							return false;
+				return true;
+			}
+
+			// index_in_block must not be -1
+			void PackBlockRecursive(TempTreeNode *root, StoredOctreeBlock &block) {
+				assert(root->index_in_block != -1);
+				char *block_data = reinterpret_cast<char*>(block.data.data());
+				for (int ni = 0; ni < static_cast<int>(root->nodes.size()); ++ni) {
+					TempTreeNodeNode &n = root->nodes[ni];
+					assert(n.got_channels_data);
+					int index_in_block = root->index_in_block + ni;
+					BinaryUtil::WriteUint(n.NodeLink(), block_data + index_in_block * kNodeLinkSize);
+					char *channels_data = reinterpret_cast<char*>(n.channels_data.data());
+					int offset = 0;
+					for (int c = 0; c < channels_.size(); ++c) {
+						int s = channels_[c].bytes_in_node;
+						memcpy(block_data + (offset + kNodeLinkSize) * nodes_in_block_ + s * index_in_block, channels_data + offset, s);
+						offset += s;
+					}
+					if (n.child)
+						PackBlockRecursive(n.child, block);
+				}
+			}
+
+			void CommitBlock(const vector<BlockSubtree> &subtrees, int block_index, int parent_block_index) {
+				int node_count = 0;
+				temp_block_.header.block_index = block_index;
+				temp_block_.header.parent_block_index = parent_block_index;
+				temp_block_.header.roots_count = static_cast<int>(subtrees.size());
+				temp_block_.data.Zero();
+				for (int si = 0; si < static_cast<int>(subtrees.size()); ++si) {
+					const BlockSubtree &subtree = subtrees[si];
+					
+					if (subtree.root->index_in_block != -1) {
+						assert(subtrees.size() == 1);
+						assert(IndexInBlockFilled(subtree.root));
+					} else {
+						FillIndexInBlock(subtree.root, node_count);
+					}
+
+					SetFaultBlock(subtree.parent->nodes[subtree.child_index], block_index);
+
+					node_count += subtree.node_count;
+
+					temp_block_.header.roots[si].parent_pointer_index = subtree.parent->index_in_block + subtree.child_index;
+					temp_block_.header.roots[si].pointed_child_index = subtree.root->index_in_block;
+					temp_block_.header.roots[si].parent_pointer_value = subtree.parent->nodes[subtree.child_index].NodeLink();
+					
+					PackBlockRecursive(subtree.root, temp_block_);
+				}
+				assert(node_count <= nodes_in_block_);
+				writer_->WriteBlock(temp_block_);
+			}
+
+			static int SumSubtreesSize(const vector<BlockSubtree> &a) {
+				int res = 0;
+				for (int i = 0; i < static_cast<int>(a.size()); ++i)
+					res += a[i].node_count;
+				return res;
+			}
+
+			static bool SubtreeGroupsCompareLessNodes(const vector<BlockSubtree> &a, const vector<BlockSubtree> &b) {
+				return SumSubtreesSize(a) < SumSubtreesSize(b);
+			}
+
+			// inner vector represents a group of subtrees; a group should be placed in the same block; more than one group can be placed in a block
+			// remainder will contain less than 8 subtrees with total node count less than nodes_in_block_
+			void GroupIntoBlocks(vector<vector<BlockSubtree> > subtree_groups, int parent_block_index, vector<BlockSubtree> &out_remainder) {
+				int total_nodes = 0;
+				int total_subtrees = 0;
+				for (int i = 0; i < static_cast<int>(subtree_groups.size()); ++i) {
+					total_nodes += SumSubtreesSize(subtree_groups[i]);
+					total_subtrees += subtree_groups[i].size();
+				}
+				// early out for speed only
+				if (total_nodes < nodes_in_block_ && total_subtrees < 8) {
+					for (int i = 0; i < static_cast<int>(subtree_groups.size()); ++i)
+						out_remainder.insert(out_remainder.end(), subtree_groups[i].begin(), subtree_groups[i].end());
+					return;
+				}
+				// greedy grouping; TODO: try backtracking
+				sort(subtree_groups.begin(), subtree_groups.end(), SubtreeGroupsCompareLessNodes);
+				while (total_nodes >= nodes_in_block_ || total_subtrees >= 8) {
+					int group_nodes = 0;
+					int group_subtrees = 0;
+					vector<BlockSubtree> group;
+					for (int i = static_cast<int>(subtree_groups.size()) - 1; i >= 0; --i) {
+						int nodes = SumSubtreesSize(subtree_groups[i]);
+						int subtrees = static_cast<int>(subtree_groups[i].size());
+						if (group_nodes + nodes <= nodes_in_block_ && group_subtrees + subtrees <= 8) {
+							group_nodes += nodes;
+							group_subtrees += subtrees;
+							group.insert(group.end(), subtree_groups[i].begin(), subtree_groups[i].end());
+							subtree_groups.erase(subtree_groups.begin() + i);
+						}
+					}
+					CommitBlock(group, blocks_count_++, parent_block_index);
+					++leaf_blocks_count_;
+					total_nodes -= group_nodes;
+					total_subtrees -= group_subtrees;
+				}
+				for (int i = 0; i < static_cast<int>(subtree_groups.size()); ++i)
+					out_remainder.insert(out_remainder.end(), subtree_groups[i].begin(), subtree_groups[i].end());
+			}
+
+			// if child is not NULL, it overrides n.child, and n.child is asserted to be NULL
+			void GetNodeData(TempTreeNodeNode &n, TempTreeNode *child = NULL) {
+				assert(n.children_mask != -1);
+				assert(!n.got_channels_data);
+				n.got_channels_data = true;
+				n.channels_data.Resize(channels_data_size_);
+				if (n.children_mask) {
+					assert(!!n.child != !!child);
+					if (n.child != NULL)
+						child = n.child;
+					vector<pair<int, Tnode*> > kids;
+					int p = 0;
+					for (int j = 0; j < 8; ++j)
+						if (n.children_mask & (1 << j))
+							kids.push_back(make_pair(j, &child->nodes[p++].node));
+					assert(p == child->nodes.size());
+					data_source_->GetNodeData(n.node, kids, n.channels_data.data());
+				} else {
+					data_source_->GetNodeData(n.node, vector<pair<int, Tnode*> >(), n.channels_data.data());
+				}
+				++nodes_count_;
+				if (nodes_count_ % 10000000 == 0)
+					cerr << nodes_count_ << "nodes..." << endl;
+			}
+
+			void GetAllNodesData(TempTreeNode *root) {
+				for (int i = 0; i < static_cast<int>(root->nodes.size()); ++i) {
+					TempTreeNodeNode &n = root->nodes[i];
+					assert(n.children_mask != -1);
+					if (n.children_mask) {
+						assert(n.child);
+						GetAllNodesData(n.child);
+					}
+					GetNodeData(n);
+				}
+			}
+
+			struct SubtreeBlockingState {
+				optional<BlockSubtree> root_subtree;
+				vector<BlockSubtree> remaining_subtrees; // if root_subtree has value, remaining_subtrees has size 0 or 1
 			};
 
-			// also deallocates children
-			void FinalizeNode(PendingNodeDataRequest &pn, UnfinishedBlock *res) {
-				data_source_->GetNodeData(*pn.node, pn.kids, temp_node_data_.data());
-				res->SetChannelsData(channels_, pn.index_in_block, temp_node_data_.data());
-				for (int i = 0; i < static_cast<int>(pn.kids.size()); ++i)
-					DeallocateNode(pn.kids[i].second);
-			}
+			// calls GetNodeData for all nodes in subtree;
+			SubtreeBlockingState ProcessBlockNodes(TempTreeNode *root, int block_index, TempTreeNode *parent, int child_index) {
+				bool all_roots = true;
+				vector<BlockSubtree> root_subtrees(root->nodes.size());
+				vector<vector<BlockSubtree> > subtree_groups;
+				int rooted_nodes_count = static_cast<int>(root->nodes.size());
 
-			vector<pair<int, Tnode*> > AllocatedGetChildren(Tnode &n) {
-				vector<pair<int, Tnode> > kids = data_source_->GetChildren(n);
-				vector<pair<int, Tnode*> > allocated_kids(kids.size());
+				for (int ni = 0; ni < static_cast<int>(root->nodes.size()); ++ni) {
+					TempTreeNodeNode &n = root->nodes[ni];
+					if (n.children_mask == -1) {
+						vector<pair<int, Tnode> > kids = data_source_->GetChildren(n.node);
 
-				sort(kids.begin(), kids.end(), CompareFirstLess<int, Tnode>);
+						n.children_mask = 0;
+
+						if (!kids.empty()) {
+							TempTreeNode *new_node = AllocNode();
+
+							for (int j = 0; j < static_cast<int>(kids.size()); ++j) {
+								n.children_mask |= 1 << kids[j].first;
+
+								new_node->nodes.push_back(TempTreeNodeNode(kids[j].second));
+							}
+							
+							int new_block_index = blocks_count_++;
+							optional<BlockSubtree> r = BuildRecursive(new_node, root, ni, new_block_index, block_index);
+							GetNodeData(n, new_node);
+							if (!r) { // it built full block
+								n.fault_block = new_block_index;
+								all_roots = false;
+							} else {
+								--blocks_count_;
+								root_subtrees[ni] = r.get();
+								subtree_groups.push_back(vector<BlockSubtree>(1, r.get()));
+								rooted_nodes_count += r.get().node_count;
+							}
+						}
+					}
+					if (n.children_mask == 0) {
+						GetNodeData(n);
+						root_subtrees[ni].root = NULL;
+						root_subtrees[ni].node_count = 0;
+					} else if (n.child) {
+						SubtreeBlockingState s = ProcessBlockNodes(n.child, block_index, root, ni);
+						GetNodeData(n);
+						if (!s.root_subtree) {
+							all_roots = false;
+						} else {
+							assert(s.remaining_subtrees.size() <= 1);
+							root_subtrees[ni] = s.root_subtree.get();
+							rooted_nodes_count += s.root_subtree.get().node_count;
+						}
+						if (!s.remaining_subtrees.empty()) {
+							subtree_groups.push_back(s.remaining_subtrees);
+						}
+					}
+				}
 				
-				for (int j = 0; j < static_cast<int>(kids.size()); ++j) {
-					int c = kids[j].first;
+				SubtreeBlockingState res;
 
-					assert(c >= 0 && c < 8 && (!j || c != kids[j - 1].first));
-				
-					Tnode *n = AllocateNode(kids[j].second);
-					allocated_kids[j] = make_pair(kids[j].first, n);
+				// !parent is only possible because of upper bound of 8 children in BFS (search "using upper bound of 8" in this file)
+				// if you fix that, also make parent an assertion instead of condition
+				if (all_roots && rooted_nodes_count < nodes_in_block_ && parent) {
+					BlockSubtree new_subtree;
+					new_subtree.child_index = child_index;
+					new_subtree.parent = parent;
+					new_subtree.node_count = rooted_nodes_count;
+					new_subtree.root = AllocNode();
+					*new_subtree.root = *root; // oh noes, I called a default copy constructor; need to fix pointers in returned object with the next loop
+					new_subtree.root->index_in_block = -1;
+					for (int i = 0; i < static_cast<int>(new_subtree.root->nodes.size()); ++i) {
+						TempTreeNodeNode &n = new_subtree.root->nodes[i];
+						if (n.children_mask)
+							n.child = root_subtrees[i].root;
+					}
+					res.root_subtree = new_subtree;
+					if (subtree_groups.size() == 1)
+						res.remaining_subtrees = subtree_groups[0];
+					else if (subtree_groups.size() > 1)
+						res.remaining_subtrees.push_back(new_subtree);
+				} else {
+					GroupIntoBlocks(subtree_groups, block_index, res.remaining_subtrees);
 				}
 
-				return allocated_kids;
+				return res;
 			}
 
-			// returned block will have used_nodes_count + reserved_nodes_in_block <= nodes_in_block_ (this is actually used only for root block)
-			UnfinishedBlock* BuildRecursive(vector<Tnode*> &root_children, int reserved_nodes_in_block) {
-				UnfinishedBlock *res = AllocateUnfinishedBlock();
-				res->used_nodes_count = root_children.size();
-				res->root_children_index = 0;
+			// returns boost::none if a complete block was made; this block has index block_index and one root pointing to *parent
+			// returns not boost::none if block is incomplete and has no children; in this case block_index wasn't used and should be given to someone else
+			optional<BlockSubtree> BuildRecursive(TempTreeNode *root, TempTreeNode *parent, int child_index, int block_index, int parent_block_index) {
+				BlockSubtree res; // will be either returned or committed
+				res.child_index = child_index;
+				res.parent = parent;
+				res.root = root;
+				res.node_count = static_cast<int>(root->nodes.size());
 
 				// BFS the tree until the block is full
 				// everything that goes to the queue, goes to the resulting block
-				queue<NodeKidsData> qu;
-				qu.push(NodeKidsData(0, root_children));
-				vector<PendingNodeDataRequest> processed_nodes; // in top-to-bottom order; needed to GetNodeData after building subtree
+				queue<TempTreeNode*> qu;
+				qu.push(root);
 
 				bool full = false;
 				
+				AllocMarker();
+
 				while (!qu.empty() && !full) {
-					NodeKidsData cur = qu.front();
+					TempTreeNode *cur = qu.front();
 					qu.pop();
 
-					for (int i = 0; i < static_cast<int>(cur.kids.size()); ++i) {
-						if (res->used_nodes_count + 8 <= nodes_in_block_ - reserved_nodes_in_block) { // TODO: using upper bound of 8 gives an average of 4 empty nodes per block; it's possible to reduce this overhead
-							vector<pair<int, Tnode*> > kids = AllocatedGetChildren(*cur.kids[i]); // for processed_nodes
-							vector<Tnode*> just_kids(kids.size()); // for queue
+					for (int i = 0; i < static_cast<int>(cur->nodes.size()); ++i) {
+						TempTreeNodeNode &n = cur->nodes[i];
+						if (res.node_count + 8 <= nodes_in_block_) { // TODO: using upper bound of 8 gives an average of 4 empty nodes per block; it's possible to reduce this overhead
+							vector<pair<int, Tnode> > kids = data_source_->GetChildren(n.node);
 
-							uchar children_mask = 0;
-							
-							for (int j = 0; j < static_cast<int>(kids.size()); ++j) {
-								int c = kids[j].first;
-								children_mask |= 1 << c;
+							n.children_mask = 0;
 
-								just_kids[j] = kids[j].second;
+							if (!kids.empty()) {
+								n.child = AllocNode();
+
+								for (int j = 0; j < static_cast<int>(kids.size()); ++j) {
+									n.children_mask |= 1 << kids[j].first;
+
+									n.child->nodes.push_back(TempTreeNodeNode(kids[j].second));
+								}
+								
+								qu.push(n.child);
+
+								res.node_count += kids.size();
 							}
-							
-							int index_in_block = cur.first_index_in_block + i;
-							processed_nodes.push_back(PendingNodeDataRequest(cur.kids[i], kids, index_in_block));
-
-							if (children_mask)
-								qu.push(NodeKidsData(res->used_nodes_count, just_kids));
-
-							res->SetNodeLink(index_in_block, children_mask, false, res->used_nodes_count);
-							res->used_nodes_count += kids.size();
 						} else {
 							full = true;
-							NodeKidsData new_data(cur.first_index_in_block + i, vector<Tnode*>(cur.kids.begin() + i, cur.kids.end()));
-							qu.push(new_data);
 							break;
 						}
 					}
 				}
 
 				if (full) {
-					int block_index = blocks_count_++;
-					res->block_index = block_index;
-
-					int child_blocks = 0;
-					int child_leaves = 0;
-
-					while (!qu.empty()) {
-						NodeKidsData cur = qu.front();
-						qu.pop();
-
-						vector<LinkedUnfinishedBlock> blocks;
-						for (int i = 0; i < static_cast<int>(cur.kids.size()); ++i) {
-							vector<pair<int, Tnode*> > kids = AllocatedGetChildren(*cur.kids[i]);
-
-							int index_in_block = cur.first_index_in_block + i;
-							
-							if (kids.empty()) {
-								res->SetNodeLink(index_in_block, 0, false, 0);
-								processed_nodes.push_back(PendingNodeDataRequest(cur.kids[i], kids, index_in_block));
-								continue;
-							}
-
-							uchar children_mask = 0;
-							vector<Tnode*> just_kids(kids.size());
-							
-							for (int j = 0; j < static_cast<int>(kids.size()); ++j) {
-								int c = kids[j].first;
-								children_mask |= 1 << c;
-								just_kids[j] = kids[j].second;
-							}
-
-							UnfinishedBlock *new_block = BuildRecursive(just_kids, 0);
-							processed_nodes.push_back(PendingNodeDataRequest(cur.kids[i], kids, index_in_block));
-							blocks.push_back(LinkedUnfinishedBlock(new_block, index_in_block, children_mask));
-
-							++child_blocks;
-							if (new_block->block_index == -1)
-								++child_leaves;
-						}
-
-						sort(blocks.begin(), blocks.end(), LinkedUnfinishedBlock::UsedNodesCountLess);
-
-						// greedily group child blocks; TODO: try backtracking
-						while (!blocks.empty()) {
-							vector<LinkedUnfinishedBlock> group;
-							int size = 0;
-							for (int i = static_cast<int>(blocks.size()) - 1; i >= 0; --i) {
-								if (size + blocks[i].block->used_nodes_count <= nodes_in_block_ - reserved_nodes_in_block) {
-									// prevent grouping more than one block with block_index != -1
-									if (blocks[i].block->block_index != -1 && !group.empty() && group[0].block->block_index != -1)
-										continue;
-
-									size += blocks[i].block->used_nodes_count;
-									group.push_back(blocks[i]);
-
-									// always put block with block_index != -1 at group[0]
-									if (group.size() > 1 && blocks[i].block->block_index != -1)
-										swap(group.back(), group[0]);
-
-									blocks.erase(blocks.begin() + i);
-								}
-							}
-							int child_block_index = CommitBlock(group, block_index);
-							for (int i = 0; i < static_cast<int>(group.size()); ++i) {
-								res->SetNodeLink(group[i].parent_pointer_index, group[i].parent_pointer_children_mask, true, child_block_index);
-							}
-						}
+					FillIndexInBlock(res.root, 0);
+					SubtreeBlockingState s = ProcessBlockNodes(res.root, block_index, NULL, 0);
+					if (!s.remaining_subtrees.empty()) {
+						CommitBlock(s.remaining_subtrees, blocks_count_++, block_index);
+						++leaf_blocks_count_;
 					}
-
+					CommitBlock(vector<BlockSubtree>(1, res), block_index, parent_block_index);
 					++non_leaf_blocks_count_;
-					++blocks_count_by_children_[child_blocks];
-					++blocks_count_by_leaves_[child_leaves];
-				} else { // i.e. not full
-					++leaf_blocks_count_;
-					++blocks_count_by_size_[res->used_nodes_count];
+					DeallocToMarker();
+					return NULL;
+				} else {
+					GetAllNodesData(res.root);
+					DropMarker();
+					return res;
 				}
-
-				for (int i = static_cast<int>(processed_nodes.size()) - 1; i >= 0; --i) {
-					FinalizeNode(processed_nodes[i], res);
-				}
-
-				return res;
-			}
-
-			void Build() {
-				Tnode root = data_source_->GetRoot();
-				vector<pair<int, Tnode*> > kids = AllocatedGetChildren(root);
-
-				if (kids.empty())
-					crash("empty tree");
-
-				uchar children_mask = 0;
-				vector<Tnode*> just_kids(kids.size());
-
-				for (int i = 0; i < static_cast<int>(kids.size()); ++i) {
-					children_mask |= 1 << kids[i].first;
-					just_kids[i] = kids[i].second;
-				}
-				
-				UnfinishedBlock *root_block = BuildRecursive(just_kids, 1);
-				
-				int index = root_block->used_nodes_count;
-				assert(index < nodes_in_block_);
-				root_block->SetNodeLink(index, children_mask, false, root_block->root_children_index);
-				root_block->root_children_index = index;
-				++root_block->used_nodes_count;
-
-				PendingNodeDataRequest root_node_data_request(&root, kids, index);
-				FinalizeNode(root_node_data_request, root_block);
-
-				vector<LinkedUnfinishedBlock> group;
-				group.push_back(LinkedUnfinishedBlock(root_block, 0, 0));
-				int root_block_index = CommitBlock(group, kRootBlockParent);
-
-				writer_->WriteHeader(blocks_count_, root_block_index);
-			}
-
-			void PrintReport() {
-				assert(allocated_blocks_ == deallocated_blocks_);
-				assert(allocated_nodes_ == deallocated_nodes_);
-
-				++allocated_nodes_; // root
-
-				cout << "Nodes in block: " << nodes_in_block_ << endl;
-				cout << "Bytes in node: " << bytes_in_node_ << endl;
-				cout << "Bytes in block: " << nodes_in_block_ * bytes_in_node_ << " data + " << kBlockHeaderSize << " header = " << nodes_in_block_ * bytes_in_node_ + kBlockHeaderSize << endl;
-				cout << "Nodes: " << allocated_nodes_ << endl;
-				cout << "Blocks: " << blocks_count_ << endl;
-				cout << "Non-leaf blocks: " << non_leaf_blocks_count_ << endl;
-				cout << "Leaf blocks (before merging): " << leaf_blocks_count_ << endl;
-				cout << "Leaf blocks (after merging): " << blocks_count_ - non_leaf_blocks_count_ << endl;
-				cout << "Blocking overhead (without headers): " << (((static_cast<double>(nodes_in_block_ * bytes_in_node_) * blocks_count_) / (static_cast<double>(bytes_in_node_ * allocated_nodes_))) - 1) * 100 << "%" << endl;
-				cout << "Blocking overhead (with headers): " << (((static_cast<double>(nodes_in_block_ * bytes_in_node_ + kBlockHeaderSize) * blocks_count_) / (static_cast<double>(bytes_in_node_ * allocated_nodes_))) - 1) * 100 << "%" << endl;
-				cout << endl;
-
-				cout << "Block counts by size:" << endl;
-				for (int i = 0; i <= nodes_in_block_; ++i)
-					cout << blocks_count_by_size_[i] << ' ';
-				cout << endl << endl;
-
-				cout << "Block counts by child blocks count:" << endl;
-				for (int i = 0; i <= nodes_in_block_; ++i)
-					cout << blocks_count_by_children_[i] << ' ';
-				cout << endl << endl;
-
-				cout << "Block counts by child leaf blocks count:" << endl;
-				for (int i = 0; i <= nodes_in_block_; ++i)
-					cout << blocks_count_by_leaves_[i] << ' ';
-				cout << endl << endl;
 			}
 
 			scoped_ptr<StoredOctreeRawWriter> writer_;
 			int nodes_in_block_;
-			StoredOctreeChannelSet channels_;
-			int bytes_in_node_;
+			StoredOctreeChannelSet channels_; // doesn't contain node links channel
+			int channels_data_size_;
 			StoredOctreeBuilderDataSource<Tnode> *data_source_;
 			int blocks_count_;
-
-			vector<int> blocks_count_by_size_;
-			vector<int> blocks_count_by_children_;
-			vector<int> blocks_count_by_leaves_;
+			StoredOctreeBlock temp_block_;
+			vector<list<TempTreeNode*> > allocated_nodes_; // vector acts as a stack
 
 			int leaf_blocks_count_;
 			int non_leaf_blocks_count_;
+			long long nodes_count_;
 
-			int allocated_blocks_;
-			int deallocated_blocks_;
+		public:
 
-			long long allocated_nodes_;
-			long long deallocated_nodes_;
+			StoredOctreeBuilder(string filename, int nodes_in_block, const StoredOctreeChannelSet &channels, StoredOctreeBuilderDataSource<Tnode> *data_source) {
+				writer_.reset(new StoredOctreeRawWriter(filename, nodes_in_block, channels));
+				nodes_in_block_ = nodes_in_block;
+				channels_ = channels;
+				if (channels_.Contains(kNodeLinkChannelName))
+					channels_.RemoveChannel(kNodeLinkChannelName);
+				channels_data_size_ = channels_.SumBytesInNode();
+				data_source_ = data_source;
+				blocks_count_ = 0;
+				temp_block_.data.Resize(nodes_in_block_ * (channels_.SumBytesInNode() + kNodeLinkSize));
+				leaf_blocks_count_ = 0;
+				non_leaf_blocks_count_ = 0;
+				nodes_count_ = 0;
+			}
 
-			Buffer temp_node_data_;
+			void Build() {
+				AllocMarker();
+				TempTreeNode *root = AllocNode();
+				root->nodes.push_back(TempTreeNodeNode(data_source_->GetRoot()));
+				TempTreeNode *root_parent = AllocNode();
+				root_parent->nodes.push_back(TempTreeNodeNode());
+				root_parent->nodes[0].children_mask = 1;
+				root_parent->nodes[0].fault_block = 0;
+				int block_index = blocks_count_++;
+				optional<BlockSubtree> s = BuildRecursive(root, root_parent, 0, block_index, kRootBlockParent);
+				if (s) {
+					--blocks_count_;
+					CommitBlock(vector<BlockSubtree>(1, s.get()), blocks_count_++, kRootBlockParent);
+					++leaf_blocks_count_;
+				}
+				DeallocToMarker();
+				writer_->WriteHeader(blocks_count_, 0);
+			}
+
+			void PrintReport() {
+				assert(blocks_count_ == non_leaf_blocks_count_ + leaf_blocks_count_);
+
+				int bytes_in_node = channels_.SumBytesInNode() + kNodeLinkSize;
+				cout << "Nodes in block: " << nodes_in_block_ << endl;
+				cout << "Bytes in node: " << bytes_in_node << endl;
+				cout << "Bytes in block: " << nodes_in_block_ * bytes_in_node << " data + " << kBlockHeaderSize << " header = " << nodes_in_block_ * bytes_in_node + kBlockHeaderSize << endl;
+				cout << "Nodes: " << nodes_count_ << endl;
+				cout << "Blocks: " << blocks_count_ << endl;
+				cout << "Non-leaf blocks: " << non_leaf_blocks_count_ << endl;
+				cout << "Leaf blocks: " << leaf_blocks_count_ << endl;
+				cout << "Blocking overhead (without headers): " << (((static_cast<double>(nodes_in_block_ * bytes_in_node) * blocks_count_) / (static_cast<double>(bytes_in_node * nodes_count_))) - 1) * 100 << "%" << endl;
+				cout << "Blocking overhead (with headers): " << (((static_cast<double>(nodes_in_block_ * bytes_in_node + kBlockHeaderSize) * blocks_count_) / (static_cast<double>(bytes_in_node * nodes_count_))) - 1) * 100 << "%" << endl;
+			}
+
 		};
-
+		
 	}
 
 	template<class Tnode>
 	void BuildOctree(std::string filename, int nodes_in_block, const StoredOctreeChannelSet &channels, StoredOctreeBuilderDataSource<Tnode> *data_source) {
+		Stopwatch timer;
 		stored_octree_builder_impl::StoredOctreeBuilder<Tnode> b(filename, nodes_in_block, channels, data_source);
 		b.Build();
-		cerr << "done" << endl;
 		b.PrintReport();
+		double time = timer.TimeSinceRestart();
+        std::cerr << "done in " << time << " seconds" << std::endl;
+		std::cout << "Time taken: " << time << " seconds" << std::endl;
+		std::cout << std::endl;
 	}
 
 }

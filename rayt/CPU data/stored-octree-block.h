@@ -7,7 +7,7 @@ namespace rayt {
     struct StoredOctreeBlockRoot {
         ushort parent_pointer_index; // within parent block
         ushort pointed_child_index; // within this block
-        uchar parent_pointer_children_mask; // child mask of node at parent_pointer_index
+        uint parent_pointer_value; // child mask of node at parent_pointer_index
     };
     
     struct StoredOctreeBlockHeader {

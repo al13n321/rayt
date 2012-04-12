@@ -6,7 +6,7 @@ using namespace boost;
 
 namespace rayt {
 
-	static bool CheckSubtree(shared_ptr<StoredOctreeTraverser::Node> node, int depth_left, int &counter) {
+	static bool CheckSubtree(StoredOctreeTraverser::Node *node, int depth_left, int &counter) {
 		if (++counter % 10000 == 0) {
 			cout << "checked " << counter << endl;
 		}
@@ -18,7 +18,7 @@ namespace rayt {
 			ret = false;
 		}
 		
-		vector<shared_ptr<StoredOctreeTraverser::Node> > c = node->Children();
+		vector<StoredOctreeTraverser::Node*> c = node->Children();
 		bool has_children = false;
 		for (int i = 0; i < 8; ++i) {
 			if (c[i] != NULL) {

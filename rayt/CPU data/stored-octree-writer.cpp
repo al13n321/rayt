@@ -194,7 +194,7 @@ namespace rayt {
                     
                     // link one of his roots to this node
                     b->header.roots[d.children.root_index].parent_pointer_index = node_index + k;
-                    b->header.roots[d.children.root_index].parent_pointer_children_mask = d.children_mask;
+                    b->header.roots[d.children.root_index].parent_pointer_value = (b->header.block_index << 9) + (1 << 8) + d.children_mask;
                 }
                 p = (p << 8) | d.children_mask;
                 BinaryUtil::WriteUint(p, data + kNodeLinkSize * (node_index + k));
@@ -281,7 +281,7 @@ namespace rayt {
         for (int i = 0; i < 8; ++i) {
             BinaryUtil::WriteUshort(block.header.roots[i].parent_pointer_index, data + pos); pos += 2;
             BinaryUtil::WriteUshort(block.header.roots[i].pointed_child_index, data + pos); pos += 2;
-            data[pos] = block.header.roots[i].parent_pointer_children_mask; pos += 1;
+            BinaryUtil::WriteUint  (block.header.roots[i].parent_pointer_value, data + pos); pos += 4;
         }
         memcpy(data + pos, block.data.data(), block.data.size());
         

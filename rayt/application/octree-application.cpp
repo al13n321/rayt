@@ -1,7 +1,7 @@
 #include "octree-application.h"
 #include <iostream>
 #include <sstream>
-#include "import-obj-scene-old.h"
+#include "import-obj-scene.h"
 using namespace std;
 
 namespace rayt {
@@ -22,7 +22,7 @@ namespace rayt {
 
 		string cmd = argv[2];
 
-		if (cmd == "obj2tree_old") {
+		if (cmd == "obj2tree") {
 			if (argc <= 6)
 				CrashShowingUsage(argv[0]);
 
@@ -31,7 +31,7 @@ namespace rayt {
 			int depth = atoi(argv[5]);
 			int nodes_in_block = atoi(argv[6]);
 
-			ImportObjSceneOld(depth, nodes_in_block, obj_file, tree_file, true);
+			ImportObjScene(depth, nodes_in_block, obj_file, tree_file);
 		} else if (cmd == "info") {
 			crash("not implemented");
 		}

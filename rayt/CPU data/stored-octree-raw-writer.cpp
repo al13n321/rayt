@@ -91,7 +91,7 @@ namespace rayt {
         for (int i = 0; i < 8; ++i) {
             BinaryUtil::WriteUshort(block.header.roots[i].parent_pointer_index, data + pos); pos += 2;
             BinaryUtil::WriteUshort(block.header.roots[i].pointed_child_index, data + pos); pos += 2;
-            data[pos] = block.header.roots[i].parent_pointer_children_mask; pos += 1;
+			BinaryUtil::WriteUint  (block.header.roots[i].parent_pointer_value, data + pos); pos += 4;
         }
         memcpy(data + pos, block.data.data(), block.data.size());
         

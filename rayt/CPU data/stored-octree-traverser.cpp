@@ -7,84 +7,114 @@ using namespace boost;
 namespace rayt {
 
 	StoredOctreeTraverser::Node::~Node() {}
-	
-	StoredOctreeTraverser::Node::Node(StoredOctreeTraverser *traverser, boost::shared_ptr<StoredOctreeBlock> block, int index_in_block) {
-		traverser_ = traverser;
-		block_ = block;
-		index_in_block_ = index_in_block;
+
+	const void* StoredOctreeTraverser::Node::DataForChannel(const std::string &name) {
+		char *d = reinterpret_cast<char*>(data_.data());
+		return d + channels_->OffsetToChannel(name) - kNodeLinkSize;
 	}
 
-	StoredOctreeTraverser* StoredOctreeTraverser::Node::traverser() {
-		return traverser_;
+	vector<StoredOctreeTraverser::Node*> StoredOctreeTraverser::Node::Children() {
+		return children_;
 	}
-
-	const void* StoredOctreeTraverser::Node::DataForChannel(const string &name) {
-		const StoredOctreeChannelSet &chset = traverser_->loader()->header().channels;
-		int off = chset.OffsetToChannel(name);
-		if (off == -1)
-			return NULL;
-		int nodes_in_block = traverser_->loader()->header().nodes_in_block;
-		const char *p = reinterpret_cast<const char*>(block_->data.data());
-		return p + off * nodes_in_block + chset[name].bytes_in_node * index_in_block_;
-	}
-
-	vector<shared_ptr<StoredOctreeTraverser::Node> > StoredOctreeTraverser::Node::Children() {
-		const void *link_data = DataForChannel(kNodeLinkChannelName);
-		uint link = BinaryUtil::ReadUint(link_data);
-		uint children_mask = link & ((1 << 8) - 1);
-		bool isfar = !!(link & (1 << 8));
-		link >>= 9;
-
-		boost::shared_ptr<StoredOctreeBlock> nblock;
-		int nindex;
 		
-		if (isfar) {
-			nblock.reset(new StoredOctreeBlock());
-			nindex = -1;
-		
-			if (!traverser_->loader()->LoadBlock(link, nblock.get()))
-				crash("failed to load block");
-
-			for (uint r = 0; r < nblock->header.roots_count; ++r) {
-				StoredOctreeBlockRoot &root = nblock->header.roots[r];
-				if (root.parent_pointer_index == index_in_block_) {
-					assert(nindex == -1);
-					nindex = root.pointed_child_index;
-				}
-			}
-			assert(nindex != -1);
-		} else {
-			nblock = block_;
-			nindex = link;
+	StoredOctreeTraverser::Node::Node(StoredOctreeBlock &block, const StoredOctreeChannelSet *channels, int nodes_in_block, int node_index) {
+		channels_ = channels;
+		data_.Resize(channels->SumBytesInNode() - kNodeLinkSize);
+		char *in_data = reinterpret_cast<char*>(block.data.data());
+		char *out_data = reinterpret_cast<char*>(data_.data());
+		int offset = 0;
+		for (int c = 1; c < channels->size(); ++c) {
+			int s = (*channels)[c].bytes_in_node;
+			memcpy(out_data + offset, in_data + (offset + kNodeLinkSize) * nodes_in_block + s * node_index, s);
+			offset += s;
 		}
-
-		vector<shared_ptr<Node> > res(8);
-
-		for (int i = 0; i < 8; ++i) {
-			if (children_mask & (1 << i)) {
-				res[i].reset(new Node(traverser_, nblock, nindex));
-				++nindex;
-			}
-		}
-
-		return res;
 	}
 
-	StoredOctreeTraverser::StoredOctreeTraverser(shared_ptr<StoredOctreeLoader> loader) {
+	StoredOctreeTraverser::StoredOctreeTraverser(boost::shared_ptr<StoredOctreeLoader> loader) {
 		loader_ = loader;
-	}
+		root_ = NULL;
 
+		for (int i = 0; i < static_cast<int>(loader->header().blocks_count); ++i) {
+			LoadBlockIfNotLoaded(i);
+		}
+
+		assert(root_);
+		CheckTree(root_);
+	}
+    
 	StoredOctreeTraverser::~StoredOctreeTraverser() {}
         
-	StoredOctreeLoader* StoredOctreeTraverser::loader() {
-		return loader_.get();
+	StoredOctreeTraverser::Node* StoredOctreeTraverser::Root() {
+		return root_;
 	}
 
-	shared_ptr<StoredOctreeTraverser::Node> StoredOctreeTraverser::Root() {
-		shared_ptr<StoredOctreeBlock> block(new StoredOctreeBlock());
-		if(!loader_->LoadBlock(loader_->header().root_block_index, block.get()))
+	void StoredOctreeTraverser::LoadBlockIfNotLoaded(int block_index) {
+		if (loaded_blocks_.count(block_index))
+			return;
+
+		StoredOctreeBlock block;
+		if (!loader_->LoadBlock(block_index, &block))
 			crash("failed to load block");
-		return shared_ptr<Node>(new Node(this, block, block->header.roots[0].pointed_child_index));
+
+		int parent_block = block.header.parent_block_index;
+
+		if (parent_block == kRootBlockParent) {
+			root_ = TraverseBlock(block, block.header.roots[0].pointed_child_index);
+		} else {
+			LoadBlockIfNotLoaded(parent_block);
+
+			for (int ri = 0; ri < static_cast<int>(block.header.roots_count); ++ri) {
+				StoredOctreeBlockRoot &r = block.header.roots[ri];
+				int parent_node = r.parent_pointer_index;
+				Node *n = nodes_[make_pair(parent_block, parent_node)].get();
+				assert(n);
+				assert(n->initial_node_link_ == r.parent_pointer_value);
+				n->children_ = vector<Node*>(8, NULL);
+				int children_mask = r.parent_pointer_value & 255;
+				int p = 0;
+				for (int i = 0; i < 8; ++i) {
+					if (children_mask & (1 << i)) {
+						n->children_[i] = TraverseBlock(block, r.pointed_child_index + p);
+						++p;
+					}
+				}
+			}
+		}
+
+		loaded_blocks_.insert(block_index);
+	}
+
+	StoredOctreeTraverser::Node* StoredOctreeTraverser::TraverseBlock(StoredOctreeBlock &block, int node_index) {
+		assert(!nodes_.count(make_pair(block.header.block_index, node_index)));
+		Node *n = new Node(block, &loader_->header().channels, loader_->header().nodes_in_block, node_index);
+		nodes_[make_pair(block.header.block_index, node_index)] = shared_ptr<Node>(n);
+		char *data = reinterpret_cast<char*>(block.data.data());
+		uint node_link = BinaryUtil::ReadUint(data + node_index * kNodeLinkSize);
+		n->initial_node_link_ = node_link;
+		uchar children_mask = node_link & 255;
+		uint ptr = node_link >> 8;
+		if (!children_mask) {
+			n->children_.resize(8, NULL);
+		} else if (!(ptr & 1)) {
+			ptr >>= 1;
+			n->children_.resize(8, NULL);
+			int p = 0;
+			for (int i = 0; i < 8; ++i) {
+				if (children_mask & (1 << i)) {
+					n->children_[i] = TraverseBlock(block, ptr + p);
+					++p;
+				}
+			}
+		}
+		return n;
+	}
+
+	void StoredOctreeTraverser::CheckTree(Node *n) {
+		if (n->children_.empty())
+			crash("unexpected fault after loading all blocks");
+		for (int i = 0; i < 8; ++i)
+			if (n->children_[i])
+				CheckTree(n->children_[i]);
 	}
 
 }

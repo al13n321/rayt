@@ -267,6 +267,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\rayt\CPU data\stored-octree-builder-impl-old.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\rayt\CPU data\stored-octree-builder-impl.h"
 				>
 			</File>

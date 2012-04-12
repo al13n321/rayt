@@ -172,7 +172,7 @@ namespace rayt {
 				CachedBlockRoot &ir = info.roots[i];
                 
                 ir.pointer_index_in_parent = r.parent_pointer_index;
-                ir.parent_children_mask = r.parent_pointer_children_mask;
+                ir.pointer_value_in_parent = r.parent_pointer_value;
 
 				uint absolute_ptr = index * nodes_in_block_ + r.pointed_child_index;
 				int diff = absolute_ptr - (parent_index * nodes_in_block_ + r.parent_pointer_index);
@@ -194,10 +194,10 @@ namespace rayt {
 				} else {
 					ptr = ((1 << 21) + diff) << 1;
 				}
-				uint new_value = (ptr << 9) | r.parent_pointer_children_mask;
+				uint new_value = (ptr << 9) | (r.parent_pointer_value & 255);
 				int offset = r.parent_pointer_index * kNodeLinkSize;
 				
-				void *new_value_data = &ir.loaded_pointer_in_parent; // this pointer should be valid until next clFinish if blocking is false
+				void *new_value_data = &ir.loaded_pointer_in_parent;
 				BinaryUtil::WriteUint(new_value, new_value_data);
                 
 				data_->UploadBlockPart(0, parent_index, offset, kNodeLinkSize, new_value_data, false, &parent_info.block_write_events[0], &temp_event);
@@ -246,7 +246,13 @@ namespace rayt {
         // update pointers in parent
         // TODO: upload consecutive updated pointers with one call
         for (int i = 0; i < info.roots_count; ++i) {
-            uint new_value = (info.block_index << 9) + (1 << 8) + info.roots[i].parent_children_mask;
+			uint new_value = info.roots[i].pointer_value_in_parent;
+			uchar children_mask = new_value & 255;
+			if (children_mask && !(new_value & (1 << 8))) { // make non-fault pointer relative and add far bit
+				new_value >>= 9;
+				new_value = new_value + (uint)(1 << 21) - (uint)info.roots[i].pointer_index_in_parent;
+				new_value = (new_value << 10) + children_mask;
+			}
 			void *new_value_data = &info.roots[i].unloaded_pointer_in_parent; // this pointer should be valid until next clFinish if blocking is false
 			BinaryUtil::WriteUint(new_value, new_value_data);
             data_->UploadBlockPart(0, parent_index, info.roots[i].pointer_index_in_parent * kNodeLinkSize, kNodeLinkSize, new_value_data, blocking, &parent_info.block_write_events[0], &temp_event);

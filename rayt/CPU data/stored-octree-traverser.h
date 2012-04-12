@@ -1,31 +1,31 @@
 #pragma once
 
+#include <set>
 #include "stored-octree-loader.h"
 
 namespace rayt {
 
-	// current implementation is a little inefficient: it loads each blocks as many times, as many roots it has (up to 8, 4 in average)
-    class StoredOctreeTraverser {
-    public:
+	class StoredOctreeTraverser {
+	public:
 		class Node {
 		public:
 			~Node();
-			
-			StoredOctreeTraverser* traverser();
 
 			// returns NULL if there's no such channel
 			const void* DataForChannel(const std::string &name);
 
 			// size 8, can contain NULLs
-			std::vector<boost::shared_ptr<Node> > Children();
+			std::vector<Node*> Children();
 		private:
 			friend class StoredOctreeTraverser;
 
-			boost::shared_ptr<StoredOctreeBlock> block_;
-			int index_in_block_;
-			StoredOctreeTraverser *traverser_;
+			std::vector<Node*> children_;
+			Buffer data_;
+			const StoredOctreeChannelSet *channels_;
+			uint initial_node_link_; // only for check
 
-			Node(StoredOctreeTraverser *traverser, boost::shared_ptr<StoredOctreeBlock> block, int index_in_block);
+			// doesn't initialize children
+			Node(StoredOctreeBlock &block, const StoredOctreeChannelSet *channels, int nodes_in_block, int node_index);
 
 			DISALLOW_COPY_AND_ASSIGN(Node);
 		};
@@ -33,13 +33,18 @@ namespace rayt {
 		StoredOctreeTraverser(boost::shared_ptr<StoredOctreeLoader> loader);
         ~StoredOctreeTraverser();
         
-		StoredOctreeLoader* loader();
-
-		boost::shared_ptr<Node> Root();
+		Node* Root();
     private:
 		boost::shared_ptr<StoredOctreeLoader> loader_;
+		std::map<std::pair<int, int>, boost::shared_ptr<Node> > nodes_;
+		std::set<int> loaded_blocks_;
+		Node *root_;
+
+		void LoadBlockIfNotLoaded(int block_index);
+		Node* TraverseBlock(StoredOctreeBlock &block, int node_index);
+		void CheckTree(Node *n);
 
         DISALLOW_COPY_AND_ASSIGN(StoredOctreeTraverser);
     };
-    
+
 }
