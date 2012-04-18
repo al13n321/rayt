@@ -16,6 +16,7 @@ namespace rayt {
 		
 		fault_blocks_.reserve(count_);
 		hit_blocks_.reserve(count_);
+		duplicate_hit_blocks_.reserve(count_);
 		sorted_.Resize(count_);
 		
 		expected_faults_ = 1 << 16;
@@ -33,7 +34,7 @@ namespace rayt {
 	}
 
 	RayTracingFeedbackExtractor::~RayTracingFeedbackExtractor() {}
-        
+
 	void RayTracingFeedbackExtractor::Process(CLBuffer &faults_and_hits, int nodes_in_block) {
 		GetUnique(faults_and_hits, nodes_in_block);
 		ProcessUnique();
@@ -96,11 +97,20 @@ namespace rayt {
 		++unique_count_;
 	}
 
+	void RayTracingFeedbackExtractor::AddHit(int encoded_hit) {
+		if (encoded_hit & 1) {
+			duplicate_hit_blocks_.push_back((encoded_hit >> 1) - 1);
+		} else {
+			hit_blocks_.push_back((encoded_hit >> 1) - 1);
+		}
+	}
+
 	void RayTracingFeedbackExtractor::ProcessUnique() {
 		CLEvent ev;
 
 		fault_blocks_.clear();
 		hit_blocks_.clear();
+		duplicate_hit_blocks_.clear();
 
 		int stride = expected_faults_;
 		int size = 0;
@@ -123,7 +133,7 @@ namespace rayt {
 					fault_blocks_.push_back(-sorted_[i] - 1);
 				} else {
 					if (sorted_[i] != NO_HIT)
-						hit_blocks_.push_back(sorted_[i] - 1);
+						AddHit(sorted_[i]);
 				}
 			}
 
@@ -161,7 +171,7 @@ namespace rayt {
 				for (int i = 0; i < segs[si].second; ++i) {
 					assert(sorted_[i] > 0);
 					if (sorted_[i] != NO_HIT)
-						hit_blocks_.push_back(sorted_[i] - 1);
+						AddHit(sorted_[i]);
 				}
 			}
 		}
@@ -188,6 +198,10 @@ namespace rayt {
 
 	const std::vector<int>& RayTracingFeedbackExtractor::hit_blocks() const {
 		return hit_blocks_;
+	}
+
+	const std::vector<int>& RayTracingFeedbackExtractor::duplicate_hit_blocks() const {
+		return duplicate_hit_blocks_;
 	}
 
 }

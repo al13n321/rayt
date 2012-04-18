@@ -135,9 +135,15 @@ namespace rayt {
 				cache_manager_->MarkBlockAsUsed(hits[i]);
 			}
 
+			const vector<int> &dup_hits = feedback_extractor_->duplicate_hit_blocks();
+			for (int i = 0; i < (int)dup_hits.size(); ++i) {
+				cache_manager_->MarkParentAsUsed(dup_hits[i]);
+			}
+
 			PROFILE_TIMER_STOP();
 
 			PROFILE_VALUE_COMMIT_SET("hits per pass", hits.size());
+			PROFILE_VALUE_COMMIT_SET("hits dup per pass", dup_hits.size());
 
 			PROFILE_TIMER_START("CPU request blocks");
 

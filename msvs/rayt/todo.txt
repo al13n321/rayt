@@ -1,12 +1,10 @@
-Current blocking sucks. Use top-down bfs-dfs approach.
-	Apparently top-down BFS approach sucks too, but in a different way. Add deep child grouping and modify storage data format to support it.
 Rename StoredOctreeWriter to StoredOctreeBuilderOld, StoredOctreeRawWriter to StoredOctreeWriter.
-Visualize depth and block index. Check if blocking exploits spatial coherence by any chance.
-Decrease LOD when cache is too small
-Beam optimization
-Visualize block load time
-Visualize iteration count
-Lighting
-Textures
-Reflections
-Nicer scenes
+Visualize block index. Check if blocking exploits spatial coherence by any chance.
+Visualize iteration count. Check if it is by any chance similar to iteration counts in Efficient Sparce Voxel Octrees.
+Visualize block load time. Check if old areas are not reloaded.
+Decrease LOD when cache is too small.
+Beam optimization.
+Lighting.
+Textures.
+Reflections.
+Nicer scenes.

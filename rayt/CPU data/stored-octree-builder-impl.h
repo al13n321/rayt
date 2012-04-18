@@ -17,23 +17,16 @@ namespace rayt {
 					int children_mask; // -1 if unknown
 					TempTreeNode *child;
 					int fault_block; // valid if is_fault; -1 means the block is unknown yet
+					bool duplicate; // indicates if this node is a copy of some node in parent block
 
-					Node() : children_mask(-1), child(NULL), fault_block(-1), got_channels_data(false) {}
-					Node(const Tnode &node) : node(node), children_mask(-1), child(NULL), fault_block(-1), got_channels_data(false) {}
+					Node() : children_mask(-1), child(NULL), fault_block(-1), duplicate(false), got_channels_data(false) {}
+					Node(const Tnode &node) : node(node), children_mask(-1), child(NULL), fault_block(-1), duplicate(false), got_channels_data(false) {}
 
 					uint NodeLink() const {
 						assert(children_mask != -1);
 						if (!children_mask)
-							return 0;
-						uint p;
-						if (child) {
-							assert(child->index_in_block != -1);
-							p = (child->index_in_block << 1) + 0;
-						} else {
-							assert(fault_block != -1);
-							p = (fault_block << 1) + 1;
-						}
-						return (p << 8) + children_mask;
+							return PackStoredNodeLink(children_mask, false, false, 0);
+						return PackStoredNodeLink(children_mask, !child, duplicate, child ? child->index_in_block : fault_block);
 					}
 				};
 				vector<Node> nodes;
@@ -44,6 +37,7 @@ namespace rayt {
             typedef typename TempTreeNode::Node TempTreeNodeNode;
 
 			struct BlockSubtree {
+				TempTreeNode *allocated_root; // whenever you need to delete the subtree, delete subtree of allocated_root; I use this inconvenient convention instead of some smart pointers for performance reasons
 				TempTreeNode *root; // in this block
 				TempTreeNode *parent; // in parent block
 				int child_index;
@@ -55,32 +49,20 @@ namespace rayt {
 
 			// TODO: try reusing nodes for performance
 			TempTreeNode* AllocNode() {
-				assert(!allocated_nodes_.empty());
-				TempTreeNode *n = new TempTreeNode();
-				allocated_nodes_.back().push_front(n);
-				return n;
+				++allocated_nodes_;
+				return new TempTreeNode();
 			}
 
-			void AllocMarker() {
-				allocated_nodes_.push_back(list<TempTreeNode*>());
+			void DeallocNode(TempTreeNode *n) {
+				++deallocated_nodes_;
+				delete n;
 			}
 
-			// deallocates all nodes allocated since last unmatched AllocMarker()
-			void DeallocToMarker() {
-				assert(!allocated_nodes_.empty());
-				list<TempTreeNode*> &l = allocated_nodes_.back();
-				for (typename list<TempTreeNode*>::iterator it = l.begin(); it != l.end(); ++it)
-					delete *it;
-				allocated_nodes_.pop_back();
-			}
-
-			// removes last marker without removing any nodes
-			void DropMarker() {
-				assert(allocated_nodes_.size() >= 2);
-				list<TempTreeNode*> &prev = allocated_nodes_[allocated_nodes_.size() - 2];
-				list<TempTreeNode*> &cur = allocated_nodes_.back();
-				prev.insert(prev.end(), cur.begin(), cur.end());
-				allocated_nodes_.pop_back();
+			void DeallocSubtree(TempTreeNode *n) {
+				for (int i = 0; i < static_cast<int>(n->nodes.size()); ++i)
+					if (n->nodes[i].child)
+						DeallocSubtree(n->nodes[i].child);
+				DeallocNode(n);
 			}
 
 			void SetFaultBlock(TempTreeNodeNode &n, int block) {
@@ -152,15 +134,22 @@ namespace rayt {
 						FillIndexInBlock(subtree.root, node_count);
 					}
 
-					SetFaultBlock(subtree.parent->nodes[subtree.child_index], block_index);
+					if (subtree.parent)
+						SetFaultBlock(subtree.parent->nodes[subtree.child_index], block_index);
 
 					node_count += subtree.node_count;
 
-					temp_block_.header.roots[si].parent_pointer_index = subtree.parent->index_in_block + subtree.child_index;
 					temp_block_.header.roots[si].pointed_child_index = subtree.root->index_in_block;
-					temp_block_.header.roots[si].parent_pointer_value = subtree.parent->nodes[subtree.child_index].NodeLink();
+					if (subtree.parent) {
+						temp_block_.header.roots[si].parent_pointer_index = subtree.parent->index_in_block + subtree.child_index;
+						temp_block_.header.roots[si].parent_pointer_value = subtree.parent->nodes[subtree.child_index].NodeLink();
+					} else {
+						temp_block_.header.roots[si].parent_pointer_index = temp_block_.header.roots[si].parent_pointer_value = 0;
+					}
 					
 					PackBlockRecursive(subtree.root, temp_block_);
+
+					DeallocSubtree(subtree.allocated_root);
 				}
 				assert(node_count <= nodes_in_block_);
 				writer_->WriteBlock(temp_block_);
@@ -263,10 +252,12 @@ namespace rayt {
 			SubtreeBlockingState ProcessBlockNodes(TempTreeNode *root, int block_index, TempTreeNode *parent, int child_index) {
 				bool all_roots = true;
 				vector<BlockSubtree> root_subtrees(root->nodes.size());
+				vector<TempTreeNode*> useless_roots; // useless unless all_roots
 				vector<vector<BlockSubtree> > subtree_groups;
 				int rooted_nodes_count = static_cast<int>(root->nodes.size());
 
 				for (int ni = 0; ni < static_cast<int>(root->nodes.size()); ++ni) {
+					root_subtrees[ni].root = NULL;
 					TempTreeNodeNode &n = root->nodes[ni];
 					if (n.children_mask == -1) {
 						vector<pair<int, Tnode> > kids = data_source_->GetChildren(n.node);
@@ -284,7 +275,6 @@ namespace rayt {
 							
 							int new_block_index = blocks_count_++;
 							optional<BlockSubtree> r = BuildRecursive(new_node, root, ni, new_block_index, block_index);
-							GetNodeData(n, new_node);
 							if (!r) { // it built full block
 								n.fault_block = new_block_index;
 								all_roots = false;
@@ -309,6 +299,9 @@ namespace rayt {
 							assert(s.remaining_subtrees.size() <= 1);
 							root_subtrees[ni] = s.root_subtree.get();
 							rooted_nodes_count += s.root_subtree.get().node_count;
+
+							if (s.remaining_subtrees.empty())
+								useless_roots.push_back(s.root_subtree.get().allocated_root);
 						}
 						if (!s.remaining_subtrees.empty()) {
 							subtree_groups.push_back(s.remaining_subtrees);
@@ -325,20 +318,25 @@ namespace rayt {
 					new_subtree.child_index = child_index;
 					new_subtree.parent = parent;
 					new_subtree.node_count = rooted_nodes_count;
-					new_subtree.root = AllocNode();
+					new_subtree.root = new_subtree.allocated_root = AllocNode();
 					*new_subtree.root = *root; // oh noes, I called a default copy constructor; need to fix pointers in returned object with the next loop
 					new_subtree.root->index_in_block = -1;
 					for (int i = 0; i < static_cast<int>(new_subtree.root->nodes.size()); ++i) {
 						TempTreeNodeNode &n = new_subtree.root->nodes[i];
+						n.duplicate = true;
 						if (n.children_mask)
 							n.child = root_subtrees[i].root;
 					}
 					res.root_subtree = new_subtree;
-					if (subtree_groups.size() == 1)
+					if (subtree_groups.size() == 1) {
 						res.remaining_subtrees = subtree_groups[0];
-					else if (subtree_groups.size() > 1)
+						res.remaining_subtrees[0].allocated_root = new_subtree.root;
+					} else if (subtree_groups.size() > 1) {
 						res.remaining_subtrees.push_back(new_subtree);
+					}
 				} else {
+					for (int i = 0; i < static_cast<int>(useless_roots.size()); ++i)
+						DeallocSubtree(useless_roots[i]);
 					GroupIntoBlocks(subtree_groups, block_index, res.remaining_subtrees);
 				}
 
@@ -351,7 +349,7 @@ namespace rayt {
 				BlockSubtree res; // will be either returned or committed
 				res.child_index = child_index;
 				res.parent = parent;
-				res.root = root;
+				res.root = res.allocated_root = root;
 				res.node_count = static_cast<int>(root->nodes.size());
 
 				// BFS the tree until the block is full
@@ -360,8 +358,6 @@ namespace rayt {
 				qu.push(root);
 
 				bool full = false;
-				
-				AllocMarker();
 
 				while (!qu.empty() && !full) {
 					TempTreeNode *cur = qu.front();
@@ -369,7 +365,7 @@ namespace rayt {
 
 					for (int i = 0; i < static_cast<int>(cur->nodes.size()); ++i) {
 						TempTreeNodeNode &n = cur->nodes[i];
-						if (res.node_count + 8 <= nodes_in_block_) { // TODO: using upper bound of 8 gives an average of 4 empty nodes per block; it's possible to reduce this overhead
+						if (res.node_count + 8 <= nodes_in_block_) { // TODO: using upper bound of 8 adds an average of 4 empty nodes per block; it's possible to reduce this overhead
 							vector<pair<int, Tnode> > kids = data_source_->GetChildren(n.node);
 
 							n.children_mask = 0;
@@ -397,17 +393,19 @@ namespace rayt {
 				if (full) {
 					FillIndexInBlock(res.root, 0);
 					SubtreeBlockingState s = ProcessBlockNodes(res.root, block_index, NULL, 0);
+					if (parent)
+						GetNodeData(parent->nodes[child_index], root);
 					if (!s.remaining_subtrees.empty()) {
 						CommitBlock(s.remaining_subtrees, blocks_count_++, block_index);
 						++leaf_blocks_count_;
 					}
 					CommitBlock(vector<BlockSubtree>(1, res), block_index, parent_block_index);
 					++non_leaf_blocks_count_;
-					DeallocToMarker();
-					return NULL;
+					return boost::none;
 				} else {
 					GetAllNodesData(res.root);
-					DropMarker();
+					if (parent)
+						GetNodeData(parent->nodes[child_index], root);
 					return res;
 				}
 			}
@@ -419,7 +417,9 @@ namespace rayt {
 			StoredOctreeBuilderDataSource<Tnode> *data_source_;
 			int blocks_count_;
 			StoredOctreeBlock temp_block_;
-			vector<list<TempTreeNode*> > allocated_nodes_; // vector acts as a stack
+			
+			long long allocated_nodes_;
+			long long deallocated_nodes_;
 
 			int leaf_blocks_count_;
 			int non_leaf_blocks_count_;
@@ -440,25 +440,22 @@ namespace rayt {
 				leaf_blocks_count_ = 0;
 				non_leaf_blocks_count_ = 0;
 				nodes_count_ = 0;
+				allocated_nodes_ = deallocated_nodes_ = 0;
 			}
 
 			void Build() {
-				AllocMarker();
 				TempTreeNode *root = AllocNode();
 				root->nodes.push_back(TempTreeNodeNode(data_source_->GetRoot()));
-				TempTreeNode *root_parent = AllocNode();
-				root_parent->nodes.push_back(TempTreeNodeNode());
-				root_parent->nodes[0].children_mask = 1;
-				root_parent->nodes[0].fault_block = 0;
 				int block_index = blocks_count_++;
-				optional<BlockSubtree> s = BuildRecursive(root, root_parent, 0, block_index, kRootBlockParent);
+				optional<BlockSubtree> s = BuildRecursive(root, NULL, 0, block_index, kRootBlockParent);
 				if (s) {
 					--blocks_count_;
 					CommitBlock(vector<BlockSubtree>(1, s.get()), blocks_count_++, kRootBlockParent);
 					++leaf_blocks_count_;
 				}
-				DeallocToMarker();
 				writer_->WriteHeader(blocks_count_, 0);
+
+				assert(allocated_nodes_ == deallocated_nodes_);
 			}
 
 			void PrintReport() {

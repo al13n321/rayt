@@ -24,6 +24,7 @@ typedef struct RayCastResult
 	float hit_t;
 	int hit_node;
 	int fault_block;
+	int hit_duplicate; // boolean value
 	int error_code;
 	
 	int node_depth; // in tree
@@ -41,6 +42,7 @@ void CastRay(__global uint *node_links,
     p += make_float3(1, 1, 1); // move root node from [0, 1] to [1, 2]
     res->fault_block = -1;
     res->error_code = 0;
+    res->hit_duplicate = 0;
     
     __private uint2 stack[S_MAX + 1]; // Stack of parent voxels (local mem).
     
@@ -90,7 +92,7 @@ void CastRay(__global uint *node_links,
     if (1.5f * tz_coef - tz_bias > t_min) idx ^= 4, pos.z = 1.5f;
     
     ushort iter = 0;
-    const ushort iter_limit = 500;
+    const ushort iter_limit = 300;
     
     // Traverse voxels along the ray as long as the current voxel
     // stays within the octree.
@@ -130,9 +132,10 @@ void CastRay(__global uint *node_links,
             // Terminate if children are not loaded.
             
             if ((child_descriptor & (1 << 8)) != 0) {
+				// note that faults are never duplicate, so res->hit_duplicate stays 0
                 res->hit_node = parent;
                 res->hit_t = t_min;
-                res->fault_block = child_descriptor >> 9;
+                res->fault_block = child_descriptor >> 11;
 				res->node_depth = S_MAX - scale - 1;
                 return;
             }
@@ -140,31 +143,23 @@ void CastRay(__global uint *node_links,
             // Child node pointer.
             
             uint ofs;
-            if (child_descriptor & (1 << 9)) { // far pointer
-				ofs = far_pointers[child_descriptor >> 10];
+            if (child_descriptor & (1 << 10)) { // far pointer
+				ofs = far_pointers[child_descriptor >> 11];
             } else {
-				ofs = (child_descriptor >> 10) + parent - (1 << 21); // child pointer
+				ofs = (child_descriptor >> 11) + parent - (1 << 20); // child pointer
 			}
             ofs += popcount(child_descriptor & (child_masks - 1));
-            
-            // Terminate if the voxel is small enough.
-            
-            if (tc_max * ray_size_coef + ray_size_bias >= scale_exp2) {
-                res->hit_t = t_min;
-                res->hit_node = ofs;
-				res->node_depth = S_MAX - scale;
-                return;
-            }
             
             // Fetch descriptor of child.
             
             child_descriptor = node_links[ofs];
             
-            // Terminate if child is a leaf.
+            // Terminate if the voxel is a leaf or is small enough.
             
-            if (!(child_descriptor & 255)) {
+            if (!(child_descriptor & 255) || tc_max * ray_size_coef + ray_size_bias >= scale_exp2) {
                 res->hit_t = t_min;
                 res->hit_node = ofs;
+                res->hit_duplicate = (child_descriptor >> 9) & 1;
 				res->node_depth = S_MAX - scale;
                 return;
             }

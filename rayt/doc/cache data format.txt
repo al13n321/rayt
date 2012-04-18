@@ -1,0 +1,19 @@
+GPU representation of octree consists of paraller buffers and textures called channels. One of the channels is node link buffer. Other channels are optional and not interpreted by streamer.
+
+Node link buffer cache format.
+
+uint *nodes;
+uint *far_pointers;
+
+nodes[i] has the following format:
+
++---------+--------------+------------------+------------+---------------+
+|    P    | far ptr flag | duplication flag | fault flag | children mask |
++---------+--------------+------------------+------------+---------------+
+  21 bits       1 bit            1 bit           1 bit         8 bits
+	
+Duplication flag indicates if this node is a copy of a node in parent block (i.e. hitting this node doesn't mean this block is actually needed).
+If fault flag, P is the index of child block containing the children of this node.
+Otherwise,
+	If far_ptr_flag, far_pointers[P] is the index of the first child.
+	Otherwise, i + P - (1 << 20) is the index of the first child.

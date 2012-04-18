@@ -29,6 +29,7 @@ namespace rayt {
 		// references valid until next call to Process
         const std::vector<int>& fault_blocks() const;
 		const std::vector<int>& hit_blocks() const;
+		const std::vector<int>& duplicate_hit_blocks() const; // hit nodes with set duplication flag
     private:
 		int frame_width_;
 		int frame_height_;
@@ -38,6 +39,7 @@ namespace rayt {
 
 		std::vector<int> fault_blocks_;
         std::vector<int> hit_blocks_;
+        std::vector<int> duplicate_hit_blocks_;
 
 		Array<int> sorted_;
 
@@ -56,6 +58,7 @@ namespace rayt {
 		boost::scoped_ptr<CLKernel> compress_kernel_;
 
 		void GetUnique(CLBuffer &faults_and_hits, int nodes_in_block);
+		void AddHit(int encoded_hit);
 		void ProcessUnique();
 		void AdjustExpectedFaults();
         

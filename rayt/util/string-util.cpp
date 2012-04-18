@@ -49,4 +49,20 @@ namespace rayt {
 		return res;
 	}
 
+	std::string RemoveFileNameFromPath(std::string s) {
+		string::size_type p = s.find_last_of("/\\");
+		if (p == string::npos)
+			return "";
+		return s.substr(0,p + 1);
+	}
+
+	std::string CombinePaths(std::string path1, std::string path2) {
+		if (path1 == "")
+			return path2;
+		char l = path1[path1.length() - 1];
+		if (l != '/' && l != '\\')
+			path1 += "/";
+		return path1 + path2;
+	}
+
 }

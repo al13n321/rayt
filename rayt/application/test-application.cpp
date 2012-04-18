@@ -14,6 +14,7 @@
 #include "gpu-sort.h"
 #include "gpu-scan.h"
 #include "profiler.h"
+#include "image-util.h"
 #include <cstdio>
 #include <iostream>
 #include <fstream>
@@ -21,6 +22,9 @@ using namespace std;
 using namespace boost;
 
 namespace rayt {
+
+	int min_cache_bytes = 200000000;
+	string tree_file_name = "H:/rayt scenes/conference13.tree";
 
     const int winhei = 512;
     const int winwid = 512;
@@ -258,15 +262,15 @@ namespace rayt {
 #define path "/Users/me/temp"
 #endif
         
-		fvec3 c(.5, .5, .5);float r = .3; int level = 3; int nodes_in_block = 45;
+		fvec3 c(.5, .5, .5);float r = .3; int level = 7; int nodes_in_block = 111;
 		//fvec3 c(.4, .3, .65); float r = .26; int level = 3; int nodes_in_block = 16;
 		WriteTestOctreeSphere          (c, r, level, path"/test_sphere.tree", nodes_in_block);
 		CheckTestOctreeSphereWithLoader(c, r, level, path"/test_sphere.tree");
 		WriteTestOctreeSphereOld       (c, r, level, path"/test_sphere_old.tree", nodes_in_block);
 		CheckTestOctreeSphereWithLoader(c, r, level, path"/test_sphere_old.tree");
 		
-		cout << "done" << endl;
-		return;
+		//cout << "done" << endl;
+		//return;
 
 		loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader(path"/test_sphere.tree"));
 
@@ -277,23 +281,26 @@ namespace rayt {
 
 		CheckTestOctreeSphereWithGPUData(c, r, level, cache_manager->data(), cache_manager->root_node_index(), true);
 
-		//float t = pow(2.f, -30.f);
-		//WriteTestOctreeSphere          (fvec3(t, t, t), t / 2, 30, "H:/rayt scenes/sphere5.tree", 12);
-		//CheckTestOctreeSphereWithLoader(fvec3(t, t, t), t / 2, 30, "H:/rayt scenes/sphere5.tree");
 		cout << "done" << endl;
         
 #undef path
 	}
 
-    void RunTestApplication(int argc, char **argv) {
-        if (!BinaryUtil::CheckEndianness())
-            crash("wrong endianness");
+	void RunTestApplication(int argc, char **argv) {
+
+		if (argc > 2) {
+			tree_file_name = argv[2];
+		}
+
+		if (argc > 3) {
+			min_cache_bytes = atoi(argv[3]);
+		}
 
 		/*WriteTestOctreeSphere(fvec3(.4, .3, .65), .26, 14, "H:/rayt scenes/sphere14.tree"    , 8192);
 		cout << "done" << endl;
 		return;*/
 
-		//ImportObjScene(7, 8192, "H:/rayt scenes/hairball.obj", "H:/rayt scenes/hairball10.tree");
+		//ImportObjScene(7, 8192, "H:/rayt scenes/hairball.obj", "H:/rayt scenes/hairball7.tree");
         //return;
 
 		//DebugCheckConstantDepthTree("H:/rayt scenes/hairball9.tree", 9);
@@ -335,11 +342,11 @@ namespace rayt {
         
         camera.set_aspect_ratio(1);
         
-        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("H:/rayt scenes/hairball12.tree"));
+        loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader(tree_file_name));
 		//loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("/Users/me/codin/raytracer/scenes/hairball11.tree"));
 		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(loader->header().blocks_count, loader, context));
-		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(2, loader, context));
-		cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(min(loader->header().blocks_count, 200000000 / loader->header().nodes_in_block / loader->header().channels.SumBytesInNode() + 1), loader, context));
+		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(10, loader, context));
+		cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(min(loader->header().blocks_count, min_cache_bytes / loader->header().nodes_in_block / loader->header().channels.SumBytesInNode() + 1), loader, context));
 		cache_manager->InitialFillCache();
 
 		//cache_manager->data()->ChannelByIndex(0)->cl_buffer()->CheckContents();
@@ -350,7 +357,7 @@ namespace rayt {
         
 		raytracer.reset(new GPURayTracer(cache_manager, imgwid, imghei, context));
 		raytracer->set_frame_time_limit(0.1);
-        raytracer->set_lod_voxel_size(1);
+        raytracer->set_lod_voxel_size(2);
         drawer.reset(new RenderedImageDrawer(imgwid, imghei, context));
         
         glutMainLoop();

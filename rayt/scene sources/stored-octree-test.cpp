@@ -11,7 +11,7 @@ using namespace boost;
 
 namespace rayt {
 
-    struct GenerationState {
+	struct GenerationState {
         fvec3 center; // of the sphere
         float radius_square; // of the sphere
         int max_depth;
@@ -85,25 +85,26 @@ namespace rayt {
         
         if (depth < s->max_depth) {
             int ncache_index = -100;
-            uint gchildren_mask;
+            uchar gchildren_mask;
             if (s->node_link_data) {
                 if (cache_index == -2) {
                     ncache_index = -2;
                 } else {
                     uint link = BinaryUtil::ReadUint(s->node_link_data + kNodeLinkSize * cache_index);
-                    gchildren_mask = link & 255;
-                    link >>= 8;
-                    if (link & 1) {
+                    bool fault;
+					bool duplicate;
+					bool farr;
+					uint ptr;
+					UnpackCacheNodeLink(link, gchildren_mask, fault, duplicate, farr, ptr);
+                    if (fault) {
                         if (s->faultless)
                             crash("fault unexpected in GPU");
                         ncache_index = -2;
                     } else {
-                        link >>= 1;
-						if (link & 1) {
-							ncache_index = BinaryUtil::ReadUint(s->far_ptrs + link * 4) - 1;
+                        if (farr) {
+							ncache_index = BinaryUtil::ReadUint(s->far_ptrs + ptr * 4) - 1;
 						} else {
-							link >>= 1;
-							ncache_index = cache_index + link - (1 << 21) - 1;
+							ncache_index = cache_index + ptr - (1 << 20) - 1;
 						}
                     }
                 }
@@ -227,85 +228,91 @@ namespace rayt {
         s.node_link_data = reinterpret_cast<const char*>(link.data());
         s.channel1 = reinterpret_cast<const char*>(chan1.data());
         s.channel2 = reinterpret_cast<const char*>(chan2.data());
+		s.far_ptrs = reinterpret_cast<const char*>(far_ptrs.data());
         GenerateSphereRecursive(NULL, root_node_index, &s, 0, fvec3(0,0,0), fvec3(1,1,1), 1);
     }
 
-	struct BuilderNode {
-		int depth;
-        fvec3 minp;
-        fvec3 maxp;
-		int node_id;
+	namespace stored_octree_test {
 
-		BuilderNode() {}
-		BuilderNode(int depth, fvec3 minp, fvec3 maxp, int node_id) : depth(depth), minp(minp), maxp(maxp), node_id(node_id) {}
-	};
-	
-	class BuilderDataSource : public StoredOctreeBuilderDataSource<BuilderNode> {
-	public:
-		BuilderDataSource(fvec3 center, float radius_square, int max_depth) : center(center), radius_square(radius_square), max_depth(max_depth) {}
+		struct BuilderNode {
+			int depth;
+			fvec3 minp;
+			fvec3 maxp;
+			int node_id;
 
-		virtual BuilderNode GetRoot() {
-			return BuilderNode(0, fvec3(0, 0, 0), fvec3(1, 1, 1), 1);
-		}
+			BuilderNode() {}
+			BuilderNode(int depth, fvec3 minp, fvec3 maxp, int node_id) : depth(depth), minp(minp), maxp(maxp), node_id(node_id) {}
+		};
+		
+		class BuilderDataSource : public StoredOctreeBuilderDataSource<BuilderNode> {
+		public:
+			BuilderDataSource(fvec3 center, float radius_square, int max_depth) : center(center), radius_square(radius_square), max_depth(max_depth) {}
 
-		virtual vector<pair<int, BuilderNode> > GetChildren(BuilderNode &node) {
-			vector<pair<int, BuilderNode> > res;
-			if (node.depth == max_depth)
-				return res;
-
-			for (int ch = 0; ch < 8; ++ch) {
-				fvec3 minp = node.minp;
-				fvec3 maxp = node.maxp;
-				fvec3 midp = (minp + maxp) / 2;
-				if (ch & 1) minp.x = midp.x; else maxp.x = midp.x;
-				if (ch & 2) minp.y = midp.y; else maxp.y = midp.y;
-				if (ch & 4) minp.z = midp.z; else maxp.z = midp.z;
-
-				if (!PointInsideBox(center, minp, maxp)) {
-					fvec3 verts[8] = {fvec3(minp.x, minp.y, minp.z),
-									  fvec3(maxp.x, minp.y, minp.z),
-									  fvec3(minp.x, maxp.y, minp.z),
-									  fvec3(maxp.x, maxp.y, minp.z),
-									  fvec3(minp.x, minp.y, maxp.z),
-									  fvec3(maxp.x, minp.y, maxp.z),
-									  fvec3(minp.x, maxp.y, maxp.z),
-									  fvec3(maxp.x, maxp.y, maxp.z)};
-		            
-					bool was_inside = false, was_outside = false;
-		            
-					for (int i = 0; i < 8; ++i) {
-						if (center.DistanceSquare(verts[i]) < radius_square) {
-							was_inside = true;
-							if (was_outside)
-								break;
-						} else {
-							was_outside = true;
-							if (was_inside)
-								break;
-						}
-					}
-		            
-					if (!was_inside || !was_outside)
-						continue;
-				}
-				
-				BuilderNode n(node.depth + 1, minp, maxp, node.node_id * 8 + ch);
-				res.push_back(make_pair(ch, n));
+			virtual BuilderNode GetRoot() {
+				return BuilderNode(0, fvec3(0, 0, 0), fvec3(1, 1, 1), 1);
 			}
 
-			return res;
-		}
+			virtual vector<pair<int, BuilderNode> > GetChildren(BuilderNode &node) {
+				vector<pair<int, BuilderNode> > res;
+				if (node.depth == max_depth)
+					return res;
 
-		virtual void GetNodeData(BuilderNode &node, const vector<pair<int, BuilderNode*> > &children, void *out_data) {
-			char *node_data = reinterpret_cast<char*>(out_data);
-			BinaryUtil::WriteUint(node.node_id, node_data);
-			node_data[4] = node.node_id % 211;
-		}
-	private:
-		fvec3 center; // of the sphere
-        float radius_square; // of the sphere
-        int max_depth;
-	};
+				for (int ch = 0; ch < 8; ++ch) {
+					fvec3 minp = node.minp;
+					fvec3 maxp = node.maxp;
+					fvec3 midp = (minp + maxp) / 2;
+					if (ch & 1) minp.x = midp.x; else maxp.x = midp.x;
+					if (ch & 2) minp.y = midp.y; else maxp.y = midp.y;
+					if (ch & 4) minp.z = midp.z; else maxp.z = midp.z;
+
+					if (!PointInsideBox(center, minp, maxp)) {
+						fvec3 verts[8] = {fvec3(minp.x, minp.y, minp.z),
+										  fvec3(maxp.x, minp.y, minp.z),
+										  fvec3(minp.x, maxp.y, minp.z),
+										  fvec3(maxp.x, maxp.y, minp.z),
+										  fvec3(minp.x, minp.y, maxp.z),
+										  fvec3(maxp.x, minp.y, maxp.z),
+										  fvec3(minp.x, maxp.y, maxp.z),
+										  fvec3(maxp.x, maxp.y, maxp.z)};
+			            
+						bool was_inside = false, was_outside = false;
+			            
+						for (int i = 0; i < 8; ++i) {
+							if (center.DistanceSquare(verts[i]) < radius_square) {
+								was_inside = true;
+								if (was_outside)
+									break;
+							} else {
+								was_outside = true;
+								if (was_inside)
+									break;
+							}
+						}
+			            
+						if (!was_inside || !was_outside)
+							continue;
+					}
+					
+					BuilderNode n(node.depth + 1, minp, maxp, node.node_id * 8 + ch);
+					res.push_back(make_pair(ch, n));
+				}
+
+				return res;
+			}
+
+			virtual void GetNodeData(BuilderNode &node, const vector<pair<int, BuilderNode*> > &children, void *out_data) {
+				char *node_data = reinterpret_cast<char*>(out_data);
+				BinaryUtil::WriteUint(node.node_id, node_data);
+				node_data[4] = node.node_id % 211;
+			}
+		private:
+			fvec3 center; // of the sphere
+			float radius_square; // of the sphere
+			int max_depth;
+		};
+	}
+
+	using namespace stored_octree_test;
     
     void WriteTestOctreeSphere(fvec3 center, float radius, int level, std::string filename, int nodes_in_block) {
 		BuilderDataSource s(center, radius * radius, level);

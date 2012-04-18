@@ -6,8 +6,10 @@ __kernel void NodeToBlockKernel(int N, int block_size, __global int *data) {
 	if (i >= N)
 		return;
 	
-	if (data[i] > 0 && data[i] != NO_HIT)	
-		data[i] = (data[i] - 1) / block_size + 1;
+	int d = data[i];
+	if (d > 0 && d != NO_HIT) {
+		data[i] = ((((d >> 1) - 1) / block_size + 1) << 1) | (d & 1);
+	}
 }
 
 __kernel void DifferenceFlagKernel(int N, __global int *in, __global int *out) {

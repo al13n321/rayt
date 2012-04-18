@@ -15,6 +15,13 @@ typedef float4 float3;
 
 #define MAX_REFLECTIONS 3
 
+// debug rendering configuration 
+
+#define SHOW_BLOCKS
+#define BLOCK_SIZE 8192
+
+// types
+
 typedef struct TracingState {
 	float4 ray_origin; // xyz - ray origin, w - ray size bias
 	float4 ray_direction; // xyz - ray direction, w - ray size coefficient
@@ -26,7 +33,7 @@ typedef struct TracingState {
 
 #if !defined(MAX_ALLOWED_TRACING_STATE_SIZE)
 #warning MAX_ALLOWED_TRACING_STATE_SIZE not defined
-// TODO: find a way to assert this
+// TODO: find a way to assert this (probably make a kernel just for this check)
 //#elif sizeof(TracingState) > MAX_ALLOWED_TRACING_STATE_SIZE 
 //#error sizeof(TracingState) > MAX_ALLOWED_TRACING_STATE_SIZE
 #endif

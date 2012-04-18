@@ -46,7 +46,7 @@ namespace rayt {
         int BlockIndexInCache(int block_index) const;
         
         void MarkBlockAsUsed(int block_index_in_cache);
-		void MarkParentAsUsed(int block_index);
+		void MarkParentAsUsed(int block_index, bool global_index); // if global_index, block_index is index in tree, otherwise it's index in cache
 
 		boost::shared_ptr<LRUMarker> InsertLRUMarker();
         

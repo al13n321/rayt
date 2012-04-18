@@ -28,6 +28,7 @@ namespace rayt {
         // transaction - a set of requests; the processing of the requests is guaranteed to be finished when transaction ends (but may be finished earlier); typically transaction is an iteration of feedback-driven loading
         void StartRequestTransaction();
         
+		void MarkParentAsUsed(int block_index_in_cache); // needed for duplicate nodes
 		void MarkBlockAsUsed(int block_index_in_cache);
         void RequestBlock(int block_index);
 

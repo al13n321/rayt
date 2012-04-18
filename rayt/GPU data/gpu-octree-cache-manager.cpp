@@ -87,11 +87,13 @@ namespace rayt {
             for (int i = 0; i < nodes_in_block; ++i) {
                 // non-existing nodes are handled correctly because they are filled with zeros (and have zero children mask)
                 uint link = BinaryUtil::ReadUint(data);
-                int children_mask = link & 255;
-                link >>= 8;
-                if (children_mask && (link & 1)) { // pointer to other block
-                    link >>= 1;
-                    load_queue.push(link);
+                uchar children_mask;
+				bool fault;
+				bool duplicate;
+				uint ptr;
+				UnpackStoredNodeLink(link, children_mask, fault, duplicate, ptr);
+                if (children_mask && fault) {
+                    load_queue.push(ptr);
                 }
                 data += kNodeLinkSize;
             }
@@ -126,6 +128,12 @@ namespace rayt {
 
 		cache_->MarkBlockAsUsed(block_index_in_cache);
 	}
+    
+	void GPUOctreeCacheManager::MarkParentAsUsed(int block_index_in_cache) {
+		assert(transaction_in_progress_);
+
+		cache_->MarkParentAsUsed(block_index_in_cache, false);
+	}
 
 	void GPUOctreeCacheManager::RequestBlock(int index) {
 		assert(transaction_in_progress_);
@@ -136,7 +144,7 @@ namespace rayt {
 		// defer actual loading until transaction end to mark all parents as used before uploading anything
 		transaction_blocks_.push_back(index);
 
-		cache_->MarkParentAsUsed(index);
+		cache_->MarkParentAsUsed(index, true);
 	}
     
 	void GPUOctreeCacheManager::EndRequestTransaction() {

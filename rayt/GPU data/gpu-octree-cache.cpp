@@ -65,9 +65,14 @@ namespace rayt {
 		DequeueMarkers();
     }
 
-	void GPUOctreeCache::MarkParentAsUsed(int index) {
-		assert(block_to_parent_cache_index_.count(index));
-		MarkBlockAsUsed(block_to_parent_cache_index_[index]);
+	void GPUOctreeCache::MarkParentAsUsed(int index, bool global_index) {
+		if (global_index) {
+			assert(block_to_parent_cache_index_.count(index));
+			MarkBlockAsUsed(block_to_parent_cache_index_[index]);
+		} else {
+			assert(index >= 0 && index < max_blocks_count_);
+			MarkBlockAsUsed(cache_contents_[index].parent_block_index);
+		}
 	}
 
 	/*
@@ -101,7 +106,7 @@ namespace rayt {
 		if (first_free_index_ == max_blocks_count_) {
 			if (block.header.parent_block_index != kRootBlockParent) {
 				assert(block_to_parent_cache_index_.count(block.header.block_index));
-				MarkParentAsUsed(block.header.block_index); // prevent unloading parent
+				MarkParentAsUsed(block.header.block_index, true); // prevent unloading parent
 			}
             index = UnloadLRUBlock(blocking);
 		} else {
@@ -116,19 +121,19 @@ namespace rayt {
         char *data = reinterpret_cast<char*>(block.data.data());
         for (int n = 0; n < nodes_in_block_; ++n) {
             uint link = BinaryUtil::ReadUint(data);
-            uchar children_mask = link & 255;
+            uchar children_mask;
+			bool fault;
+			bool duplicate;
+			uint ptr;
+			UnpackStoredNodeLink(link, children_mask, fault, duplicate, ptr);
             if (children_mask) {
-                link >>= 8;
-                bool is_fault = !!(link & 1);
-                link >>= 1;
-                if (!is_fault) {
-                    link = (link + (1 << 21) - n) << 1; // convert index from block-relative to this-node-relative and add far pointer bit
-                    link = (link << 9) + (0 << 8) + children_mask;
+                if (!fault) {
+                    link = PackCacheNodeLink(children_mask, false, duplicate, false, NearPointerValue(n, ptr));
                     BinaryUtil::WriteUint(link, data);
 				} else {
-					if (!block_to_parent_cache_index_.count(link)) {
-						block_to_parent_cache_index_[link] = index;
-						info.child_blocks.push_back(link);
+					if (!block_to_parent_cache_index_.count(ptr)) {
+						block_to_parent_cache_index_[ptr] = index;
+						info.child_blocks.push_back(ptr);
 					}
 				}
             }
@@ -174,13 +179,17 @@ namespace rayt {
                 ir.pointer_index_in_parent = r.parent_pointer_index;
                 ir.pointer_value_in_parent = r.parent_pointer_value;
 
-				uint absolute_ptr = index * nodes_in_block_ + r.pointed_child_index;
-				int diff = absolute_ptr - (parent_index * nodes_in_block_ + r.parent_pointer_index);
+				int absolute_ptr = index * nodes_in_block_ + r.pointed_child_index;
+				int ptr_index = parent_index * nodes_in_block_ + r.parent_pointer_index;
+
+				bool farr;
 				uint ptr;
-				if (abs(diff) >= (1 << 21)) { // need far pointer
+
+				if (NeedFarPointer(ptr_index, absolute_ptr)) {
 					uint far_ptr_index = index * 8 + i;
 
-					ptr = (far_ptr_index << 1) + 1;
+					farr = true;
+					ptr = far_ptr_index;
 
 					// upload far pointer
 					void *far_ptr_data = &ir.far_pointer_value;
@@ -192,9 +201,11 @@ namespace rayt {
 					PROFILE_CL_EVENT(temp_event, "BUS upload far ptr");
 					PROFILE_VALUE_ADD("updated far pointers", 1);
 				} else {
-					ptr = ((1 << 21) + diff) << 1;
+					farr = false;
+					ptr = NearPointerValue(ptr_index, absolute_ptr);
 				}
-				uint new_value = (ptr << 9) | (r.parent_pointer_value & 255);
+				// a hacky way of determining dauplication flag for block root: if the original parent pointer value is not a fault, then this node is duplicate
+				uint new_value = PackCacheNodeLink(UnpackStoredChildrenMask(r.parent_pointer_value), false, !UnpackStoredFaultFlag(r.parent_pointer_value), farr, ptr);
 				int offset = r.parent_pointer_index * kNodeLinkSize;
 				
 				void *new_value_data = &ir.loaded_pointer_in_parent;
@@ -247,11 +258,13 @@ namespace rayt {
         // TODO: upload consecutive updated pointers with one call
         for (int i = 0; i < info.roots_count; ++i) {
 			uint new_value = info.roots[i].pointer_value_in_parent;
-			uchar children_mask = new_value & 255;
-			if (children_mask && !(new_value & (1 << 8))) { // make non-fault pointer relative and add far bit
-				new_value >>= 9;
-				new_value = new_value + (uint)(1 << 21) - (uint)info.roots[i].pointer_index_in_parent;
-				new_value = (new_value << 10) + children_mask;
+			uchar children_mask;
+			bool fault;
+			bool duplicate;
+			uint ptr;
+			UnpackStoredNodeLink(new_value, children_mask, fault, duplicate, ptr);
+			if (children_mask && !fault) { // make non-fault pointer relative and add far bit
+				new_value = PackCacheNodeLink(children_mask, false, duplicate, false, NearPointerValue(info.roots[i].pointer_index_in_parent, ptr));
 			}
 			void *new_value_data = &info.roots[i].unloaded_pointer_in_parent; // this pointer should be valid until next clFinish if blocking is false
 			BinaryUtil::WriteUint(new_value, new_value_data);

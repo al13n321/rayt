@@ -180,9 +180,9 @@ namespace rayt {
                 StoredOctreeWriterNodeData &d = node->nodes[k];
                 uint p;
                 if (d.children_in_same_block) {
-                    p = ((node_index + k + d.children.node_index_offset) << 1) + 0;
+					p = PackStoredNodeLink(d.children_mask, false, false, node_index + k + d.children.node_index_offset);
                 } else {
-                    p = (d.children_block_index << 1) + 1;
+					p = PackStoredNodeLink(d.children_mask, true, false, d.children_block_index);
                     
                     // I found a child block
                     StoredOctreeBlock *b = parentless_blocks[d.children_block_index].get();
@@ -194,9 +194,8 @@ namespace rayt {
                     
                     // link one of his roots to this node
                     b->header.roots[d.children.root_index].parent_pointer_index = node_index + k;
-                    b->header.roots[d.children.root_index].parent_pointer_value = (b->header.block_index << 9) + (1 << 8) + d.children_mask;
+                    b->header.roots[d.children.root_index].parent_pointer_value = PackStoredNodeLink(d.children_mask, true, false, b->header.block_index);
                 }
-                p = (p << 8) | d.children_mask;
                 BinaryUtil::WriteUint(p, data + kNodeLinkSize * (node_index + k));
             }
             

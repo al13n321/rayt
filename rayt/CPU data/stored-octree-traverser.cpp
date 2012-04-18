@@ -70,7 +70,7 @@ namespace rayt {
 				assert(n);
 				assert(n->initial_node_link_ == r.parent_pointer_value);
 				n->children_ = vector<Node*>(8, NULL);
-				int children_mask = r.parent_pointer_value & 255;
+				int children_mask = UnpackStoredChildrenMask(r.parent_pointer_value);
 				int p = 0;
 				for (int i = 0; i < 8; ++i) {
 					if (children_mask & (1 << i)) {
@@ -91,12 +91,14 @@ namespace rayt {
 		char *data = reinterpret_cast<char*>(block.data.data());
 		uint node_link = BinaryUtil::ReadUint(data + node_index * kNodeLinkSize);
 		n->initial_node_link_ = node_link;
-		uchar children_mask = node_link & 255;
-		uint ptr = node_link >> 8;
+		uchar children_mask;
+		bool fault;
+		bool duplicate;
+		uint ptr;
+		UnpackStoredNodeLink(node_link, children_mask, fault, duplicate, ptr);
 		if (!children_mask) {
 			n->children_.resize(8, NULL);
-		} else if (!(ptr & 1)) {
-			ptr >>= 1;
+		} else if (!fault) {
 			n->children_.resize(8, NULL);
 			int p = 0;
 			for (int i = 0; i < 8; ++i) {

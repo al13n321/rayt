@@ -2,6 +2,7 @@
 #include <fstream>
 #include <set>
 #include <vector>
+#include <sstream>
 #include "stored-octree-builder.h"
 #include "vec.h"
 #include "intersections.h"
@@ -9,23 +10,6 @@ using namespace std;
 using namespace boost;
 
 namespace rayt {
-
-	// the only elements supported:
-    // v x y z
-    // vn x y z
-    // f v//vn v//vn v//vn (triangles only)
-    
-	struct Material {
-		fvec3 diffuse_color;
-		fvec3 specular_color;
-		float specular_coefficient;
-		float alpha;
-	};
-
-    struct Triangle {
-        dvec3 pos[3];
-        fvec3 normal;
-    };
 
 	static void report_unsupported_element(const char *line, set<string> &was) {
 		int l = 0;
@@ -40,6 +24,11 @@ namespace rayt {
 			cout << "no more unsupported elements will be reported (even if there are some)" << endl;
 		}
 	}
+    
+    struct Triangle {
+        dvec3 pos[3];
+        fvec3 normal;
+    };
 
 	static void ReadObjFile(string file_name, vector<Triangle> &out) {
 		Stopwatch timer;
