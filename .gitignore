@@ -1,0 +1,13 @@
+/msvs/rayt.ncb
+/msvs/rayt.suo
+/msvs/Debug/
+/msvs/Release/
+/msvs/rayt/Debug/
+/msvs/rayt/Release/
+/msvs/rayt/*.obj
+/msvs/rayt/*.user
+/rayt.xcodeproj/project.xcworkspace/
+/rayt.xcodeproj/xcuserdata/
+/rayt/log.txt
+/rayt/profiling log.txt
+.DS_Store

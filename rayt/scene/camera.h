@@ -27,7 +27,7 @@ namespace rayt {
         inline void set_yaw(float a) { yaw_ = a; }
         inline void set_pitch(float a) { pitch_ = a; }
         inline void set_roll(float a) { roll_ = a; }
-        inline void set_postion(fvec3 a) { position_ = a; }
+        inline void set_position(fvec3 a) { position_ = a; }
         inline void set_field_of_view(float a) { fov_ = a; }
         inline void set_near_clip_plane(float a) { near_clip_plane_ = a; }
         inline void set_aspect_ratio(float a) { aspect_ratio_ = a; }

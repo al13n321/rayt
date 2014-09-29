@@ -11,6 +11,7 @@
 #include "debug-ray-cast.h"
 #include "debug-check-tree.h"
 #include "import-obj-scene.h"
+#include "import-obj-scene-old.h"
 #include "gpu-sort.h"
 #include "gpu-scan.h"
 #include "profiler.h"
@@ -24,7 +25,7 @@ using namespace boost;
 namespace rayt {
 
 	int min_cache_bytes = 200000000;
-	string tree_file_name = "H:/rayt scenes/conference13.tree";
+	string tree_file_name = "H:/rayt scenes/conference12.tree";
 
     const int winhei = 512;
     const int winwid = 512;
@@ -111,12 +112,15 @@ namespace rayt {
     }
 
     static void MouseFunc(int button, int state, int x, int y) {
-        if (button == GLUT_LEFT_BUTTON) {
-            if (state == GLUT_DOWN) {
-                prev_mousex = x;
-                prev_mousey = y;
-            }
-        }
+		prev_mousex = x;
+        prev_mousey = y;
+		if (button == GLUT_RIGHT_BUTTON) {
+			cout.precision(15);
+			cout << "camera.set_yaw("   << camera.yaw()   << ");\n";
+			cout << "camera.set_pitch(" << camera.pitch() << ");\n";
+			cout << "camera.set_position(fvec3(" << camera.position().x << ", " << camera.position().y << ", " << camera.position().z << "));\n";
+			cout << endl;
+		}
     }
 
     static void MouseMotionFunc(int x, int y) {
@@ -288,19 +292,21 @@ namespace rayt {
 
 	void RunTestApplication(int argc, char **argv) {
 
-		if (argc > 2) {
-			tree_file_name = argv[2];
+		if (argc > 1) {
+			tree_file_name = argv[1];
 		}
 
-		if (argc > 3) {
-			min_cache_bytes = atoi(argv[3]);
+		if (argc > 2) {
+			min_cache_bytes = atoi(argv[2]);
 		}
 
 		/*WriteTestOctreeSphere(fvec3(.4, .3, .65), .26, 14, "H:/rayt scenes/sphere14.tree"    , 8192);
+		WriteTestOctreeSphereOld(fvec3(.4, .3, .65), .26, 14, "H:/rayt scenes/sphere14_old.tree"    , 8192);
 		cout << "done" << endl;
-		return;*/
+		return;//*/
 
-		//ImportObjScene(7, 8192, "H:/rayt scenes/hairball.obj", "H:/rayt scenes/hairball7.tree");
+		//ImportObjSceneOld(11, 1024, "H:/rayt scenes/conference.obj", "H:/rayt scenes/conference11_crap.tree", true);
+		//ImportObjScene   (9, 1024, "H:/rayt scenes/san-miguel/san-miguel.obj", "H:/rayt scenes/san-miguel9.tree");
         //return;
 
 		//DebugCheckConstantDepthTree("H:/rayt scenes/hairball9.tree", 9);
@@ -333,19 +339,20 @@ namespace rayt {
 
         camera.set_field_of_view(60);
         
-        camera.set_yaw(-54.1999893);
+        /*camera.set_yaw(-54.1999893);
         camera.set_pitch(6.00000143);
-        camera.set_postion(fvec3(1.5, .5, 1.5));
-        
-        //camera.set_postion(fvec3(0.5, 0.5f, -2.0f));
-        //camera.set_yaw(180);
+        camera.set_position(fvec3(1.5, .5, 1.5));//*/
+
+		camera.set_yaw(32.8000335693359);
+		camera.set_pitch(-2.80000066757202);
+		camera.set_position(fvec3(0.320597529411316, 0.473967522382736, 1.09790587425232));
         
         camera.set_aspect_ratio(1);
         
         loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader(tree_file_name));
 		//loader = shared_ptr<StoredOctreeLoader>(new StoredOctreeLoader("/Users/me/codin/raytracer/scenes/hairball11.tree"));
 		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(loader->header().blocks_count, loader, context));
-		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(10, loader, context));
+		//cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(100, loader, context));
 		cache_manager = shared_ptr<GPUOctreeCacheManager>(new GPUOctreeCacheManager(min(loader->header().blocks_count, min_cache_bytes / loader->header().nodes_in_block / loader->header().channels.SumBytesInNode() + 1), loader, context));
 		cache_manager->InitialFillCache();
 
@@ -357,7 +364,7 @@ namespace rayt {
         
 		raytracer.reset(new GPURayTracer(cache_manager, imgwid, imghei, context));
 		raytracer->set_frame_time_limit(0.1);
-        raytracer->set_lod_voxel_size(2);
+        raytracer->set_lod_voxel_size(1);
         drawer.reset(new RenderedImageDrawer(imgwid, imghei, context));
         
         glutMainLoop();

@@ -11,11 +11,10 @@ using namespace std;
 
 void InitializeDebugConsole()
 {	
-	//Only do it if it's run from console
-    if (!AttachConsole(ATTACH_PARENT_PROCESS))
+	if (!AttachConsole(ATTACH_PARENT_PROCESS))
 		return;
 
-    //Redirect unbuffered STDOUT to the console
+	//Redirect unbuffered STDOUT to the console
 	HANDLE ConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
     int SystemOutput = _open_osfhandle(intptr_t(ConsoleOutput), _O_TEXT);
     FILE *COutputHandle = _fdopen(SystemOutput, "w" );
@@ -41,9 +40,10 @@ void InitializeDebugConsole()
 
 	cout << endl;
 	cout << "console issues on windows:" << endl;
-	cout << "there is no known way to tell that this application terminated" << endl;
-	cout << "if you see console prompt, it doesn't necessarily mean it terminated" << endl;
-	cout << "neither does reoccurence of prompt after hitting return key" << endl;
+	cout << "if the application is run not from bat file, it works with console incorrectly" << endl;
+	cout << "console prompt may appear when it's not terminated" << endl;
+	cout << "console prompt may not appear when it's terminated (hitting return key helps)" << endl;
+	cout << "if you happen to run me not from bat file, use task manager to check if I terminated" << endl;
 }
 
 int APIENTRY WinMain(HINSTANCE hInstance,

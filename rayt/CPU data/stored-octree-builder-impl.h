@@ -275,7 +275,7 @@ namespace rayt {
 							
 							int new_block_index = blocks_count_++;
 							optional<BlockSubtree> r = BuildRecursive(new_node, root, ni, new_block_index, block_index);
-							if (!r) { // it built full block
+							if (!r) { // previous call has built full block
 								n.fault_block = new_block_index;
 								all_roots = false;
 							} else {
@@ -365,7 +365,7 @@ namespace rayt {
 
 					for (int i = 0; i < static_cast<int>(cur->nodes.size()); ++i) {
 						TempTreeNodeNode &n = cur->nodes[i];
-						if (res.node_count + 8 <= nodes_in_block_) { // TODO: using upper bound of 8 adds an average of 4 empty nodes per block; it's possible to reduce this overhead
+						if (res.node_count + 8 <= nodes_in_block_) { // TODO: using upper bound of 8 presumably adds an average of 4 empty nodes per block; it's possible to reduce this overhead
 							vector<pair<int, Tnode> > kids = data_source_->GetChildren(n.node);
 
 							n.children_mask = 0;

@@ -17,8 +17,8 @@ typedef float4 float3;
 
 // debug rendering configuration 
 
-#define SHOW_BLOCKS
-#define BLOCK_SIZE 8192
+//#define SHOW_BLOCKS
+#define BLOCK_SIZE 4096
 
 // types
 

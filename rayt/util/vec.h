@@ -49,6 +49,29 @@ struct tvec3 {
     inline tvec3<ftype> Min(const tvec3 &v) const { return tvec3(std::min(x, v.x), std::min(y, v.y), std::min(z, v.z)); }
     inline tvec3<ftype> Max(const tvec3 &v) const { return tvec3(std::max(x, v.x), std::max(y, v.y), std::max(z, v.z)); }
 	inline tvec3<ftype> Abs() const { return tvec3(abs(x), abs(y), abs(z)); }
+
+	// gets barycentric coordinates of this projected on triangle's plane;
+	// if clamp, all out values are forced to range [0, 1] (while keeping their sum equal to 1)
+	inline void ToBarycentric(const tvec3<ftype> *triangle, ftype *out, bool clamp = false) {
+		tvec3<ftype> n = (triangle[1] - triangle[0]).Cross(triangle[2] - triangle[0]);
+		
+		ftype sum = 0;
+
+		for (int i = 0; i < 3; ++i) {
+			out[i] = (triangle[(i + 2) % 3] - triangle[(i + 1) % 3]).Cross(*this - triangle[(i + 1) % 3]).Dot(n);
+			if (clamp && out[i] < 0)
+				out[i] = 0;
+			sum += out[i];
+		}
+		
+		if (fabs(sum) >= 1e-5) {
+			for(int i = 0; i < 3; ++i)
+				out[i] /= sum;
+		} else {
+			// this may be reachable only due to precision issues
+			out[0] = out[1] = out[2] = static_cast<ftype>(1./3);
+		}
+	}
 };
 
 typedef tvec3<float> fvec3;
